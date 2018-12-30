@@ -7,8 +7,22 @@ const errors = require('restify-errors');
  * Model Schema
  */
 const Test = require('../models/test');
+const User = require('../models/user');
+const Question = require('../models/question');
+const UserScore = require('../models/user_score');
 
 module.exports = function (server) {
+
+    server.post('/questions', (req, res, next) => {
+        //let mobile = req.user.mobile;
+        Question.find({}, (error, response) => {
+            if(!error) {
+                res.send(response);
+                next();
+            }
+        })
+    });
+
 
 	/**
 	 * POST
