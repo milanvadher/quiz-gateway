@@ -1,14 +1,45 @@
-var restify = require('restify');
+/**
+ * Module Dependencies
+ */
+const config = require('./config');
+const restify = require('restify');
+const mongoose = require('mongoose');
+const restifyPlugins = require('restify-plugins');
 
-function respond(req, res, next) {
-    res.send('hello ' + req.params.name);
-    next();
-}
+/**
+  * Initialize Server
+  */
+const server = restify.createServer({
+    name: config.name,
+    version: config.version,
+});
 
-var server = restify.createServer();
-server.get('/hello/:name', respond);
-server.head('/hello/:name', respond);
+/**
+  * Middleware
+  */
+server.use(restifyPlugins.jsonBodyParser({ mapParams: true }));
+server.use(restifyPlugins.acceptParser(server.acceptable));
+server.use(restifyPlugins.queryParser({ mapParams: true }));
+server.use(restifyPlugins.fullResponse());
 
-server.listen(8080, function () {
-    console.log('%s listening at %s', server.name, server.url);
+/**
+  * Start Server, Connect to DB & Require Routes
+  */
+server.listen(config.port, () => {
+    // establish connection to mongodb
+    mongoose.Promise = global.Promise;
+    // mongoose.connect(config.db.uri, { useMongoClient: true });
+    mongoose.connect(config.db.uri);
+
+    const db = mongoose.connection;
+
+    db.on('error', (err) => {
+        console.error(err);
+        process.exit(1);
+    });
+
+    db.once('open', () => {
+        require('./routes')(server);
+        console.log(`Server is listening on port ${config.port}`);
+    });
 });
