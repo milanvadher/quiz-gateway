@@ -7,13 +7,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Mobile no. is required.'],
     trim: true,
-    unique: true,
-    validate: {
-      validator: (mobile) => {
-        return mobile.unique === 0;
-      },
-      msg: 'Mobile no. is already registerd.'
-    }
+    unique: true
   },
 
   password: {
@@ -31,8 +25,9 @@ const UserSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
-  
+
 });
+
 
 UserSchema.plugin(timestamp);
 UserSchema.plugin(mongooseStringQuery);

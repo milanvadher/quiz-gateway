@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
+    "bcrypt": "^3.0.3",
     "dotenv": "^6.2.0",
     "mongoose": "^5.4.1",
     "mongoose-string-query": "^0.2.5",
