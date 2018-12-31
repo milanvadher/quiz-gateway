@@ -16,7 +16,7 @@ module.exports = function (server) {
     server.post('/questions', (req, res, next) => {
         //let mobile = req.user.mobile;
         Question.find({}, (error, response) => {
-            if(!error) {
+            if (!error) {
                 res.send(response);
                 next();
             }
@@ -27,7 +27,7 @@ module.exports = function (server) {
 	/**
 	 * POST
 	 */
-    server.post('/test', (req, res, next) => {
+    server.post('/register', (req, res, next) => {
         if (!req.is('application/json')) {
             return next(
                 new errors.InvalidContentError("Expects 'application/json'"),
@@ -36,8 +36,8 @@ module.exports = function (server) {
 
         let data = req.body || {};
 
-        let test = new Test(data);
-        test.save(function (err) {
+        let user = new User(data);
+        user.save(function (err) {
             if (err) {
                 console.error(err);
                 return next(new errors.InternalError(err.message));
@@ -51,8 +51,8 @@ module.exports = function (server) {
 	/**
 	 * LIST
 	 */
-    server.get('/test', (req, res, next) => {
-        Test.apiQuery(req.params, function (err, docs) {
+    server.get('/users', (req, res, next) => {
+        User.apiQuery(req.params, function (err, docs) {
             if (err) {
                 console.error(err);
                 return next(
@@ -89,7 +89,7 @@ module.exports = function (server) {
                 new errors.InvalidContentError("Expects 'application/json'"),
             );
         }
-        
+
         let data = req.body || {};
 
         if (!data._id) {

@@ -29,7 +29,9 @@ server.listen(config.port, () => {
     // establish connection to mongodb
     mongoose.Promise = global.Promise;
     // mongoose.connect(config.db.uri, { useMongoClient: true });
-    mongoose.connect(config.db.uri);
+    mongoose.connect(config.db.uri, { useNewUrlParser: true }).then(() => {
+        console.log('Connected to DB Successfully !! ');
+    });
 
     const db = mongoose.connection;
 

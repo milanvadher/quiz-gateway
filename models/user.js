@@ -1,11 +1,19 @@
 const mongoose = require('mongoose');
 const timestamp = require('mongoose-timestamp');
+const mongooseStringQuery = require('mongoose-string-query');
 
 const UserSchema = new mongoose.Schema({
   mobile: {
     type: String,
-    required: true,
-    trim: true
+    required: [true, 'Mobile no. is required.'],
+    trim: true,
+    unique: true,
+    validate: {
+      validator: (mobile) => {
+        return mobile.unique === 0;
+      },
+      msg: 'Mobile no. is already registerd.'
+    }
   },
 
   password: {
@@ -27,6 +35,7 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.plugin(timestamp);
+UserSchema.plugin(mongooseStringQuery);
 
 const User = mongoose.model('User', UserSchema);
 module.exports = User;
