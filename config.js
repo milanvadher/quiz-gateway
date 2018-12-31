@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 module.exports = {
 	name: 'QUIZ_GATEWAY',
 	env: process.env.NODE_ENV || 'development',

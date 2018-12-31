@@ -7,62 +7,9 @@ const errors = require('restify-errors');
  * Model Schema
  */
 const Test = require('../models/test');
-const User = require('../models/user');
-const Question = require('../models/question');
-const UserScore = require('../models/user_score');
+
 
 module.exports = function (server) {
-
-    server.post('/questions', (req, res, next) => {
-        //let mobile = req.user.mobile;
-        Question.find({}, (error, response) => {
-            if (!error) {
-                res.send(response);
-                next();
-            }
-        })
-    });
-
-
-	/**
-	 * POST
-	 */
-    server.post('/register', (req, res, next) => {
-        if (!req.is('application/json')) {
-            return next(
-                new errors.InvalidContentError("Expects 'application/json'"),
-            );
-        }
-
-        let data = req.body || {};
-
-        let user = new User(data);
-        user.save(function (err) {
-            if (err) {
-                console.error(err);
-                return next(new errors.InternalError(err.message));
-                // next();
-            }
-            res.send(201);
-            next();
-        });
-    });
-
-	/**
-	 * LIST
-	 */
-    server.get('/users', (req, res, next) => {
-        User.apiQuery(req.params, function (err, docs) {
-            if (err) {
-                console.error(err);
-                return next(
-                    new errors.InvalidContentError(err.errors.name.message),
-                );
-            }
-            res.send(docs);
-            next();
-        });
-    });
 
 	/**
 	 * GET

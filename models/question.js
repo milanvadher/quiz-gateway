@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const timestamp = require('mongoose-timestamp');
+const mongooseStringQuery = require('mongoose-string-query');
 
 const OptionSchema = new mongoose.Schema({
     option_number: {
@@ -63,6 +64,7 @@ const QuestionSchema = new mongoose.Schema({
 });
 
 QuestionSchema.plugin(timestamp);
+QuestionSchema.plugin(mongooseStringQuery);
 
 const Question = mongoose.model('Question', QuestionSchema);
 module.exports = Question;

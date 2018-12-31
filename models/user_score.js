@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const timestamp = require('mongoose-timestamp');
+const mongooseStringQuery = require('mongoose-string-query');
 
 const UserScoreSchema = new mongoose.Schema({
   user_mobile: {
@@ -46,6 +47,7 @@ const UserScoreSchema = new mongoose.Schema({
 });
 
 UserScoreSchema.plugin(timestamp);
+UserScoreSchema.plugin(mongooseStringQuery);
 
 const UserScore = mongoose.model('UserScore', UserScoreSchema);
 module.exports = UserScore;
