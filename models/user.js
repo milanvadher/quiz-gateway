@@ -26,6 +26,12 @@ const UserSchema = new mongoose.Schema({
     trim: true
   },
 
+  lives: {
+    type: Number,
+    required: true,
+    default: 3
+  }
+
 });
 
 

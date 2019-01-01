@@ -41,10 +41,7 @@ server.listen(config.port, () => {
     });
 
     db.once('open', () => {
-        // require('./routes/index')(server);
-        require('./routes/user')(server);
-        // require('./routes/question')(server);
-        // require('./routes/user_score')(server);
+        require('./routes/index')(server);
         console.log(`Server is listening on port ${config.port}`);
     });
 });

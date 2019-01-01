@@ -2,89 +2,24 @@
  * Module Dependencies
  */
 const errors = require('restify-errors');
+const fs = require('fs');
 
-/**
- * Model Schema
- */
-const Test = require('../models/test');
+var request_handlers = {},
+    handler_paths = `${process.cwd()}/routes`;
+
+fs.readdirSync(handler_paths).forEach(function (file) {
+    if (file.indexOf('.js') != -1) {
+        request_handlers[file.split('.')[0]] = require(handler_paths + '/' + file)
+    }
+});
 
 
 module.exports = function (server) {
+    
 
-	/**
-	 * GET
-	 */
-    server.get('/test/:test_id', (req, res, next) => {
-        Test.findOne({ _id: req.params.test_id }, function (err, doc) {
-            if (err) {
-                console.error(err);
-                return next(
-                    new errors.InvalidContentError(err.errors.name.message),
-                );
-            }
-            res.send(doc);
-            next();
-        });
-    });
 
-	/**
-	 * UPDATE
-	 */
-    server.put('/test/:test_id', (req, res, next) => {
-        if (!req.is('application/json')) {
-            return next(
-                new errors.InvalidContentError("Expects 'application/json'"),
-            );
-        }
-
-        let data = req.body || {};
-
-        if (!data._id) {
-            data = Object.assign({}, data, { _id: req.params.todo_id });
-        }
-
-        Test.findOne({ _id: req.params.todo_id }, function (err, doc) {
-            if (err) {
-                console.error(err);
-                return next(
-                    new errors.InvalidContentError(err.errors.name.message),
-                );
-            } else if (!doc) {
-                return next(
-                    new errors.ResourceNotFoundError(
-                        'The resource you requested could not be found.',
-                    ),
-                );
-            }
-
-            Test.update({ _id: data._id }, data, function (err) {
-                if (err) {
-                    console.error(err);
-                    return next(
-                        new errors.InvalidContentError(err.errors.name.message),
-                    );
-                }
-
-                res.send(200, data);
-                next();
-            });
-        });
-    });
-
-	/**
-	 * DELETE
-	 */
-    server.del('/todos/:todo_id', (req, res, next) => {
-        Test.remove({ _id: req.params.todo_id }, function (err) {
-            if (err) {
-                console.error(err);
-                return next(
-                    new errors.InvalidContentError(err.errors.name.message),
-                );
-            }
-
-            res.send(204);
-            next();
-        });
-    });
+    // Question Routes
+    server.post('/question', request_handlers.question.get_question);
+    server.post('/quiz_level', request_handlers.question.get_quiz_details);
+	
 };    

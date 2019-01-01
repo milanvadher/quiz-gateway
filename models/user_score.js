@@ -26,16 +26,16 @@ const UserScoreSchema = new mongoose.Schema({
     required: true,
     default: 0  
   },
- current_score: {
-    type: Number,
-    required: true,
-    default: 0  
-  },
 
-  lives: {
-    type: Number,
-    required: true,
-    default: 3
+  // current_score: {
+  //   type: Number,
+  //   required: true,
+  //   default: 0  
+  // },
+
+  completed: {
+    type: Boolean,
+    default: false
   }
 
 //   lifelines: {
