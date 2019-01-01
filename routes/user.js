@@ -3,13 +3,15 @@
  */
 const errors = require('restify-errors');
 const bcrypt = require('bcrypt');
-const SALT_WORK_FACTOR = 10;
+const jwt = require('jsonwebtoken');
+const config = require('./../config');
 
 /**
  * Model Schema
  */
 const User = require('../models/user');
-const UserLogin = require('../models/user_login');
+
+const SALT_WORK_FACTOR = 10;
 
 module.exports = function (server) {
 
@@ -34,7 +36,7 @@ module.exports = function (server) {
                     return next(new errors.InternalError(err.message));
                     // next();
                 }
-                res.send(201);
+                res.send(201, { msg: 'User created successfully !!' });
                 next();
             });
         });
@@ -53,23 +55,31 @@ module.exports = function (server) {
 
         let data = req.body || {};
 
-        console.log('Data ', data);
-
-        UserLogin.findOne({ mobile: 7574852413 },function (err, doc) {
+        User.findOne({ mobile: data.mobile }, function (err, doc) {
             if (err) {
                 console.log(err);
                 return next(
                     new errors.InvalidContentError(err.errors.name.message),
                 );
             }
-            console.log('*******************', doc);
-            return bcrypt.compare(data.password, doc.password);
-        }).then((result) => {
-            if (!result) {
-                res.send(403).message('You are not authorised.')
+
+            if (doc) {
+                bcrypt.compare(data.password, doc.password, (err, result) => {
+                    if (!result) {
+                        res.send(403, { msg: 'Password is incorrect.' });
+                        next();
+                    } else {
+                        let token = jwt.sign({ mobile: data.mobile }, config.jwt_secret, {
+                            expiresIn: '12h'
+                        });
+                        res.send(200, { success: true, user_info: doc, token: token });
+                        next();
+                    }
+                });
+            } else {
+                res.send(404, { msg: 'User not found.' });
+                next();
             }
-            res.send(doc);
-            next();
         });
 
     });
