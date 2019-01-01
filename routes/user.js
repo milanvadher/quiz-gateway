@@ -3,12 +3,15 @@
  */
 const errors = require('restify-errors');
 const bcrypt = require('bcrypt');
-const SALT_WORK_FACTOR = 10;
+const jwt = require('jsonwebtoken');
+const config = require('./../config');
 
 /**
  * Model Schema
  */
 const User = require('../models/user');
+
+const SALT_WORK_FACTOR = 10;
 
 module.exports = function (server) {
 
@@ -59,14 +62,17 @@ module.exports = function (server) {
                     new errors.InvalidContentError(err.errors.name.message),
                 );
             }
-            
+
             if (doc) {
                 bcrypt.compare(data.password, doc.password, (err, result) => {
                     if (!result) {
                         res.send(403, { msg: 'Password is incorrect.' });
                         next();
                     } else {
-                        res.send(200, doc);
+                        let token = jwt.sign({ mobile: data.mobile }, config.jwt_secret, {
+                            expiresIn: '12h'
+                        });
+                        res.send(200, { success: true, user_info: doc, token: token });
                         next();
                     }
                 });

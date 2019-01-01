@@ -6,6 +6,7 @@
   "dependencies": {
     "bcrypt": "^3.0.3",
     "dotenv": "^6.2.0",
+    "jsonwebtoken": "^8.4.0",
     "mongoose": "^5.4.1",
     "mongoose-string-query": "^0.2.5",
     "mongoose-timestamp": "^0.6.0",
