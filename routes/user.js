@@ -65,9 +65,10 @@ module.exports = function (server) {
                     if (!result) {
                         res.send(403, { msg: 'Password is incorrect.' });
                         next();
+                    } else {
+                        res.send(200, doc);
+                        next();
                     }
-                    res.send(200, doc);
-                    next();
                 });
             } else {
                 res.send(404, { msg: 'User not found.' });
