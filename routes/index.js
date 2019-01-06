@@ -19,10 +19,12 @@ module.exports = function (server) {
     server.post('/register', request_handlers.user.register_user);
     server.post('/login', request_handlers.user.login);
     server.get('/users', request_handlers.user.get_users);
-    server.del('/users', request_handlers.user.delete);
+    server.del('/deleteuser', request_handlers.user.delete);
+
 
     // Question Routes
     server.post('/question', request_handlers.question.get_question);
     server.post('/quiz_level', request_handlers.question.get_quiz_details);
+    server.post('/validate_answer', request_handlers.question.validate_answer);
 	
 };    

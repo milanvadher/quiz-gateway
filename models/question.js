@@ -37,7 +37,8 @@ const QuestionSchema = new mongoose.Schema({
 
   score: {
     type: Number,
-    trim: true
+    trim: true,
+    default: 10
   },
 
   answer: {

@@ -18,6 +18,10 @@ const QuizLevelSchema = new mongoose.Schema({
         enum: ['Regular'],
         required: true,
         trim: true
+    },
+    total_questions: {
+        type: Number,
+        required:true
     }
 });
 
