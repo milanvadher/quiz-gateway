@@ -9,6 +9,7 @@ const errors = require('restify-errors');
 const Question = require('../models/question');
 const QuizLevel = require('../models/quiz_level');
 const UserScore = require('../models/user_score');
+const User = require('../models/user');
 
 /**
  * Get Question of a particular level and with specific question state
@@ -30,8 +31,67 @@ exports.get_question = async function(req, res, next)
         question = await Question.findOne({
             "question_st": question_st,
             "level": level
-        });
+        }, "-answer -_id");
         res.send(200, question);
+        next();
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+};
+
+
+/**
+ * Check the answer is right or not and add score
+ * @param req {Object} The request.
+ * @param res {Object} The response.
+ * @param req.body {Object} The JSON payload.
+ * @param req.body.question_st {String} The User Question State
+ * @param req.body.mobile {String} The User Mobile
+ * @param req.body.answer {String} The User selected answer
+ * @param req.body.level {String} The User Quiz Level
+ * @param req.body.score {String} The User current score
+ * @param req.body.lives {String} The User lives
+ * @param {Function} next
+ * @return {Question}
+ */
+exports.validate_answer = async function(req, res, next)
+{
+    // TODO - Check User Authentication
+    let question_st = req.body.question_st;
+    let user_mobile = req.body.mobile;
+    let selected_ans = req.body.answer;
+    let user_level = req.body.level;
+    let current_score = req.body.score;
+    let lives = req.body.lives;
+    let question, status, user;
+    try {
+        question = await Question.findOne({
+            "question_st": question_st,            
+            }, "answer score");
+              
+        if(question.answer == selected_ans) {
+            let user_score = await UserScore.update({
+               "user_mobile": user_mobile,
+               "completed": false,
+               "level": user_level},
+               {$inc: {"score":question.score,"total_questions":-1},
+                    $set: {"question_st":question_st}
+               });
+           status = {"answer_status": true, "lives": lives , "score": user_score.score};
+        } else {
+             let user_score = await UserScore.update({
+               "user_mobile": user_mobile,
+               "completed": false,
+               "level": user_level},
+               {$inc: {"total_questions":-1}});
+            user = await User.update({
+                "mobile":user_mobile},
+                {$inc: {"lives": -1}});
+            status = {"answer_status": false,"lives": user.lives ,"score": current_score};
+        }
+
+        res.send(200, status);
         next();
     } catch (error) {
         res.send(500, new Error(error));
@@ -71,10 +131,42 @@ exports.get_quiz_details = async function(req, res, next)
                 "completed": false
             }, "-_id")
         ]);
+        
+        let current_user_score = results[2];
+        let completed_levels = results[1];
+        let QZLevel=results[0];
+        let level_current;
+        if(!current_user_score && !completed_levels) {
+            level_current=1;
+            results[2] = await UserScore.create({
+                "user_mobile": user_mob,
+                "total_questions":QZLevel[0].total_questions
+            });
+        } else if(!current_user_score && completed_levels) {
+            let total_question=0;
+            if(QZLevel.length>(completed_levels.length))
+            {
+                total_question=QZLevel[completed_levels[completed_levels.length-1].level+1].total_questions;
+            }
+
+            results[2] = await UserScore.create({
+                "user_mobile": user_mob,
+                "level": completed_levels.length + 1,
+                "total_questions":total_question
+            });
+            level_current=completed_levels.length+1;
+        }
+        else{
+            level_current=current_user_score[0].level;
+        }
+        let Question_Sta;
+        Question_Sta=Question.find({"level":level_current },"question_st");
+
         response = {
             "quiz_levels": results[0],
             "completed": results[1],
-            "current": results[2]
+            "current": results[2],
+            "Question_Sta":Question_Sta
         }
         res.send(200, {"results" : response});
         next();
