@@ -12,19 +12,24 @@ const UserScoreSchema = new mongoose.Schema({
   question_st: {
     type: Number,
     required: true,
-    default: 0
+    default: 1
   },
 
   level: {
     type: Number,
     required: true,
-    default: 0  
+    default: 1  
   },
 
   score: {
     type: Number,
     required: true,
     default: 0  
+  },
+
+  total_questions: {
+      type: Number,
+      required:true
   },
 
   // current_score: {
