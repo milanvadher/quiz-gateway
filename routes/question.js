@@ -21,8 +21,7 @@ const User = require('../models/user');
  * @param {Function} next
  * @return {Question}
  */
-exports.get_question = async function(req, res, next)
-{
+exports.get_question = async function (req, res, next) {
     // TODO - Check User Authentication
     let question_st = req.body.question_st;
     let level = req.body.level;
@@ -31,7 +30,39 @@ exports.get_question = async function(req, res, next)
         question = await Question.findOne({
             "question_st": question_st,
             "level": level
-        }, "-answer -_id");
+        }, "-_id");
+        res.send(200, question);
+        next();
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+};
+exports.get_questions = async function (req, res, next) {
+    // TODO - Check User Authentication
+    //let question_st = req.body.question_st;
+    let level = req.body.level;
+    let questionfrom = req.body.QuestionFrom;
+    let questionto = req.body.QuestionTo;
+    let question;
+    try {
+        if ( questionto != undefined || questionto == null || questionto == 0 ) {
+            question = await Question.find({
+                "question_st": {
+                    $gte: questionfrom
+                },
+                "level": level
+            }, "-_id");
+        }
+        else {
+              question = await Question.find({
+                "question_st": {
+                    $gte: questionfrom,
+                    $lte: questionto
+                },
+                "level": level
+            }, "-_id");
+        }
         res.send(200, question);
         next();
     } catch (error) {
@@ -55,8 +86,8 @@ exports.get_question = async function(req, res, next)
  * @param {Function} next
  * @return {Question}
  */
-exports.validate_answer = async function(req, res, next)
-{
+exports.validate_answer = async function (req, res, next) {
+    console.log(req);
     // TODO - Check User Authentication
     let question_st = req.body.question_st;
     let user_mobile = req.body.mobile;
@@ -109,8 +140,7 @@ exports.validate_answer = async function(req, res, next)
  * @param {Function} next
  * @return {quiz_levels, completed_levels, current_level}
  */
-exports.get_quiz_details = async function(req, res, next)
-{
+exports.get_quiz_details = async function (req, res, next) {
     // TODO - Check User Authentication
     let user_mob = req.body.user_mob;
     let results;
@@ -123,7 +153,7 @@ exports.get_quiz_details = async function(req, res, next)
             UserScore.find({
                 "user_mobile": user_mob,
                 "completed": true
-            }, "level score -_id"),    
+            }, "level score -_id"),
 
             // Find current level of user
             UserScore.find({
@@ -131,44 +161,46 @@ exports.get_quiz_details = async function(req, res, next)
                 "completed": false
             }, "-_id")
         ]);
-        
-        let current_user_score = results[2];
+
+        let current_user_level = results[2];
         let completed_levels = results[1];
-        let QZLevel=results[0];
+
+        let levels = results[0];
         let level_current;
-        if(!current_user_score && !completed_levels) {
-            level_current=1;
+        if (!current_user_level && !completed_levels) {
+            level_current = 1;
             results[2] = await UserScore.create({
                 "user_mobile": user_mob,
-                "total_questions":QZLevel[0].total_questions
+                "total_questions": levels[0].total_questions
             });
-        } else if(!current_user_score && completed_levels) {
-            let total_question=0;
-            if(QZLevel.length>(completed_levels.length))
-            {
-                total_question=QZLevel[completed_levels[completed_levels.length-1].level+1].total_questions;
+        } else if (!current_user_level && completed_levels) {
+            let total_question = 0;
+            if (levels.length > completed_levels.length) {
+                //get total Questions for current level.
+                total_question = levels[completed_levels[completed_levels.length - 1].level + 1].total_questions;
             }
 
             results[2] = await UserScore.create({
                 "user_mobile": user_mob,
                 "level": completed_levels.length + 1,
-                "total_questions":total_question
+                "total_questions": total_question
             });
-            level_current=completed_levels.length+1;
+            level_current = completed_levels.length + 1;
         }
-        else{
-            level_current=current_user_score[0].level;
+        else {
+            level_current = current_user_level[0].level;
         }
-        let Question_Sta;
-        Question_Sta=Question.find({"level":level_current },"question_st");
 
+        let Question_Sta;
+        Question_Sta = await Question.find({ "level": level_current }, "question_st");
+        //console.log(Question_Sta);
         response = {
             "quiz_levels": results[0],
             "completed": results[1],
             "current": results[2],
-            "Question_Sta":Question_Sta
+            "Question_Sta": Question_Sta
         }
-        res.send(200, {"results" : response});
+        res.send(200, { "results": response });
         next();
     } catch (error) {
         res.send(500, new Error(error));

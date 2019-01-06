@@ -24,6 +24,7 @@ module.exports = function (server) {
 
     // Question Routes
     server.post('/question', request_handlers.question.get_question);
+    server.post('/questions', request_handlers.question.get_questions);
     server.post('/quiz_level', request_handlers.question.get_quiz_details);
     server.post('/validate_answer', request_handlers.question.validate_answer);
 	

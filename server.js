@@ -27,7 +27,7 @@ server.use(function (req, res, next) {
     if (req.url === '/login' || req.url === '/register') return next();
 
     // check header or url parameters or post parameters for token
-    const token = req.headers['x-access-token'] || req.query.token;
+    const token = req.headers['x-access-token'] || req.query.token || req.body.token;
 
     // decode token
     if (token) {
