@@ -86,13 +86,8 @@ exports.get_questions = async function (req, res, next) {
  * @param {Function} next
  * @return {Question}
  */
-<<<<<<< HEAD
 exports.validate_answer = async function (req, res, next) {
     console.log(req);
-=======
-exports.validate_answer = async function(req, res, next)
-{
->>>>>>> d61930c79fa11c0625c6d39f02bf77480ec1f336
     // TODO - Check User Authentication
     let question_st = req.body.question_st;
     let user_mobile = req.body.mobile;
@@ -103,34 +98,6 @@ exports.validate_answer = async function(req, res, next)
     let question, status, user;
     try {
         question = await Question.findOne({
-<<<<<<< HEAD
-            "question_st": question_st,
-        }, "answer score");
-
-        if (question.answer == selected_ans) {
-            let user_score = await UserScore.update({
-                "user_mobile": user_mobile,
-                "completed": false,
-                "level": user_level
-            },
-                {
-                    $inc: { "score": question.score, "total_questions": -1 },
-                    $set: { "question_st": question_st }
-                });
-            status = { "answer_status": true, "lives": lives, "score": user_score.score };
-        } else {
-            let user_score = await UserScore.update({
-                    "user_mobile": user_mobile,
-                    "completed": false,
-                    "level": user_level
-                },
-                { $inc: { "total_questions": -1 } });
-                    user = await User.update({
-                    "mobile": user_mobile
-                    },
-                { $inc: { "lives": -1 } });
-            status = { "answer_status": false, "lives": user.lives, "score": current_score };
-=======
             "question_st": question_st,            
             }, "answer score");
               
@@ -153,7 +120,6 @@ exports.validate_answer = async function(req, res, next)
                 "mobile":user_mobile},
                 {$inc: {"lives": -1}});
             status = {"answer_status": false,"lives": user.lives ,"score": current_score};
->>>>>>> d61930c79fa11c0625c6d39f02bf77480ec1f336
         }
 
         res.send(200, status);
@@ -195,7 +161,6 @@ exports.get_quiz_details = async function (req, res, next) {
                 "completed": false
             }, "-_id")
         ]);
-<<<<<<< HEAD
 
         let current_user_level = results[2];
         let completed_levels = results[1];
@@ -213,30 +178,11 @@ exports.get_quiz_details = async function (req, res, next) {
             if (levels.length > completed_levels.length) {
                 //get total Questions for current level.
                 total_question = levels[completed_levels[completed_levels.length - 1].level + 1].total_questions;
-=======
-        
-        let current_user_score = results[2];
-        let completed_levels = results[1];
-        let QZLevel=results[0];
-        let level_current;
-        if(!current_user_score && !completed_levels) {
-            level_current=1;
-            results[2] = await UserScore.create({
-                "user_mobile": user_mob,
-                "total_questions":QZLevel[0].total_questions
-            });
-        } else if(!current_user_score && completed_levels) {
-            let total_question=0;
-            if(QZLevel.length>(completed_levels.length))
-            {
-                total_question=QZLevel[completed_levels[completed_levels.length-1].level+1].total_questions;
->>>>>>> d61930c79fa11c0625c6d39f02bf77480ec1f336
             }
 
             results[2] = await UserScore.create({
                 "user_mobile": user_mob,
                 "level": completed_levels.length + 1,
-<<<<<<< HEAD
                 "total_questions": total_question
             });
             level_current = completed_levels.length + 1;
@@ -248,27 +194,11 @@ exports.get_quiz_details = async function (req, res, next) {
         let Question_Sta;
         Question_Sta = await Question.find({ "level": level_current }, "question_st");
         //console.log(Question_Sta);
-=======
-                "total_questions":total_question
-            });
-            level_current=completed_levels.length+1;
-        }
-        else{
-            level_current=current_user_score[0].level;
-        }
-        let Question_Sta;
-        Question_Sta=Question.find({"level":level_current },"question_st");
-
->>>>>>> d61930c79fa11c0625c6d39f02bf77480ec1f336
         response = {
             "quiz_levels": results[0],
             "completed": results[1],
             "current": results[2],
-<<<<<<< HEAD
             "Question_Sta": Question_Sta
-=======
-            "Question_Sta":Question_Sta
->>>>>>> d61930c79fa11c0625c6d39f02bf77480ec1f336
         }
         res.send(200, { "results": response });
         next();
