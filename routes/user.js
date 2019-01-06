@@ -63,7 +63,7 @@ exports.login = function(req, res, next) {
         if (doc) {
             bcrypt.compare(data.password, doc.password, (err, result) => {
                 if (!result) {
-                    res.send(403, { msg: 'Password is incorrect.' });
+                    res.send(226, { msg: 'Password is incorrect.' });
                     next();
                 } else {
                     let token = jwt.sign({ mobile: data.mobile }, config.jwt_secret, {
