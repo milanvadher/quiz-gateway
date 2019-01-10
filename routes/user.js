@@ -15,7 +15,7 @@ const SALT_WORK_FACTOR = 10;
 /**
  * POST
  */
-exports.register_user = function(req, res, next) {
+exports.register_user = function (req, res, next) {
     if (!req.is('application/json')) {
         return next(
             new errors.InvalidContentError("Expects 'application/json'"),
@@ -43,48 +43,38 @@ exports.register_user = function(req, res, next) {
 /**
  * LOGIN
  */
-exports.login = function(req, res, next) {
-    if (!req.is('application/json')) {
-        return next(
-            new errors.InvalidContentError("Expects 'application/json'"),
-        );
-    }
+exports.login = async function (req, res, next) {
+    try {
+        let data = req.body || {};
 
-    let data = req.body || {};
+        let user = await User.findOne({ mobile: data.mobile });
 
-    User.findOne({ mobile: data.mobile }, function (err, doc) {
-        if (err) {
-            console.log(err);
-            return next(
-                new errors.InvalidContentError(err.errors.name.message),
-            );
-        }
-
-        if (doc) {
-            bcrypt.compare(data.password, doc.password, (err, result) => {
-                if (!result) {
-                    res.send(226, { msg: 'Password is incorrect.' });
-                    next();
-                } else {
-                    let token = jwt.sign({ mobile: data.mobile }, config.jwt_secret, {
-                        expiresIn: '12h'
-                    });
-                    res.send(200, { success: true, user_info: doc, token: token });
-                    next();
-                }
-            });
+        if (user) {
+            let result = await bcrypt.compare(data.password, user.password);
+            if (!result) {
+                res.send(226, { msg: 'Password is incorrect.' });
+                next();
+            } else {
+                let token = jwt.sign({ mobile: data.mobile }, config.jwt_secret, {
+                    expiresIn: '12h'
+                });
+                res.send(200, { success: true, user_info: user, token: token });
+                next();
+            }
         } else {
             res.send(404, { msg: 'User not found.' });
             next();
         }
-    });
-
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
 };
 
 /**
  * LIST
  */
-exports.get_users = function(req, res, next) {
+exports.get_users = function (req, res, next) {
     User.apiQuery(req.params, function (err, docs) {
         if (err) {
             console.error(err);
@@ -100,7 +90,7 @@ exports.get_users = function(req, res, next) {
 /**
  * DELETE
  */
-exports.delete = function(req, res, next) {
+exports.delete = function (req, res, next) {
     User.remove({ _id: req.params.id }, function (err) {
         if (err) {
             console.error(err);
