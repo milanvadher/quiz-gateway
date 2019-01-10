@@ -179,11 +179,13 @@ exports.get_quiz_details = async function (req, res, next) {
                 //get total Questions for current level.
                 total_question = levels[completed_levels[completed_levels.length - 1].level + 1].total_questions;
             }
-
+            
+            let question = await Question.find({ "level": level_current }, "question_st");
             results[2] = await UserScore.create({
                 "user_mobile": user_mob,
                 "level": completed_levels.length + 1,
-                "total_questions": total_question
+                "total_questions": total_question,
+                "question_st": question.question_st
             });
             level_current = completed_levels.length + 1;
         }
@@ -191,14 +193,12 @@ exports.get_quiz_details = async function (req, res, next) {
             level_current = current_user_level[0].level;
         }
 
-        let Question_Sta;
-        Question_Sta = await Question.find({ "level": level_current }, "question_st");
+        
         //console.log(Question_Sta);
         response = {
             "quiz_levels": results[0],
             "completed": results[1],
-            "current": results[2],
-            "Question_Sta": Question_Sta
+            "current": results[2]
         }
         res.send(200, { "results": response });
         next();
