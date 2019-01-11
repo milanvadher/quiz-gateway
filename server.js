@@ -6,6 +6,9 @@ const restify = require('restify');
 const mongoose = require('mongoose');
 const restifyPlugins = require('restify-plugins');
 const jwt = require('jsonwebtoken');
+const morgan = require('morgan');
+const fs = require('fs');
+const path = require('path');
 
 /**
   * Initialize Server
@@ -14,6 +17,11 @@ const server = restify.createServer({
     name: config.name,
     version: config.version,
 });
+
+// log all requests to access.log
+server.use(morgan(':remote-addr - :method - :url - :status - HTTP/:http-version - [:date[iso]] - :res[content-length] - :response-time - ":referrer" - ":user-agent"', {
+    stream: fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
+}));
 
 /**
   * Middleware
@@ -27,7 +35,7 @@ server.use(function (req, res, next) {
     if (req.url === '/login' || req.url === '/register') return next();
 
     // check header or url parameters or post parameters for token
-    const token = req.headers['x-access-token'] || req.query.token || req.body.token;
+    const token = req.headers['x-access-token'] || req.query.token;
 
     // decode token
     if (token) {
