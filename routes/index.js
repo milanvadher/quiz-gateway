@@ -19,7 +19,7 @@ module.exports = function (server) {
     server.post('/register', request_handlers.user.register_user);
     server.post('/login', request_handlers.user.login);
     server.get('/users', request_handlers.user.get_users);
-    server.del('/deleteuser', request_handlers.user.delete);
+    server.del('/deleteuser/:id', request_handlers.user.delete);
 
 
     // Question Routes
