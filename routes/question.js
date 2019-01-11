@@ -63,6 +63,7 @@ exports.get_questions = async function (req, res, next) {
                 "level": level
             }, "-_id");
         }
+        res.charSet('utf-8');
         res.send(200, question);
         next();
     } catch (error) {
@@ -203,7 +204,6 @@ exports.get_quiz_details = async function (req, res, next) {
         res.send(200, { "results": response });
         next();
     } catch (error) {
-        console.log(error);
         res.send(500, new Error(error));
         next();
     }
