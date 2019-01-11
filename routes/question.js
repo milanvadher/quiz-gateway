@@ -46,7 +46,7 @@ exports.get_questions = async function (req, res, next) {
     let questionto = req.body.QuestionTo;
     let question;
     try {
-        if ( questionto != undefined || questionto == null || questionto == 0 ) {
+        if (!questionto  || questionto == 0 ) {
             question = await Question.find({
                 "question_st": {
                     $gte: questionfrom
@@ -161,13 +161,13 @@ exports.get_quiz_details = async function (req, res, next) {
                 "completed": false
             }, "-_id")
         ]);
-
+        
         let current_user_level = results[2];
         let completed_levels = results[1];
 
         let levels = results[0];
         let level_current;
-        if (!current_user_level && !completed_levels) {
+        if ((!current_user_level || current_user_level.length == 0)&& (!completed_levels || completed_levels.length == 0)) {
             level_current = 1;
             results[2] = await UserScore.create({
                 "user_mobile": user_mob,
@@ -203,6 +203,7 @@ exports.get_quiz_details = async function (req, res, next) {
         res.send(200, { "results": response });
         next();
     } catch (error) {
+        console.log(error);
         res.send(500, new Error(error));
         next();
     }
