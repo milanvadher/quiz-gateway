@@ -9,6 +9,7 @@ const config = require('./../config');
  * Model Schema
  */
 const User = require('../models/user');
+const ApplicationSetting=require('../models/app_setting');
 
 /**
  * Veriables
@@ -120,6 +121,29 @@ exports.delete = async function (req, res, next) {
         } else {
             res.send(404, { msg: "User not found" });
         }
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+};
+
+
+/**
+ * Get Question of a particular level and with specific question state
+ * @param req {Object} The request.
+ * @param res {Object} The response.
+ * @param req.body {Object} The JSON payload.
+ * @param req.body.question_st {String} The User Question State
+ * @param req.body.level {String} The User Quiz level
+ * @param {Function} next
+ * @return {Question}
+ */
+exports.get_applicationSetting = async function (req, res, next) {
+    // TODO - Check User Authentication
+    try {
+        let application= await  ApplicationSetting.findOne({});
+        res.send(200, application);
+        next();
     } catch (error) {
         res.send(500, new Error(error));
         next();

@@ -30,6 +30,38 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     required: true,
     default: 3
+  },
+
+  isactive: {
+    type: Boolean,
+    required: true,
+    default: 1
+  },
+  
+  MHT_Id: {
+    type: Number,
+    required: true,
+    unique: true
+  },
+  
+  center: {
+    type: String,
+    required: true    
+  },
+  
+  bounce: {
+    type: Number,
+    required: true    
+  },
+  
+  totalScore: {
+    type: Number,
+    required: true    
+  },
+
+  question_id: {
+    type: Number,
+    required: true    
   }
 
 });
