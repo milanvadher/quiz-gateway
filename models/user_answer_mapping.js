@@ -3,7 +3,7 @@ const timestamp = require('mongoose-timestamp');
 const mongooseStringQuery = require('mongoose-string-query');
 
 const UserAnswerMappingSchema = new mongoose.Schema({
-  MHT_Id: {
+  mht_id: {
     type: Number,
     required: true
   },
@@ -13,7 +13,7 @@ const UserAnswerMappingSchema = new mongoose.Schema({
   },
  quize_type: {
     type: String,
-    enum: ['REGULAR','BOUNCE'],
+    enum: ['REGULAR','BONUS'],
     required: true,
     default: 'REGULAR'
   },

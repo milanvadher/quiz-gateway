@@ -39,6 +39,18 @@ exports.get_question = async function (req, res, next) {
         next();
     }
 };
+
+/**
+ * Get Question with specific question state and level
+ * @param req {Object} The request.
+ * @param res {Object} The response.
+ * @param req.body {Object} The JSON payload.
+ * @param req.body.QuestionFrom {String} Question State from
+ * @param req.body.questionto {String} Question State to
+ * @param req.body.level {String} The User Quiz level
+ * @param {Function} next
+ * @return {Question}
+ */
 exports.get_questions = async function (req, res, next) {
     // TODO - Check User Authentication
     //let question_st = req.body.question_st;
@@ -74,6 +86,17 @@ exports.get_questions = async function (req, res, next) {
 };
 
 
+/**
+ * give hint of the question and deducted score from total score.
+ * @param req {Object} The request.
+ * @param res {Object} The response.
+ * @param req.body {Object} The JSON payload.
+ * @param req.body.mhtid {String} user mht id for find user.
+ * @param req.body.hint {String} give is need hint
+ * @param req.body.question_id {String} question id for getting question
+ * @param {Function} next
+ * @return {Question}
+ */
 exports.hint_question = async function (req, res, next) {
     // TODO - Check User Authentication
     //let question_st = req.body.question_st;
@@ -92,7 +115,7 @@ exports.hint_question = async function (req, res, next) {
     }
     try {
         await User.update({
-            "MHT_Id": user_mhtid},
+            "mht_Id": user_mhtid},
             {$inc: {"totalScore":(scoreAdd * -1)},
                  $set: {"question_id":question_id}
             });
@@ -104,17 +127,19 @@ exports.hint_question = async function (req, res, next) {
         next();
     }
 };
-/** https://stackoverflow.com/questions/8384029/auto-increment-in-mongodb-to-store-sequence-of-unique-user-id
- * Check the answer is right or not and add score
+/** 
+ * Check the answer is right or not and add score as it's regular question or bonus 
  * @param req {Object} The request.
  * @param res {Object} The response.
  * @param req.body {Object} The JSON payload.
  * @param req.body.question_st {String} The User Question State
- * @param req.body.mobile {String} The User Mobile
+ * @param req.body.question_id {String} The User Question id
+ * @param req.body.mhtid {String} The User mhtid
  * @param req.body.answer {String} The User selected answer
  * @param req.body.level {String} The User Quiz Level
  * @param req.body.score {String} The User current score
  * @param req.body.lives {String} The User lives
+ * @param req.body.bonus {String} is it bonus question
  * @param {Function} next
  * @return {Question}
  */
@@ -128,8 +153,7 @@ exports.validate_answer = async function (req, res, next) {
     let user_level = req.body.level;
     let current_score = req.body.score;
     let lives = req.body.lives;
-    let isBounce = req.body.bounce;
-    //let isHintuse= req.body.hint;
+    let isbonus = req.body.bonus;
     let negativeScore= req.body.negativeScore;
     let question, status, user,scoreAdd;
     try {
@@ -137,54 +161,33 @@ exports.validate_answer = async function (req, res, next) {
             "question_id": question_id,            
             }, "answer score");
         scoreAdd=question.score;
-        if(isBounce)
+        if(isbonus)
         {
            
             let answer_status=false;
             if(question.answer == selected_ans) {
                 answer_status=true;
-                // let user_score = await UserScore.update({
-                //    "MHT_Id": user_mhtid,
-                //    "completed": false,
-                //    "level": user_level},
-                //    {$inc: {"score":scoreAdd,"total_questions":-1},
-                //         $set: {"question_st":question_st}
-                //    });
-
                  //add total score field this have all user scores include regular and bonuses, so we can manage easly.
                    let user = await User.update({
-                    "MHT_Id": user_mhtid},
-                    {$inc: {"totalScore":scoreAdd,"bounce":scoreAdd},
+                    "mht_id": user_mhtid},
+                    {$inc: {"totalScore":scoreAdd,"bonus":scoreAdd},
                          $set: {"question_id":question_id}
                     });
                 status = {"answer_status": answer_status, "lives": lives , "score": user.totalScore};
-            } else {
-                //  let user_score = await UserScore.update({
-                //    "MHT_Id": user_mhtid,
-                //    "completed": false,
-                //    "level": user_level},
-                //    {$inc: {"total_questions":-1}});
-                // user = await User.update({
-                //     "MHT_Id":user_mhtid},
-                //     {$inc: {"lives": -1}});
+            } 
+            else {
                 status = {"answer_status": answer_status,"lives": user.lives ,"score": current_score};
             }
-            let UAMObj={"MHT_Id":user_mhtid,"question_id":question_id,"quize_type":question.quize_type,"answer":selected_ans,"answer_status":answer_status}
-            // entry in user answer, in case of bounce.
+            let UAMObj={"mht_id":user_mhtid,"question_id":question_id,"quize_type":question.quize_type,"answer":selected_ans,"answer_status":answer_status}
+            // entry in user answer, in case of bonus.
             await UserAnswerMapping.insert(UAMObj);
         }
         else
         {
-            // question = await Question.findOne({
-            //     "question_st": question_st,            
-            //     }, "answer score");
-            
             if(question.answer == selected_ans) {
-                // if(isHintuse){
-                //     scoreAdd=scoreAdd/2;
-                // }
+              
                 let user_score = await UserScore.update({
-                   "MHT_Id": user_mhtid,
+                   "mht_id": user_mhtid,
                    "completed": false,
                    "level": user_level},
                    {$inc: {"score":scoreAdd,"total_questions":-1},
@@ -192,24 +195,24 @@ exports.validate_answer = async function (req, res, next) {
                    });
                     //add total score field this have all user scores include regular and bonuses, so we can manage easly.
                    let user = await User.update({
-                    "MHT_Id": user_mhtid},
+                    "mht_id": user_mhtid},
                     {$inc: {"totalScore":scoreAdd},
                          $set: {"question_id":question_id}
                     });
-                   let UAMObj={"MHT_Id":user_mhtid,"question_id":question_id,"quize_type":question.quize_type,"answer":selected_ans,"answer_status":true }
+                   let UAMObj={"mht_id":user_mhtid,"question_id":question_id,"quize_type":question.quize_type,"answer":selected_ans,"answer_status":true }
                    // entry in user answer, if answer is right and in case of regular.
                    await UserAnswerMapping.insert(UAMObj);
 
                     status = {"answer_status": true, "lives": lives , "score": user.totalScore};
             } else {
                  let user_score = await UserScore.update({
-                   "MHT_Id": user_mhtid,
+                   "mht_id": user_mhtid,
                    "completed": false,
                    "level": user_level},
                    {$inc: {"total_questions":-1}});
                    //add total score field this have all user scores include regular and bonuses, so we can manage easly.
                 user = await User.update({
-                    "MHT_Id":user_mhtid},
+                    "mht_id":user_mhtid},
                     {$inc: {"lives": -1,"totalScore":negativeScore},
                     $set: {"question_id":question_id}
                 });
@@ -227,28 +230,29 @@ exports.validate_answer = async function (req, res, next) {
 };
 
 /**
- * Get Question of a particular level and with specific question state
+ * Get Question bonus of a particular user wise and date wise.
  * @param req {Object} The request.
  * @param res {Object} The response.
  * @param req.body {Object} The JSON payload.
- * @param req.body.question_st {String} The User Question State
- * @param req.body.level {String} The User Quiz level
+ * @param req.body.mhtid {String} The User mht id
  * @param {Function} next
  * @return {Question}
  */
 exports.get_bonusquestion = async function (req, res, next) {
     // TODO - Check User Authentication
-    let MHT_Id = req.body.mhtid;
-    //let level = req.body.level;
+    let mhtid = req.body.mhtid;
+    var datetime = new Date();
+    
     let question;
     try {
         let usersanwered= await UserAnswerMapping.find({
-            "MHT_Id":MHT_Id,
-            "quize_type": "BOUNCE"
+            "mhtid":mhtid,
+            "quize_type": "BOUNS"
         },"question_id");
 
         question = await Question.findOne({
-            "quize_type": "BOUNCE",
+            "quize_type": "BOUNS",
+            "date":datetime.getDate(),
             "question_id": {$nin:[ usersanwered]}
         }, "-_id");
 
@@ -260,7 +264,7 @@ exports.get_bonusquestion = async function (req, res, next) {
     }
 };
 /**
- * Get Question of a particular level and with specific question state
+ * get new life from user score, dudect some amount of score 
  * @param req {Object} The request.
  * @param res {Object} The response.
  * @param req.body {Object} The JSON payload.
@@ -272,14 +276,15 @@ exports.get_bonusquestion = async function (req, res, next) {
 exports.get_lifefromScore = async function (req, res, next) {
     // TODO - Check User Authentication
     let scoreperlife = req.body.scoreperlife;
+    let mht_id = req.body.mht_id;
     try {
         let user= await User.find({
-            "MHT_Id":MHT_Id
+            "mht_id":mht_id
         });
         if(user.totalScore>scoreperlife)
         {
                 user = await User.update({
-                    "MHT_Id":user_mhtid},
+                    "mht_id":user.mht_Id},
                     {$inc: {"lives": 1,"totalScore":(scoreperlife*-1)}
                 });
         } 
@@ -293,17 +298,17 @@ exports.get_lifefromScore = async function (req, res, next) {
 };
 
 /**
- * Get Quiz Details for a user
+ * Get Quiz Details for a user, application level will be on start and end date for level.
  * @param req {Object} The request.
  * @param res {Object} The response.
  * @param req.body {Object} The JSON payload.
- * @param req.body.user_mob {String} The User Mobile
+ * @param req.body.mhtid {String} The User mhtid
  * @param {Function} next
  * @return {quiz_levels, completed_levels, current_level}
  */
 exports.get_quiz_details = async function (req, res, next) {
     // TODO - Check User Authentication
-    let MHT_id = req.body.mhtid;
+    let mht_id = req.body.mhtid;
     let results;
     var datetime = new Date();
     try {
@@ -311,22 +316,22 @@ exports.get_quiz_details = async function (req, res, next) {
             // Find all levels
             QuizLevel.find({
                 "start_date":{
-                    $gte: datetime
+                    $gte: datetime.getDate()
                 },
                 "end_date":{
-                    $lte: datetime
+                    $lte: datetime.getDate()
                 }
             }),
 
             // Find levels that user has already completed
             UserScore.find({
-                "MHT_Id": MHT_id,
+                "mht_id": mht_id,
                 "completed": true
             }, "level score -_id"),
 
             // Find current level of user
             UserScore.find({
-                "MHT_Id": MHT_id,
+                "mht_id": mht_id,
                 "completed": false
             }, "-_id")
         ]);
@@ -339,7 +344,7 @@ exports.get_quiz_details = async function (req, res, next) {
         if ((!current_user_level || current_user_level.length == 0)&& (!completed_levels || completed_levels.length == 0)) {
             level_current = 1;
             results[2] = await UserScore.create({
-                "MHT_id": MHT_id,
+                "mht_id": mht_id,
                 "total_questions": levels[0].total_questions
             });
         } else if (!current_user_level && completed_levels) {
@@ -351,7 +356,7 @@ exports.get_quiz_details = async function (req, res, next) {
             
             let question = await Question.find({ "level": level_current }, "question_st");
             results[2] = await UserScore.create({
-                "MHT_id": MHT_id,
+                "mht_id": mht_id,
                 "level": completed_levels.length + 1,
                 "total_questions": total_question,
                 "question_st": question.question_st

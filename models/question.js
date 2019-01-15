@@ -69,7 +69,7 @@ const QuestionSchema = new mongoose.Schema({
   },
   quize_type: {
     type: String,
-    enum: ['REGULAR','BOUNCE'],
+    enum: ['REGULAR','BONUS'],
     required: true,
     default: 'REGULAR'
   },
@@ -83,6 +83,7 @@ const QuestionSchema = new mongoose.Schema({
   reference : {
     type: String
   }
+  
 
 });
 

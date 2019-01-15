@@ -16,6 +16,7 @@ const QuizLevelSchema = new mongoose.Schema({
     level_index: {
         type: String,
         required: true,
+        unique:true,
         trim: true,
     },
     name: {
@@ -25,7 +26,7 @@ const QuizLevelSchema = new mongoose.Schema({
     },
     level_type: {
         type: String,
-        enum: ['Regular'],
+        enum: ['REGULAR'],
         required: true,
         trim: true
     },

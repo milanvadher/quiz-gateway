@@ -38,7 +38,7 @@ const UserSchema = new mongoose.Schema({
     default: 1
   },
   
-  MHT_Id: {
+  mht_id: {
     type: Number,
     required: true,
     unique: true
@@ -49,12 +49,12 @@ const UserSchema = new mongoose.Schema({
     required: true    
   },
   
-  bounce: {
+  bonus: {
     type: Number,
     required: true    
   },
   
-  totalScore: {
+  totalscore: {
     type: Number,
     required: true    
   },

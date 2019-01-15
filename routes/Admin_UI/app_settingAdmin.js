@@ -6,17 +6,15 @@ const errors = require('restify-errors');
 /**
  * Model Schema
  */
-const ApplicationSetting=require('../models/app_setting');
+const ApplicationSetting=require('../../models/app_setting');
 
 /**
- * Get Question of a particular level and with specific question state
+ * get first Application setting object from applicaton settig.
  * @param req {Object} The request.
  * @param res {Object} The response.
  * @param req.body {Object} The JSON payload.
- * @param req.body.question_st {String} The User Question State
- * @param req.body.level {String} The User Quiz level
  * @param {Function} next
- * @return {Question}
+ * @return {application_setting}
  */
 exports.get_applicationSetting = async function (req, res, next) {
     try {
@@ -30,14 +28,12 @@ exports.get_applicationSetting = async function (req, res, next) {
 };
 
 /**
- * Get Question of a particular level and with specific question state
+ * update application setting with _id, to update some setting like 'negative, total life per users etc..' 
  * @param req {Object} The request.
  * @param res {Object} The response.
- * @param req.body {Object} The JSON payload.
- * @param req.body.question_st {String} The User Question State
- * @param req.body.level {String} The User Quiz level
+ * @param req.body {Object} The JSON payload as application setting.
  * @param {Function} next
- * @return {Question}
+ * @return {application_setting}
  */
 exports.update_applicationSetting = async function (req, res, next) {
     try {
@@ -60,14 +56,12 @@ exports.update_applicationSetting = async function (req, res, next) {
     }
 };
 /**
- * Get Question of a particular level and with specific question state
+ * insert new application setting to set some setting like 'negative, total life per users etc..' 
  * @param req {Object} The request.
  * @param res {Object} The response.
- * @param req.body {Object} The JSON payload.
- * @param req.body.question_st {String} The User Question State
- * @param req.body.level {String} The User Quiz level
+ * @param req.body {Object} The JSON payload as application setting.
  * @param {Function} next
- * @return {Question}
+ * @return {application_setting}
  */
 exports.insert_applicationSetting = async function (req, res, next) {
     try {

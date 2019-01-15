@@ -9,7 +9,6 @@ const config = require('./../config');
  * Model Schema
  */
 const User = require('../models/user');
-const ApplicationSetting=require('../models/app_setting');
 
 /**
  * Veriables
