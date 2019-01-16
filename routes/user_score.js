@@ -8,24 +8,48 @@ const errors = require('restify-errors');
  */
 const UserScore = require('../models/user_score');
 
-module.exports = function (server) {
+/**
+ * Get Question of a particular level and with specific question state
+ * @param req {Object} The request.
+ * @param res {Object} The response.
+ * @param req.body {Object} The JSON payload.
+ * @param req.body.question_st {String} The User Question State
+ * @param req.body.level {String} The User Quiz level
+ * @param {Function} next
+ * @return {Question}
+ */
+exports.get_userScores = async function (req, res, next) {
+    let userscores;
+    try {
+        userscores = await UserScore.find({});
+        res.send(200, userscores);
+        next();
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+};
 
-    /**
-     * LIST User Score
-     */
-    server.get('/user_score', (req, res, next) => {
 
-        UserScore.find({}, function (err, docs) {
-            if (err) {
-                console.error(err);
-                return next(
-                    new errors.InvalidContentError(err.errors.name.message),
-                );
-            }
-            res.send(docs);
-            next();
-        });
-    });
-
-
+/**
+ * Get Question of a particular level and with specific question state
+ * @param req {Object} The request.
+ * @param res {Object} The response.
+ * @param req.body {Object} The JSON payload.
+ * @param req.body.question_st {String} The User Question State
+ * @param req.body.level {String} The User Quiz level
+ * @param {Function} next
+ * @return {Question}
+ */
+exports.get_userScoresByLevel = async function (req, res, next) {
+    let level = req.body.level;
+    let userscores;
+    try {
+        userscores = await UserScore.find({"level":level});
+        res.send(200, userscores);
+        next();
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
 };

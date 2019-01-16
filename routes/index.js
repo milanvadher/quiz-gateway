@@ -27,5 +27,6 @@ module.exports = function (server) {
     server.post('/questions', request_handlers.question.get_questions);
     server.post('/quiz_level', request_handlers.question.get_quiz_details);
     server.post('/validate_answer', request_handlers.question.validate_answer);
+    server.post('/hint_question', request_handlers.question.hint_question);
 	
 };    

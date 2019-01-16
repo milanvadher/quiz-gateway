@@ -14,6 +14,17 @@ const OptionSchema = new mongoose.Schema({
     }
 });
 
+const AnswerSchema = new mongoose.Schema({
+  answer_number: {
+      type: Number,
+      required: true
+  },
+  answer: {
+      type: String,
+      required: true,
+      trim: true    
+  }
+});
 const QuestionSchema = new mongoose.Schema({
   question_st: {
     type: Number,
@@ -21,8 +32,8 @@ const QuestionSchema = new mongoose.Schema({
   },
 
   question_type: {
-    type: String,
-    enum: ['MCQ'],
+    type:  String,
+    enum: ['MCQ','PIKACHAR'],
     required: true,
     default: 'MCQ'
   },
@@ -41,11 +52,7 @@ const QuestionSchema = new mongoose.Schema({
     default: 10
   },
 
-  answer: {
-    type: String,
-    required: true,
-    trim: true
-  },
+  answer: [AnswerSchema],
 
   artifact_type: {
     type: String,
@@ -58,10 +65,25 @@ const QuestionSchema = new mongoose.Schema({
   },
 
   level: {
+    type: Number 
+  },
+  quize_type: {
+    type: String,
+    enum: ['REGULAR','BOUNCE'],
+    required: true,
+    default: 'REGULAR'
+  },
+  question_id: {
     type: Number,
     required: true  
+  },
+  date: {
+    type: Date
+  },
+  reference : {
+    type: String
   }
-  
+
 });
 
 QuestionSchema.plugin(timestamp);

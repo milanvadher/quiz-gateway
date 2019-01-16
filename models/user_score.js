@@ -3,12 +3,16 @@ const timestamp = require('mongoose-timestamp');
 const mongooseStringQuery = require('mongoose-string-query');
 
 const UserScoreSchema = new mongoose.Schema({
-  user_mobile: {
-    type: String,
-    required: true,
-    trim: true
-  },
+  // user_mobile: {
+  //   type: String,
+  //   required: true,
+  //   trim: true
+  // },
 
+  MHT_Id: {
+    type: Number,
+    required: true
+  },
   question_st: {
     type: Number,
     required: true,

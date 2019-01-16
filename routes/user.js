@@ -9,6 +9,7 @@ const config = require('./../config');
  * Model Schema
  */
 const User = require('../models/user');
+const ApplicationSetting=require('../models/app_setting');
 
 /**
  * Veriables
@@ -125,3 +126,5 @@ exports.delete = async function (req, res, next) {
         next();
     }
 };
+
+ 
