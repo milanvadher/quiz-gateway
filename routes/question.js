@@ -12,6 +12,7 @@ const UserScore = require('../models/user_score');
 const UserAnswerMapping = require('../models/user_answer_mapping');
 const User = require('../models/user');
 
+const ApplicationSetting=require('../models/app_setting');
 /**
  * Get Question of a particular level and with specific question state
  * @param req {Object} The request.
@@ -30,6 +31,7 @@ exports.get_question = async function (req, res, next) {
     try {
         question = await Question.findOne({
             "question_st": question_st,
+            "quize_type": "REGULAR",
             "level": level
         }, "-_id");
         res.send(200, question);
@@ -61,20 +63,22 @@ exports.get_questions = async function (req, res, next) {
     try {
         if (!questionto  || questionto == 0 ) {
             question = await Question.find({
+                "quize_type": "REGULAR",
                 "question_st": {
                     $gte: questionfrom
                 },
                 "level": level
-            }, "-_id -reference");
+            }, "-_id");
         }
         else {
               question = await Question.find({
+                "quize_type": "REGULAR",
                 "question_st": {
                     $gte: questionfrom,
                     $lte: questionto
                 },
                 "level": level
-            }, "-_id -reference");
+            }, "-_id");
         }
         res.charSet('utf-8');
         res.send(200, question);
@@ -92,16 +96,13 @@ exports.get_questions = async function (req, res, next) {
  * @param res {Object} The response.
  * @param req.body {Object} The JSON payload.
  * @param req.body.mhtid {String} user mht id for find user.
- * @param req.body.hint {String} give is need hint
  * @param req.body.question_id {String} question id for getting question
  * @param {Function} next
  * @return {Question}
  */
 exports.hint_question = async function (req, res, next) {
     // TODO - Check User Authentication
-    //let question_st = req.body.question_st;
     let user_mhtid = req.body.mhtid; 
-    let isHintuse= req.body.hint;
     let question_id = req.body.question_id;
     let question, scoreAdd;
 
@@ -109,18 +110,26 @@ exports.hint_question = async function (req, res, next) {
         "question_id": question_id,            
         }, "question_st score reference");
     scoreAdd=question.score;
-    if(isHintuse)
+    let app_sett= await ApplicationSetting.findOne({});
+    if(app_sett.negative_per_hint>0)
     {
+        scoreAdd=scoreAdd-app_sett.negative_per_hint;
+    }
+    else{
         scoreAdd=scoreAdd/2;
     }
+    // if(isHintuse)
+    // {
+    //     scoreAdd=scoreAdd/2;
+    // }
     try {
-        await User.update({
+       let user= await User.update({
             "mht_Id": user_mhtid},
-            {$inc: {"totalScore":(scoreAdd * -1)},
+            {$inc: {"totalscore":(scoreAdd * -1)},
                  $set: {"question_id":question_id}
             });
 
-        res.send(200, question);
+        res.send(200, user);
         next();
     } catch (error) {
         res.send(500, new Error(error));
@@ -132,51 +141,45 @@ exports.hint_question = async function (req, res, next) {
  * @param req {Object} The request.
  * @param res {Object} The response.
  * @param req.body {Object} The JSON payload.
- * @param req.body.question_st {String} The User Question State
  * @param req.body.question_id {String} The User Question id
  * @param req.body.mhtid {String} The User mhtid
  * @param req.body.answer {String} The User selected answer
  * @param req.body.level {String} The User Quiz Level
- * @param req.body.score {String} The User current score
- * @param req.body.lives {String} The User lives
- * @param req.body.bonus {String} is it bonus question
  * @param {Function} next
  * @return {Question}
  */
 exports.validate_answer = async function (req, res, next) {
     //console.log(req);
     // TODO - Check User Authentication
-    let question_st = req.body.question_st;
     let question_id = req.body.question_id;
     let user_mhtid = req.body.mhtid;
     let selected_ans = req.body.answer;
     let user_level = req.body.level;
-    let current_score = req.body.score;
-    let lives = req.body.lives;
-    let isbonus = req.body.bonus;
-    let negativeScore= req.body.negativeScore;
+
     let question, status, user,scoreAdd;
     try {
         question = await Question.findOne({
             "question_id": question_id,            
             }, "answer score");
         scoreAdd=question.score;
-        if(isbonus)
+
+        user = await User.findOne({
+            "mht_id": user_mhtid });
+        if(question.quize_type=='BONUS')
         {
-           
             let answer_status=false;
             if(question.answer == selected_ans) {
-                answer_status=true;
+                  answer_status=true;
                  //add total score field this have all user scores include regular and bonuses, so we can manage easly.
-                   let user = await User.update({
+                   user = await User.update({
                     "mht_id": user_mhtid},
-                    {$inc: {"totalScore":scoreAdd,"bonus":scoreAdd},
+                    {$inc: {"totalscore":scoreAdd,"bonus":scoreAdd},
                          $set: {"question_id":question_id}
                     });
-                status = {"answer_status": answer_status, "lives": lives , "score": user.totalScore};
+                status = {"answer_status": answer_status, "lives": user.lives , "score": user.totalscore};
             } 
             else {
-                status = {"answer_status": answer_status,"lives": user.lives ,"score": current_score};
+                status = {"answer_status": answer_status,"lives": user.lives ,"score": user.totalscore};
             }
             let UAMObj={"mht_id":user_mhtid,"question_id":question_id,"quize_type":question.quize_type,"answer":selected_ans,"answer_status":answer_status}
             // entry in user answer, in case of bonus.
@@ -186,24 +189,24 @@ exports.validate_answer = async function (req, res, next) {
         {
             if(question.answer == selected_ans) {
               
-                let user_score = await UserScore.update({
+                 await UserScore.update({
                    "mht_id": user_mhtid,
                    "completed": false,
                    "level": user_level},
                    {$inc: {"score":scoreAdd,"total_questions":-1},
-                        $set: {"question_st":question_st}
+                        $set: {"question_st":question.question_st}
                    });
                     //add total score field this have all user scores include regular and bonuses, so we can manage easly.
-                   let user = await User.update({
+                 user = await User.update({
                     "mht_id": user_mhtid},
-                    {$inc: {"totalScore":scoreAdd},
-                         $set: {"question_id":question_id}
+                    { $inc: {"totalscore":scoreAdd},
+                      $set: {"question_id":question_id}
                     });
                    let UAMObj={"mht_id":user_mhtid,"question_id":question_id,"quize_type":question.quize_type,"answer":selected_ans,"answer_status":true }
                    // entry in user answer, if answer is right and in case of regular.
                    await UserAnswerMapping.insert(UAMObj);
 
-                    status = {"answer_status": true, "lives": lives , "score": user.totalScore};
+                    status = {"answer_status": true, "lives": lives , "score": user.totalscore};
             } else {
                  let user_score = await UserScore.update({
                    "mht_id": user_mhtid,
@@ -213,10 +216,10 @@ exports.validate_answer = async function (req, res, next) {
                    //add total score field this have all user scores include regular and bonuses, so we can manage easly.
                 user = await User.update({
                     "mht_id":user_mhtid},
-                    {$inc: {"lives": -1,"totalScore":negativeScore},
+                    {$inc: {"lives": -1},
                     $set: {"question_id":question_id}
                 });
-                status = {"answer_status": false,"lives": user.lives ,"score": user.totalScore};
+                status = {"answer_status": false,"lives": user.lives ,"score": user.totalscore};
             }
         }
       
@@ -247,11 +250,11 @@ exports.get_bonusquestion = async function (req, res, next) {
     try {
         let usersanwered= await UserAnswerMapping.find({
             "mhtid":mhtid,
-            "quize_type": "BOUNS"
+            "quize_type": "BONUS"
         },"question_id");
 
-        question = await Question.findOne({
-            "quize_type": "BOUNS",
+        question = await Question.find({
+            "quize_type": "BONUS",
             "date":datetime.getDate(),
             "question_id": {$nin:[ usersanwered]}
         }, "-_id");
@@ -275,21 +278,26 @@ exports.get_bonusquestion = async function (req, res, next) {
  */
 exports.get_lifefromScore = async function (req, res, next) {
     // TODO - Check User Authentication
-    let scoreperlife = req.body.scoreperlife;
     let mht_id = req.body.mht_id;
     try {
+        let app_setting= await ApplicationSetting.findOne({});
+        
         let user= await User.find({
             "mht_id":mht_id
         });
-        if(user.totalScore>scoreperlife)
+        if(user.totalscore>app_setting.score_per_life)
         {
-                user = await User.update({
-                    "mht_id":user.mht_Id},
-                    {$inc: {"lives": 1,"totalScore":(scoreperlife*-1)}
-                });
-        } 
+            user = await User.update({
+                "mht_id":user.mht_Id},
+                {$inc: {"lives": 1,"totalscore": (app_setting.score_per_life*-1)}
+            });
+          res.send(200, user);
 
-        res.send(200, user);
+        }
+        else{
+            res.send(200, "please check score!!");
+        }
+
         next();
     } catch (error) {
         res.send(500, new Error(error));
@@ -312,16 +320,29 @@ exports.get_quiz_details = async function (req, res, next) {
     let results;
     var datetime = new Date();
     try {
+        let user= await User.findOne({"mht_id":mht_id});
+
         results = await Promise.all([
             // Find all levels
-            QuizLevel.find({
-                "start_date":{
-                    $gte: datetime.getDate()
-                },
-                "end_date":{
-                    $lte: datetime.getDate()
-                }
-            }),
+            // QuizLevel.find({
+            //     "start_date":{
+            //         $gte: datetime.getDate()
+            //     },
+            //     { $or : [{ "end_date": {
+            //          $type : 10 ,// 10 it's Check type to null
+            //         $lte: datetime.getDate()
+            //     }
+            // }]
+            // }
+            // })ApplicationSetting.findOne({});
+            
+            // $type : 10 --> 10 it's Check type to null
+            QuizLevel.find( {
+                $and : [
+                    { "start_date" :  { $gte: datetime.getDate()}  },
+                    { $or : [ { "end_date" : { $type : 10 } }, { "end_date" : { $lt : datetime.getDate() } } ] }
+                ]
+            } ),
 
             // Find levels that user has already completed
             UserScore.find({
@@ -360,6 +381,7 @@ exports.get_quiz_details = async function (req, res, next) {
                 "level": completed_levels.length + 1,
                 "total_questions": total_question,
                 "question_st": question.question_st
+                
             });
             level_current = completed_levels.length + 1;
         }
@@ -372,7 +394,8 @@ exports.get_quiz_details = async function (req, res, next) {
         response = {
             "quiz_levels": results[0],
             "completed": results[1],
-            "current": results[2]
+            "current": results[2],
+            "totalscore":user.totalscore
         }
         res.send(200, { "results": response });
         next();

@@ -15,17 +15,23 @@ const OptionSchema = new mongoose.Schema({
 });
 
 const AnswerSchema = new mongoose.Schema({
-  answer_number: {
-      type: Number,
-      required: true
-  },
   answer: {
       type: String,
       required: true,
       trim: true    
   }
 });
+const JumbleSchema = new mongoose.Schema({
+  jumble_number: {
+      type: Number,
+  },
+  jumble: {
+      type: String,
+      trim: true    
+  }
+});
 const QuestionSchema = new mongoose.Schema({
+  
   question_st: {
     type: Number,
     required: true
@@ -82,7 +88,8 @@ const QuestionSchema = new mongoose.Schema({
   },
   reference : {
     type: String
-  }
+  },
+  jumbledata:[JumbleSchema]
   
 
 });

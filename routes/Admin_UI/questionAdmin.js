@@ -18,68 +18,66 @@ const Users= require('../../models/user');
  * @param {Function} next
  * @return {Question}
  */
-exports.get_questionById = async function (req, res, next) {
-    let question_id = req.body.question_id;
-    let question;
+exports.get_questionByfilter = async function (req, res, next) {
+    //let question_id = req.params.question_id;
+    let questions;
     try {
-        question = await Question.findOne({
-            "question_id": question_id
-        });
-        res.send(200, question);
+        questions = await Question.find(req.params);
+        res.send(200, questions);
         next();
     } catch (error) {
         res.send(500, new Error(error));
         next();
     }
 };
-/**
- * Get Question by Question level and return whole object response
- * @param req {Object} The request.
- * @param res {Object} The response.
- * @param req.body {Object} The JSON payload.
- * @param req.body.level_name {String} question level  
- * @param {Function} next
- * @return {Question}
- */
+// /**
+//  * Get Question by Question level and return whole object response
+//  * @param req {Object} The request.
+//  * @param res {Object} The response.
+//  * @param req.body {Object} The JSON payload.
+//  * @param req.body.level_name {String} question level  
+//  * @param {Function} next
+//  * @return {Question}
+//  */
 
-exports.get_questionBylevel = async function (req, res, next) {
-    let level = req.body.level;
-    let question;
-    try {
-        question = await Question.find({
-            "level": level
-        });
-        res.send(200, question);
-        next();
-    } catch (error) {
-        res.send(500, new Error(error));
-        next();
-    }
-};
+// exports.get_questionBylevel = async function (req, res, next) {
+//     let level = req.params.level;
+//     let question;
+//     try {
+//         question = await Question.find({
+//             "level": level
+//         });
+//         res.send(200, question);
+//         next();
+//     } catch (error) {
+//         res.send(500, new Error(error));
+//         next();
+//     }
+// };
 
-/**
- * Get Question by Question quize type and return whole object response
- * @param req {Object} The request.
- * @param res {Object} The response.
- * @param req.body {Object} The JSON payload.
- * @param req.body.levelquize_type_name {String} quize type  
- * @param {Function} next
- * @return {Question}
- */
-exports.get_questionByQuizetype = async function (req, res, next) {
-    let quize_type = req.body.quize_type;
-    let question;
-    try {
-        question = await Question.find({
-            "quize_type": quize_type
-        });
-        res.send(200, question);
-        next();
-    } catch (error) {
-        res.send(500, new Error(error));
-        next();
-    }
-};
+// /**
+//  * Get Question by Question quize type and return whole object response
+//  * @param req {Object} The request.
+//  * @param res {Object} The response.
+//  * @param req.body {Object} The JSON payload.
+//  * @param req.body.levelquize_type_name {String} quize type  
+//  * @param {Function} next
+//  * @return {Question}
+//  */
+// exports.get_questionByQuizetype = async function (req, res, next) {
+//     let quize_type = req.body.quize_type;
+//     let question;
+//     try {
+//         question = await Question.find({
+//             "quize_type": quize_type
+//         });
+//         res.send(200, question);
+//         next();
+//     } catch (error) {
+//         res.send(500, new Error(error));
+//         next();
+//     }
+// };
 
 /**
  * update question details.
@@ -109,7 +107,8 @@ exports.update_questionById  = async function (req, res, next) {
                  "level" : question_update.level,
                  "quize_type" : question_update.quize_type,
                  "date" : question_update.date,
-                 "reference" : question_update.reference
+                 "reference" : question_update.reference,
+                 "jumbledata": question_update.jumbledata
                 }} );
         res.send(200, question);
         next();
@@ -128,14 +127,14 @@ exports.update_questionById  = async function (req, res, next) {
  * @return {Question}
  */
 exports.insert_question  = async function (req, res, next) {
-    let question_insert=req.body.question;
+    let question_insert=req.body;
     let question;
     try {
         // question = await Question.find({
         //     "question_id": question_id
         // });
-        question=  await Question.insert(
-        {   "question_id": getNextSequenceValue("qid"),
+        question=  new Question(
+        {   "question_id": await getNextSequenceValue("qid"),
             "question_st" : question_insert.question_st,
             "question_type" : question_insert.question_type,
             "question" : question_insert.question,
@@ -146,8 +145,10 @@ exports.insert_question  = async function (req, res, next) {
             "level" : question_insert.level,
             "quize_type" : question_insert.quize_type,
             "date" : question_insert.date,
-            "reference" : question_insert.reference
+            "reference" : question_insert.reference,
+            "jumbledata": question_insert.jumbledata
         } );
+        question.save();
         res.send(200, question);
         next();
     } catch (error) {
@@ -165,16 +166,16 @@ exports.insert_question  = async function (req, res, next) {
  * @return {Questions}
  */
 exports.insert_questions  = async function (req, res, next) {
-    let question_inserts=req.body.questions;
-    let question_id = question.question_id;
+    let question_inserts=req.body;
 
     let questions=[];
     try {
         // question = await Question.find({
         //     "question_id": question_id
         // });
-        let lastQid=getNextSequenceValue("qid");
-        question_inserts.array.forEach(question_insert => {
+        let lastQid=await getNextSequenceValue("qid");
+        console.log(lastQid);
+        question_inserts.forEach(question_insert => {
             questions.push({   "question_id":lastQid,
             "question_st" : question_insert.question_st,
             "question_type" : question_insert.question_type,
@@ -186,7 +187,8 @@ exports.insert_questions  = async function (req, res, next) {
             "level" : question_insert.level,
             "quize_type" : question_insert.quize_type,
             "date" : question_insert.date,
-            "reference" : question_insert.reference
+            "reference" : question_insert.reference,
+            "jumbledata": question_insert.jumbledata
         });
         lastQid++;
         });
@@ -204,20 +206,21 @@ exports.insert_questions  = async function (req, res, next) {
  * get auto incremented number for Questionid
  * @param {some number} sequenceName 
  */
-function getNextSequenceValue(sequenceName){
+async function getNextSequenceValue(sequenceName){
     insertSequnceValue(sequenceName);
-    var sequenceDocument = Counter.findAndModify({
-    query:{question_id: sequenceName },
-    update: {$inc:{sequence_value:1}},
-    new:true
-      });
-  return sequenceDocument.sequence_value;
+    var sequenceDocument = await Counter.updateOne({"question_id": sequenceName },
+    { $inc : {"sequence_value":1}});
+    sequenceDocument =await Counter.findOne({"question_id" : sequenceName});
+    return sequenceDocument.sequence_value;
   }
-  function insertSequnceValue(sequenceName)
+  async function insertSequnceValue(sequenceName)
   {
-      let counters= Counter.findOne({question_id:sequenceName});
+      let counters= await Counter.findOne({"question_id":sequenceName});
       if(counters==undefined || counters==null)
-          Counter.insert({question_id:sequenceName,sequence_value:0});
+      { 
+            let count= new Counter({"question_id":sequenceName,"sequence_value":0});
+            count.save();
+      }
   }
 /**
  * Delete Question by _id
@@ -227,9 +230,9 @@ function getNextSequenceValue(sequenceName){
  * @param {Function} next
  * @return {Question}
  */
-exports.delete = async function (req, res, next) {
+exports.deletequestion = async function (req, res, next) {
     try {
-        let result = await Question.remove({ _id: req.params.id });
+        let result = await Question.remove({ _id: req.params.question_id });
         if (result.n) {
             res.send(200, { msg: "Question deleted successfully !!" });
             next();
@@ -254,7 +257,7 @@ exports.delete = async function (req, res, next) {
  */
 exports.get_questionanswerBymhiid = async function (req, res, next) {
     try {
-        let mhtid=req.body.mhtid
+        let mhtid=req.params.mhtid
         let questionanswer= await   UserAnswerMapping.aggregate([{
             $lookup: {
                 from:Question,

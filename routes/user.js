@@ -92,6 +92,7 @@ exports.login = async function (req, res, next) {
  */
 exports.get_users = async function (req, res, next) {
     try {
+        
         let users = await User.apiQuery(req.params);
         if (users) {
             res.send(users);

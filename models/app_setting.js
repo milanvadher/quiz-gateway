@@ -23,6 +23,11 @@ const ApplicationSettingSchema = new mongoose.Schema({
     type:String,
     required: true
   },
+  negative_per_hint:
+  {
+    type:Number,
+    required: true
+  },
   passeord: {
     type:String,
     required: true
