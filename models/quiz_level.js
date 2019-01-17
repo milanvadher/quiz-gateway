@@ -40,8 +40,7 @@ const QuizLevelSchema = new mongoose.Schema({
         required:true
     },
     end_date: {
-        type: Date,
-        required:true
+        type: Date
     }
 });
 

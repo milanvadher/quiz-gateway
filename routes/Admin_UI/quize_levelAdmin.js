@@ -104,7 +104,7 @@ exports.update_quize_level = async function (req, res, next) {
         
         let quize_level=req.body;
         let index=quize_level.level_index;
-        let application= await  QuizeLevel.update({"level_index":index},
+        let quizelevel= await  QuizeLevel.updateOne({"level_index":index},
         { $set: {
             "name":quize_level.name,
             "level_type":quize_level.level_type,
@@ -113,12 +113,13 @@ exports.update_quize_level = async function (req, res, next) {
             "start_date":quize_level.start_date,
             "end_date":quize_level.end_date        }}
         );
-        res.send(200, application);
-        next();
+        res.send(200, quizelevel);
     } catch (error) {
         res.send(500, new Error(error));
-        next();
+//        next();
     }
+    next();
+
 };
 /**
  * insert in into quize level collection, responce new added object or give validation message if same level index exsisted.
@@ -146,11 +147,12 @@ exports.insert_quize_level = async function (req, res, next) {
         {
             res.send(200, "This level index already exsist!!");
         }
-        next();
-    } catch (error) {
-        res.send(500, new Error(error));
-        next();
     }
+     catch (error) {
+        res.send(500, new Error(error));
+    }
+    next();
+
 };
 /**
  * Delete quize level by level index
@@ -162,7 +164,7 @@ exports.insert_quize_level = async function (req, res, next) {
  */
 exports.delete_quiz_level = async function (req, res, next) {
     try {
-        let result = await QuizeLevel.remove({"level_index": req.params.id });
+        let result = await QuizeLevel.deleteOne({"level_index": req.params.id });
         if (result.n) {
             res.send(200, { msg: "Quize level deleted successfully !!" });
             next();

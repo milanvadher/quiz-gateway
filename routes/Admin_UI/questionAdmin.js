@@ -88,15 +88,15 @@ exports.get_questionByfilter = async function (req, res, next) {
  * @return {Question}
  */
 exports.update_questionById  = async function (req, res, next) {
-    let question_update=req.body.question;
-    let question_id = question.question_id;
+    let question_update=req.body;
+    let question_id = question_update.question_id;
 
     let question;
     try {
         // question = await Question.find({
         //     "question_id": question_id
         // });
-        question=  await Question.update({ "question_id": question_id},
+        question=  await Question.updateOne({ "question_id": question_id},
         {$set: { "question_st" : question_update.question_st,
                  "question_type" : question_update.question_type,
                  "question" : question_update.question,
@@ -170,9 +170,6 @@ exports.insert_questions  = async function (req, res, next) {
 
     let questions=[];
     try {
-        // question = await Question.find({
-        //     "question_id": question_id
-        // });
         let lastQid=await getNextSequenceValue("qid");
         console.log(lastQid);
         question_inserts.forEach(question_insert => {
@@ -192,9 +189,11 @@ exports.insert_questions  = async function (req, res, next) {
         });
         lastQid++;
         });
-       let questions_Res=  await Question.insertMany(
-            questions
-            );
+        
+        await Counter.updateOne({"question_id": sequenceName },
+            { $set : {"sequence_value":lastQid-1}})
+       let questions_Res=  await Question.insertMany(questions);
+       
         res.send(200, questions_Res);
         next();
     } catch (error) {
@@ -232,17 +231,17 @@ async function getNextSequenceValue(sequenceName){
  */
 exports.deletequestion = async function (req, res, next) {
     try {
-        let result = await Question.remove({ _id: req.params.question_id });
+        let result = await Question.deleteOne({ "question_id": req.params.question_id });
         if (result.n) {
             res.send(200, { msg: "Question deleted successfully !!" });
-            next();
         } else {
             res.send(404, { msg: "Question not found" });
         }
     } catch (error) {
         res.send(500, new Error(error));
-        next();
     }
+    next();
+
 };
 
 

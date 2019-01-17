@@ -42,7 +42,7 @@ module.exports = function (server) {
     server.post('/quiz_level', request_handlers.question.get_quiz_details);
 
      // User scores Routes
-     server.post('/get_userscores', request_handlers.user_score.get_userScoresByfilter);
+     server.get('/get_userscores', request_handlers.user_score.get_userScoresByfilter);
     
 
     // Question Admin Routes
@@ -56,6 +56,7 @@ module.exports = function (server) {
     server.get('/get_quizleve', request_handlers.quize_levelAdmin.get_quize_leveByfilter);
     server.post('/edit_quizlevel', request_handlers.quize_levelAdmin.update_quize_level);
     server.post('/add_quizlevel', request_handlers.quize_levelAdmin.insert_quize_level);
+    server.del('/deletequizlevel/:id', request_handlers.quize_levelAdmin.delete_quiz_level);
 
 
 

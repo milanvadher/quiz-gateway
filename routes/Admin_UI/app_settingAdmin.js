@@ -18,7 +18,7 @@ const ApplicationSetting=require('../../models/app_setting');
  */
 exports.get_applicationSetting = async function (req, res, next) {
     try {
-        let application= await  ApplicationSetting.findOne({});
+        let application= await  ApplicationSetting.find(req.params);
         res.send(200, application);
         next();
     } catch (error) {
@@ -40,7 +40,7 @@ exports.update_applicationSetting = async function (req, res, next) {
         
         let app_update=req.body;
         let id=app_update._Id;
-        let application= await  ApplicationSetting.update({"_Id":id},
+        let application= await  ApplicationSetting.updateOne({"_Id":id},
         { $set: {
             "negative_per_question":app_update.negative_per_question,
             "total_life":app_update.total_life,
@@ -49,11 +49,11 @@ exports.update_applicationSetting = async function (req, res, next) {
             "passeord":app_update.passeord        }}
         );
         res.send(200, application);
-        next();
     } catch (error) {
         res.send(500, new Error(error));
-        next();
     }
+    next();
+
 };
 /**
  * insert new application setting to set some setting like 'negative, total life per users etc..' 
@@ -65,13 +65,12 @@ exports.update_applicationSetting = async function (req, res, next) {
  */
 exports.insert_applicationSetting = async function (req, res, next) {
     try {
-        
         let app_insert=req.body;
-        let application= await  ApplicationSetting.insert(app_insert);
+        let application= new  ApplicationSetting(app_insert);
+        application.save();
         res.send(200, application);
-        next();
     } catch (error) {
         res.send(500, new Error(error));
-        next();
     }
+    next();
 };

@@ -102,34 +102,30 @@ exports.get_questions = async function (req, res, next) {
  */
 exports.hint_question = async function (req, res, next) {
     // TODO - Check User Authentication
-    let user_mhtid = req.body.mhtid; 
+    let user_mhtid = req.body.mhtid ; 
     let question_id = req.body.question_id;
     let question, scoreAdd;
 
-    question = await Question.findOne({
-        "question_id": question_id,            
-        }, "question_st score reference");
-    scoreAdd=question.score;
     let app_sett= await ApplicationSetting.findOne({});
     if(app_sett.negative_per_hint>0)
     {
-        scoreAdd=scoreAdd-app_sett.negative_per_hint;
+        scoreAdd=app_sett.negative_per_hint;
     }
-    else{
+    else
+    {
+        question = await Question.findOne({
+            "question_id": question_id,            
+            }, "question_st score reference");
+        scoreAdd=question.score;
         scoreAdd=scoreAdd/2;
     }
-    // if(isHintuse)
-    // {
-    //     scoreAdd=scoreAdd/2;
-    // }
     try {
-       let user= await User.update({
-            "mht_Id": user_mhtid},
-            {$inc: {"totalscore":(scoreAdd * -1)},
-                 $set: {"question_id":question_id}
+        await User.updateOne(
+                {"mht_id": user_mhtid},
+                {$inc: {"totalscore":(scoreAdd * -1)}
             });
-
-        res.send(200, user);
+        let users= await User.findOne({"mht_id": user_mhtid});
+        res.send(200, users);
         next();
     } catch (error) {
         res.send(500, new Error(error));
@@ -158,67 +154,67 @@ exports.validate_answer = async function (req, res, next) {
 
     let question, status, user,scoreAdd;
     try {
-        question = await Question.findOne({
-            "question_id": question_id,            
-            }, "answer score");
+        question = await Question.findOne({"question_id": question_id,}, "answer score quize_type question_st");
         scoreAdd=question.score;
 
-        user = await User.findOne({
-            "mht_id": user_mhtid });
-        if(question.quize_type=='BONUS')
+        user = await User.findOne({"mht_id": user_mhtid });
+        if(question.quize_type =="BONUS")
         {
             let answer_status=false;
-            if(question.answer == selected_ans) {
+            if(question.answer[0].answer == selected_ans) {
                   answer_status=true;
                  //add total score field this have all user scores include regular and bonuses, so we can manage easly.
-                   user = await User.update({
-                    "mht_id": user_mhtid},
+                await User.updateOne({"mht_id": user_mhtid},
                     {$inc: {"totalscore":scoreAdd,"bonus":scoreAdd},
                          $set: {"question_id":question_id}
                     });
+                user = await User.findOne({"mht_id":user_mhtid});
+
                 status = {"answer_status": answer_status, "lives": user.lives , "score": user.totalscore};
             } 
             else {
                 status = {"answer_status": answer_status,"lives": user.lives ,"score": user.totalscore};
             }
-            let UAMObj={"mht_id":user_mhtid,"question_id":question_id,"quize_type":question.quize_type,"answer":selected_ans,"answer_status":answer_status}
+            let UAMObj=new  UserAnswerMapping({"mht_id":user_mhtid,"question_id":question_id,"quize_type":question.quize_type,"answer":selected_ans,"answer_status":answer_status});
             // entry in user answer, in case of bonus.
-            await UserAnswerMapping.insert(UAMObj);
+            UAMObj.save();
         }
         else
         {
-            if(question.answer == selected_ans) {
+            //console.log(question.answer[0].answer);
+            if(question.answer[0].answer == selected_ans) {
               
-                 await UserScore.update({
+                 await UserScore.updateOne({
                    "mht_id": user_mhtid,
                    "completed": false,
                    "level": user_level},
                    {$inc: {"score":scoreAdd,"total_questions":-1},
-                        $set: {"question_st":question.question_st}
+                    $set: {"question_st":question.question_st}
                    });
                     //add total score field this have all user scores include regular and bonuses, so we can manage easly.
-                 user = await User.update({
-                    "mht_id": user_mhtid},
+                  await User.updateOne({"mht_id": user_mhtid},
                     { $inc: {"totalscore":scoreAdd},
                       $set: {"question_id":question_id}
                     });
-                   let UAMObj={"mht_id":user_mhtid,"question_id":question_id,"quize_type":question.quize_type,"answer":selected_ans,"answer_status":true }
-                   // entry in user answer, if answer is right and in case of regular.
-                   await UserAnswerMapping.insert(UAMObj);
 
-                    status = {"answer_status": true, "lives": lives , "score": user.totalscore};
+                   let UAMObj=new  UserAnswerMapping({"mht_id":user_mhtid,"question_id":question_id,"quize_type":question.quize_type,"answer":selected_ans,"answer_status":true });
+                   // entry in user answer, if answer is right and in case of regular.
+                   UAMObj.save();
+                   user = await User.findOne({"mht_id":user_mhtid});
+
+                    status = {"answer_status": true, "lives": user.lives , "score": user.totalscore};
             } else {
-                 let user_score = await UserScore.update({
+                 await UserScore.updateOne({
                    "mht_id": user_mhtid,
                    "completed": false,
                    "level": user_level},
                    {$inc: {"total_questions":-1}});
                    //add total score field this have all user scores include regular and bonuses, so we can manage easly.
-                user = await User.update({
-                    "mht_id":user_mhtid},
+                await User.updateOne({"mht_id":user_mhtid},
                     {$inc: {"lives": -1},
                     $set: {"question_id":question_id}
                 });
+                user = await User.findOne({"mht_id":user_mhtid});
                 status = {"answer_status": false,"lives": user.lives ,"score": user.totalscore};
             }
         }
@@ -245,23 +241,38 @@ exports.get_bonusquestion = async function (req, res, next) {
     // TODO - Check User Authentication
     let mhtid = req.body.mhtid;
     var datetime = new Date();
-    
-    let question;
-    try {
-        let usersanwered= await UserAnswerMapping.find({
-            "mhtid":mhtid,
-            "quize_type": "BONUS"
-        },"question_id");
+    var dt=datetime.getFullYear()+"-"+(datetime.getMonth()+1)+"-"+(datetime.getDate()-1);
+    //console.log(dt)
+    var datetimec=new Date(dt);
+    dt=datetime.getFullYear()+"-"+(datetime.getMonth()+1)+"-"+(datetime.getDate()+1);
+    var datetimef=new Date(dt);
 
+    let question,usersanwered;
+    try {
+        usersanwered= await UserAnswerMapping.find({
+            "mht_id":mhtid,
+            "quize_type": "BONUS"
+        },"question_id -_id");
+        let qidarrya=[];
+        if(!usersanwered || usersanwered.length>0)
+        {
+            //console.log(datetime +'pppp');
+            usersanwered.forEach(o=>{
+                qidarrya.push(o.question_id);
+            })
+        }
+        //console.log(datetimec);
+        //console.log(datetimef);
         question = await Question.find({
             "quize_type": "BONUS",
-            "date":datetime.getDate(),
-            "question_id": {$nin:[ usersanwered]}
+            "date":{ $gte : datetimec , $lt : datetimef  },
+            "question_id": {$nin: qidarrya}
         }, "-_id");
 
         res.send(200, question);
         next();
     } catch (error) {
+      //  console.log(error);
         res.send(500, new Error(error));
         next();
     }
@@ -282,16 +293,19 @@ exports.get_lifefromScore = async function (req, res, next) {
     try {
         let app_setting= await ApplicationSetting.findOne({});
         
-        let user= await User.find({
+        let user= await User.findOne({
             "mht_id":mht_id
         });
         if(user.totalscore>app_setting.score_per_life)
         {
-            user = await User.update({
-                "mht_id":user.mht_Id},
+            user = await User.updateOne({
+                "mht_id":user.mht_id},
                 {$inc: {"lives": 1,"totalscore": (app_setting.score_per_life*-1)}
             });
-          res.send(200, user);
+           let users= await User.findOne({
+                "mht_id":mht_id
+            });
+          res.send(200, users);
 
         }
         else{
@@ -321,7 +335,10 @@ exports.get_quiz_details = async function (req, res, next) {
     var datetime = new Date();
     try {
         let user= await User.findOne({"mht_id":mht_id});
-
+        var dt=datetime.getFullYear()+"-"+(datetime.getMonth()+1)+"-"+(datetime.getDate()+1);
+        var datetimef=new Date(dt);
+        dt=datetime.getFullYear()+"-"+(datetime.getMonth()+1)+"-"+(datetime.getDate());
+        var datetimet=new Date(dt);
         results = await Promise.all([
             // Find all levels
             // QuizLevel.find({
@@ -339,8 +356,8 @@ exports.get_quiz_details = async function (req, res, next) {
             // $type : 10 --> 10 it's Check type to null
             QuizLevel.find( {
                 $and : [
-                    { "start_date" :  { $gte: datetime.getDate()}  },
-                    { $or : [ { "end_date" : { $type : 10 } }, { "end_date" : { $lt : datetime.getDate() } } ] }
+                    { "start_date" :  { $lte: datetimet}  },
+                    { $or : [ { "end_date" : { $type : 10 } }, { "end_date" : { $gt : datetimet } } ] }
                 ]
             } ),
 
