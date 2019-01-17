@@ -254,33 +254,34 @@ exports.deletequestion = async function (req, res, next) {
  * @param {Function} next
  * @return {questionanswer}
  */
-exports.get_questionanswerBymhiid = async function (req, res, next) {
+exports.get_questionanswerBymhtid = async function (req, res, next) {
     try {
-        let mhtid=req.params.mhtid
-        let questionanswer= await   UserAnswerMapping.aggregate([{
+        //let mhtid=req.params.mhtid;
+        let mhtid=parseInt(req.params.mhtid, 10)
+        console.log(mhtid);
+
+        let questionanswer= await UserAnswerMapping.aggregate([{
             $lookup: {
-                from:Question,
-                localField: question_id,
-                foreignField: question_id,
-                as: 'questiondetails'
+                from: "questions",
+                localField: "question_id",
+                foreignField: "question_id",
+                as: "questiondetails"
             }},
             { $unwind:"$questiondetails" },     // $unwind used for getting data in object or for one record only
         
             // Join with user_role table
             {
                 $lookup:{
-                    from: Users, 
-                    localField: mht_id, 
-                    foreignField: mht_id,
+                    from: "users", 
+                    localField: "mht_id", 
+                    foreignField: "mht_id",
                     as: "users"
                 }
             },
             {   $unwind:"$users" },
             // define some conditions here 
             {
-                $match:{
-                    $and:[{"mht_id" : mhtid}]
-                }
+                $match:{ "mht_id" : mhtid }
             },
              // define which fields are you want to fetch
             {   
@@ -312,6 +313,7 @@ exports.get_questionanswerBymhiid = async function (req, res, next) {
         res.send(200, questionanswer);
         next();
     } catch (error) {
+        console.log(error);
         res.send(500, new Error(error));
         next();
     }

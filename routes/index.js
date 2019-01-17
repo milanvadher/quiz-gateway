@@ -50,7 +50,7 @@ module.exports = function (server) {
      server.post('/edit_questionByquestionid', request_handlers.questionAdmin.update_questionById);
      server.post('/add_questions', request_handlers.questionAdmin.insert_questions);
      server.del('/deletequestion/:question_id', request_handlers.questionAdmin.deletequestion);
-     server.get('/get_questionanswerBymhiid', request_handlers.questionAdmin.get_questionanswerBymhiid);
+     server.get('/get_questionanswerBymhtid/:mhtid', request_handlers.questionAdmin.get_questionanswerBymhtid);
      
     // Quize Level Admin Routes
     server.get('/get_quizleve', request_handlers.quize_levelAdmin.get_quize_leveByfilter);
