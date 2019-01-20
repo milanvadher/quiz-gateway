@@ -105,7 +105,7 @@ exports.update_questionById  = async function (req, res, next) {
                  "answer" : question_update.answer,
                  "artifact_path" : question_update.artifact_path,
                  "level" : question_update.level,
-                 "quize_type" : question_update.quize_type,
+                 "quiz_type" : question_update.quiz_type,
                  "date" : question_update.date,
                  "reference" : question_update.reference,
                  "jumbledata": question_update.jumbledata
@@ -143,7 +143,7 @@ exports.insert_question  = async function (req, res, next) {
             "answer" : question_insert.answer,
             "artifact_path" : question_insert.artifact_path,
             "level" : question_insert.level,
-            "quize_type" : question_insert.quize_type,
+            "quiz_type" : question_insert.quiz_type,
             "date" : question_insert.date,
             "reference" : question_insert.reference,
             "jumbledata": question_insert.jumbledata
@@ -182,7 +182,7 @@ exports.insert_questions  = async function (req, res, next) {
             "answer" : question_insert.answer,
             "artifact_path" : question_insert.artifact_path,
             "level" : question_insert.level,
-            "quize_type" : question_insert.quize_type,
+            "quiz_type" : question_insert.quiz_type,
             "date" : question_insert.date,
             "reference" : question_insert.reference,
             "jumbledata": question_insert.jumbledata
@@ -190,7 +190,7 @@ exports.insert_questions  = async function (req, res, next) {
         lastQid++;
         });
         
-        await Counter.updateOne({"question_id": sequenceName },
+        await Counter.updateOne({"sequence_name": "qid" },
             { $set : {"sequence_value":lastQid-1}})
        let questions_Res=  await Question.insertMany(questions);
        
@@ -207,17 +207,17 @@ exports.insert_questions  = async function (req, res, next) {
  */
 async function getNextSequenceValue(sequenceName){
     insertSequnceValue(sequenceName);
-    var sequenceDocument = await Counter.updateOne({"question_id": sequenceName },
+    var sequenceDocument = await Counter.updateOne({"sequence_name": sequenceName },
     { $inc : {"sequence_value":1}});
-    sequenceDocument =await Counter.findOne({"question_id" : sequenceName});
+    sequenceDocument =await Counter.findOne({"sequence_name" : sequenceName});
     return sequenceDocument.sequence_value;
   }
   async function insertSequnceValue(sequenceName)
   {
-      let counters= await Counter.findOne({"question_id":sequenceName});
+      let counters= await Counter.findOne({"sequence_name":sequenceName});
       if(counters==undefined || counters==null)
       { 
-            let count= new Counter({"question_id":sequenceName,"sequence_value":0});
+            let count= new Counter({"sequence_name":sequenceName,"sequence_value":0});
             count.save();
       }
   }
@@ -289,7 +289,7 @@ exports.get_questionanswerBymhtid = async function (req, res, next) {
                     _id : 1,
                     question_id : 1,
                     mht_id : 1,
-                    quize_type:1,
+                    quiz_type:1,
                     answer:1,
                     answer_status:1,
                     level : "$questiondetails.level",
@@ -297,7 +297,7 @@ exports.get_questionanswerBymhtid = async function (req, res, next) {
                     question : "$questiondetails.question",
                     question_type : "$questiondetails.question_type",
                     question_st : "$questiondetails.question_st",
-                    quize_type : "$questiondetails.quize_type",
+                    quiz_type : "$questiondetails.quiz_type",
                     date : "$questiondetails.date",
                     reference : "$questiondetails.reference",
                     mobile : "$users.mobile",

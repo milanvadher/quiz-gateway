@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken');
 const morgan = require('morgan');
 const fs = require('fs');
 const path = require('path');
+const response_transformation = require('./utility/transformation');
 
 /**
   * Initialize Server
@@ -31,7 +32,6 @@ server.use(restifyPlugins.acceptParser(server.acceptable));
 server.use(restifyPlugins.queryParser({ mapParams: true }));
 server.use(restifyPlugins.fullResponse());
 server.use(function (req, res, next) {
-
     if (req.url === '/login' || req.url === '/register') return next();
 
     // check header or url parameters or post parameters for token
@@ -57,8 +57,13 @@ server.use(function (req, res, next) {
     //         message: 'No token provided.'
     //     });
     // }
-    next();
-})
+    next();  
+});
+
+server.use(response_transformation.transform);
+
+
+
 /**
   * Start Server, Connect to DB & Require Routes
   */

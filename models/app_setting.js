@@ -8,6 +8,7 @@ const ApplicationSettingSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+
   total_life: {
     type: Number,
     required: true,
@@ -19,17 +20,19 @@ const ApplicationSettingSchema = new mongoose.Schema({
     required: true,
     default: 100  
   },
+
   username: {
-    type:String,
+    type: String,
     required: true
   },
-  negative_per_hint:
-  {
-    type:Number,
+
+  negative_per_hint: {
+    type: Number,
     required: true
   },
-  passeord: {
-    type:String,
+
+  password: {
+    type: String,
     required: true
   }
   

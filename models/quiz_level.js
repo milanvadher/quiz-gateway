@@ -32,7 +32,7 @@ const QuizLevelSchema = new mongoose.Schema({
     },
     total_questions: {
         type: Number,
-        required:true
+        required: true
     },
     categorys: [CategorySchema],
     start_date: {

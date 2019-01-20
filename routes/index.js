@@ -14,6 +14,7 @@ async function import_routes(dir_path) {
     // Walk directory
     fs.readdirSync(dir_path).forEach(function (file) {
         let file_path = `${dir_path}/${file}`;
+        console.log(file_path);
         let stat = fs.statSync(file_path);
         // If it is a directory, invoke again
         if(stat && stat.isDirectory()) {
@@ -26,76 +27,78 @@ async function import_routes(dir_path) {
 }
 
 import_routes(handler_paths);
+console.log(handler_paths);
 
 const route_definitions = [
-    {'path': '/quiz_level', 'method': 'post', 'handler': request_handlers.question.get_quiz_details}
+    {
+        // User Routes
+        'handler': request_handlers.user,
+        'routes': [
+            {'path': '/register', 'method': 'post', 'receiver': 'register'},
+            {'path': '/login', 'method': 'post', 'receiver': 'login'},
+            {'path': '/users', 'method': 'get', 'receiver': 'list'},
+            {'path': '/user/:id', 'method': 'del', 'receiver': 'remove'}
+        ]
+    },
+    {
+        // Application Routes
+        'handler': request_handlers.app_settingAdmin,
+        'routes': [
+            {'path': '/app_set', 'method': 'get', 'receiver': 'get'},
+            {'path': '/app_set', 'method': 'put', 'receiver': 'update'},
+            {'path': '/app_set', 'method': 'post', 'receiver': 'create'},
+        ]
+    },
+    {
+        // Question Routes
+        'handler': request_handlers.question,
+        'routes': [
+            {'path': '/question', 'method': 'post', 'receiver': 'get'},
+            {'path': '/questions', 'method': 'post', 'receiver': 'list'},
+            {'path': '/hint_question', 'method': 'post', 'receiver': 'hint_question'},
+            {'path': '/validate_answer', 'method': 'post', 'receiver': 'validate_answer'},
+            {'path': '/bonus_question', 'method': 'post', 'receiver': 'get_bonus_question'},
+            {'path': '/req_life', 'method': 'post', 'receiver': 'req_life'},
+            {'path': '/user_state', 'method': 'post', 'receiver': 'user_state'},
+        ]
+    },
+    {
+        // User scores Routes
+        'handler': request_handlers.user_score,
+        'routes': [
+            {'path': '/user_scores', 'method': 'get', 'receiver': 'get'}
+        ]
+    },
+    {
+        // Question Admin Routes
+        'handler': request_handlers.questionAdmin,
+        'routes': [
+            {'path': '/get_question', 'method': 'get', 'receiver': 'get_questionByfilter'},
+            {'path': '/edit_questionByquestionid', 'method': 'post', 'receiver': 'update_questionById'},
+            {'path': '/add_questions', 'method': 'post', 'receiver': 'insert_questions'},
+            {'path': '/deletequestion/:question_id', 'method': 'del', 'receiver': 'deletequestion'},
+            {'path': '/get_questionanswerBymhtid/:mhtid', 'method': 'get', 'receiver': 'get_questionanswerBymhtid'},
+        ]
+    },
+    {
+        // Quize Level Admin Routes
+        'handler': request_handlers.quiz_levelAdmin,
+        'routes': [
+            {'path': '/get_quizlevel', 'method': 'get', 'receiver': 'get_quiz_levelByfilter'},
+            {'path': '/edit_quizlevel', 'method': 'post', 'receiver': 'update_quiz_level'},
+            {'path': '/add_quizlevel', 'method': 'post', 'receiver': 'insert_quiz_level'},
+            {'path': '/deletequizlevel/:id', 'method': 'del', 'receiver': 'delete_quiz_level'}
+        ]
+    }
 ];
 
-async function request_dispatcher(req, res, next) {
-    let req_handler = get_handler(req.path());
-    let data = await req_handler(req);
-    let response = {
-        "status": 200,
-        "data": data 
-    };
-    res.send(200, response);
-    next();
-}
-
-function get_handler(path) {
+module.exports = async function (server) {
     for(index in route_definitions) {
-        let route = route_definitions[index];
-        console.log(path);
-        console.log(route.path);
-        if(route.path === path) {
-            return route.handler;
+        let route_def = route_definitions[index];
+        for(ind in route_def.routes) {
+            let route = route_def.routes[ind];
+            console.log(route);
+            server[route.method](route.path, route_def.handler[route.receiver]);
         }
     }
-}
-
-module.exports = async function (server) {
-
-    for(index in route_definitions) {
-        let route = route_definitions[index];
-        server[route.method](route.path, request_dispatcher);
-    }
-
-
-    // User Routes
-    server.post('/register', request_handlers.user.register_user);
-    server.post('/login', request_handlers.user.login);
-    server.get('/users', request_handlers.user.get_users);
-    server.del('/deleteuser/:id', request_handlers.user.delete);
-
-    // Application Routes
-    server.get('/get_applicationSetting', request_handlers.app_settingAdmin.get_applicationSetting);
-    server.post('/edit_applicationSetting', request_handlers.app_settingAdmin.update_applicationSetting);
-    server.post('/add_applicationSetting', request_handlers.app_settingAdmin.insert_applicationSetting);
- 
-
-    // Question Routes
-    server.post('/question', request_handlers.question.get_question);
-    server.post('/questions', request_handlers.question.get_questions);
-    server.post('/hint_question', request_handlers.question.hint_question);
-    server.post('/validate_answer', request_handlers.question.validate_answer);
-    server.post('/bonusquestion', request_handlers.question.get_bonusquestion);
-    server.post('/lifefromScore', request_handlers.question.get_lifefromScore);
-    //server.post('/quiz_level', request_handlers.question.get_quiz_details);
-
-    // User scores Routes
-    server.get('/get_userscores', request_handlers.user_score.get_userScoresByfilter);
-    
-
-    // Question Admin Routes
-    server.get('/get_question', request_handlers.questionAdmin.get_questionByfilter);
-    server.post('/edit_questionByquestionid', request_handlers.questionAdmin.update_questionById);
-    server.post('/add_questions', request_handlers.questionAdmin.insert_questions);
-    server.del('/deletequestion/:question_id', request_handlers.questionAdmin.deletequestion);
-    server.get('/get_questionanswerBymhtid/:mhtid', request_handlers.questionAdmin.get_questionanswerBymhtid);
-     
-    // Quize Level Admin Routes
-    server.get('/get_quizleve', request_handlers.quize_levelAdmin.get_quize_leveByfilter);
-    server.post('/edit_quizlevel', request_handlers.quize_levelAdmin.update_quize_level);
-    server.post('/add_quizlevel', request_handlers.quize_levelAdmin.insert_quize_level);
-    server.del('/deletequizlevel/:id', request_handlers.quize_levelAdmin.delete_quiz_level);
 };    

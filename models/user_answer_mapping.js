@@ -11,7 +11,7 @@ const UserAnswerMappingSchema = new mongoose.Schema({
     type: Number,
     required: true  
   },
- quize_type: {
+ quiz_type: {
     type: String,
     enum: ['REGULAR','BONUS'],
     required: true,

@@ -16,7 +16,7 @@ const ApplicationSetting=require('../../models/app_setting');
  * @param {Function} next
  * @return {application_setting}
  */
-exports.get_applicationSetting = async function (req, res, next) {
+exports.get = async function (req, res, next) {
     try {
         let application= await  ApplicationSetting.find(req.params);
         res.send(200, application);
@@ -35,7 +35,7 @@ exports.get_applicationSetting = async function (req, res, next) {
  * @param {Function} next
  * @return {application_setting}
  */
-exports.update_applicationSetting = async function (req, res, next) {
+exports.update = async function (req, res, next) {
     try {
         
         let app_update=req.body;
@@ -46,7 +46,7 @@ exports.update_applicationSetting = async function (req, res, next) {
             "total_life":app_update.total_life,
             "score_per_life":app_update.score_per_life,
             "username":app_update.username,
-            "passeord":app_update.passeord        }}
+            "password":app_update.password        }}
         );
         res.send(200, application);
     } catch (error) {
@@ -63,7 +63,7 @@ exports.update_applicationSetting = async function (req, res, next) {
  * @param {Function} next
  * @return {application_setting}
  */
-exports.insert_applicationSetting = async function (req, res, next) {
+exports.create = async function (req, res, next) {
     try {
         let app_insert=req.body;
         let application= new  ApplicationSetting(app_insert);

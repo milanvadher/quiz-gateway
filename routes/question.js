@@ -23,14 +23,14 @@ const ApplicationSetting=require('../models/app_setting');
  * @param {Function} next
  * @return {Question}
  */
-exports.get_question = async function (req, res, next) {
+exports.get = async function (req, res, next) {
     let question_st = req.body.question_st;
     let level = req.body.level;
     let question;
     try {
         question = await Question.findOne({
             "question_st": question_st,
-            "quize_type": "REGULAR",
+            "quiz_type": "REGULAR",
             "level": level
         }, "-_id");
         res.send(200, question);
@@ -52,7 +52,7 @@ exports.get_question = async function (req, res, next) {
  * @param {Function} next
  * @return {Question}
  */
-exports.get_questions = async function (req, res, next) {
+exports.list = async function (req, res, next) {
     // TODO - Check User Authentication
     //let question_st = req.body.question_st;
     let level = req.body.level;
@@ -62,7 +62,7 @@ exports.get_questions = async function (req, res, next) {
     try {
         if (!questionto  || questionto == 0 ) {
             question = await Question.find({
-                "quize_type": "REGULAR",
+                "quiz_type": "REGULAR",
                 "question_st": {
                     $gte: questionfrom
                 },
@@ -71,7 +71,7 @@ exports.get_questions = async function (req, res, next) {
         }
         else {
               question = await Question.find({
-                "quize_type": "REGULAR",
+                "quiz_type": "REGULAR",
                 "question_st": {
                     $gte: questionfrom,
                     $lte: questionto
@@ -153,11 +153,11 @@ exports.validate_answer = async function (req, res, next) {
 
     let question, status, user,scoreAdd;
     try {
-        question = await Question.findOne({"question_id": question_id,}, "answer score quize_type question_st");
+        question = await Question.findOne({"question_id": question_id,}, "answer score quiz_type question_st");
         scoreAdd=question.score;
 
         user = await User.findOne({"mht_id": user_mhtid });
-        if(question.quize_type =="BONUS")
+        if(question.quiz_type =="BONUS")
         {
             let answer_status=false;
             if(question.answer[0].answer == selected_ans) {
@@ -174,7 +174,7 @@ exports.validate_answer = async function (req, res, next) {
             else {
                 status = {"answer_status": answer_status,"lives": user.lives ,"score": user.totalscore};
             }
-            let UAMObj=new  UserAnswerMapping({"mht_id":user_mhtid,"question_id":question_id,"quize_type":question.quize_type,"answer":selected_ans,"answer_status":answer_status});
+            let UAMObj=new  UserAnswerMapping({"mht_id":user_mhtid,"question_id":question_id,"quiz_type":question.quiz_type,"answer":selected_ans,"answer_status":answer_status});
             // entry in user answer, in case of bonus.
             UAMObj.save();
         }
@@ -196,7 +196,7 @@ exports.validate_answer = async function (req, res, next) {
                       $set: {"question_id":question_id}
                     });
 
-                   let UAMObj=new  UserAnswerMapping({"mht_id":user_mhtid,"question_id":question_id,"quize_type":question.quize_type,"answer":selected_ans,"answer_status":true });
+                   let UAMObj=new  UserAnswerMapping({"mht_id":user_mhtid,"question_id":question_id,"quiz_type":question.quiz_type,"answer":selected_ans,"answer_status":true });
                    // entry in user answer, if answer is right and in case of regular.
                    UAMObj.save();
                    user = await User.findOne({"mht_id":user_mhtid});
@@ -236,7 +236,7 @@ exports.validate_answer = async function (req, res, next) {
  * @param {Function} next
  * @return {Question}
  */
-exports.get_bonusquestion = async function (req, res, next) {
+exports.get_bonus_question = async function (req, res, next) {
     // TODO - Check User Authentication
     let mhtid = req.body.mhtid;
     var datetime = new Date();
@@ -250,7 +250,7 @@ exports.get_bonusquestion = async function (req, res, next) {
     try {
         usersanwered= await UserAnswerMapping.find({
             "mht_id":mhtid,
-            "quize_type": "BONUS"
+            "quiz_type": "BONUS"
         },"question_id -_id");
         let qidarrya=[];
         if(!usersanwered || usersanwered.length>0)
@@ -263,7 +263,7 @@ exports.get_bonusquestion = async function (req, res, next) {
         //console.log(datetimec);
         //console.log(datetimef);
         question = await Question.find({
-            "quize_type": "BONUS",
+            "quiz_type": "BONUS",
             "date":{ $gte : datetimec , $lt : datetimef  },
             "question_id": {$nin: qidarrya}
         }, "-_id");
@@ -286,7 +286,7 @@ exports.get_bonusquestion = async function (req, res, next) {
  * @param {Function} next
  * @return {Question}
  */
-exports.get_lifefromScore = async function (req, res, next) {
+exports.req_life = async function (req, res, next) {
     // TODO - Check User Authentication
     let mht_id = req.body.mht_id;
     try {
@@ -327,8 +327,7 @@ exports.get_lifefromScore = async function (req, res, next) {
  * @param {Function} next
  * @return {quiz_levels, completed_levels, current_level}
  */
-exports.get_quiz_details = async function (req) {
-    console.log("rrrr1111");
+exports.user_state = async function (req, res, next) {
     // TODO - Check User Authentication
     let mht_id = req.body.mhtid;
     let results;
@@ -405,21 +404,16 @@ exports.get_quiz_details = async function (req) {
         else {
             level_current = current_user_level[0].level;
         }
-
-        
-        //console.log(Question_Sta);
         response = {
             "quiz_levels": results[0],
             "completed": results[1],
             "current": results[2],
             "totalscore":user.totalscore
         }
-        return response;
-        //res.locals = response;
-        //res.send(200, { "results": response });
-        //next();
+        res.send(200, { "results": response });
+        next();
     } catch (error) {
-        //res.send(500, new Error(error));
-        //next();
+        res.send(500, new Error(error));
+        next();
     }
 };

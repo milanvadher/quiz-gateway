@@ -73,25 +73,28 @@ const QuestionSchema = new mongoose.Schema({
   level: {
     type: Number 
   },
-  quize_type: {
+
+  quiz_type: {
     type: String,
     enum: ['REGULAR','BONUS'],
     required: true,
     default: 'REGULAR'
   },
+
   question_id: {
     type: Number,
     required: true  
   },
+
   date: {
     type: Date
   },
+
   reference : {
     type: String
   },
-  jumbledata:[JumbleSchema]
-  
 
+  jumbledata: [JumbleSchema]
 });
 
 QuestionSchema.plugin(timestamp);

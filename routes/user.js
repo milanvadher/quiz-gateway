@@ -23,7 +23,7 @@ const SALT_WORK_FACTOR = 10; // For unique password even if same password (For h
  * @param {Function} next
  * @return {msg}
  */
-exports.register_user = async function (req, res, next) {
+exports.register = async function (req, res, next) {
     try {
         let data = req.body || {};
 
@@ -90,7 +90,7 @@ exports.login = async function (req, res, next) {
  * @param {Function} next
  * @return {User}
  */
-exports.get_users = async function (req, res, next) {
+exports.list = async function (req, res, next) {
     try {
         
         let users = await User.apiQuery(req.params);
@@ -112,7 +112,7 @@ exports.get_users = async function (req, res, next) {
  * @param {Function} next
  * @return {User}
  */
-exports.delete = async function (req, res, next) {
+exports.remove = async function (req, res, next) {
     try {
         let result = await User.remove({ _id: req.params.id });
         if (result.n) {
@@ -120,6 +120,7 @@ exports.delete = async function (req, res, next) {
             next();
         } else {
             res.send(404, { msg: "User not found" });
+            next();
         }
     } catch (error) {
         res.send(500, new Error(error));
