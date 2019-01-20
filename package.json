@@ -11,7 +11,8 @@
     "mongoose-string-query": "0.2.5",
     "mongoose-timestamp": "0.6.0",
     "morgan": "^1.9.1",
-    "request": "2.88.0",
+    "random-number": "0.0.9",
+    "request": "^2.81.0",
     "restify": "7.3.0",
     "restify-errors": "6.1.1",
     "restify-plugins": "1.6.0"

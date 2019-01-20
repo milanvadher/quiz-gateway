@@ -27,7 +27,6 @@ async function import_routes(dir_path) {
 }
 
 import_routes(handler_paths);
-console.log(handler_paths);
 
 const route_definitions = [
     {
@@ -37,7 +36,9 @@ const route_definitions = [
             {'path': '/register', 'method': 'post', 'receiver': 'register'},
             {'path': '/login', 'method': 'post', 'receiver': 'login'},
             {'path': '/users', 'method': 'get', 'receiver': 'list'},
-            {'path': '/user/:id', 'method': 'del', 'receiver': 'remove'}
+            {'path': '/user/:id', 'method': 'del', 'receiver': 'remove'},
+            {'path': '/generate_otp', 'method': 'post', 'receiver': 'generate_otp'},
+            {'path': '/verify_otp', 'method': 'post', 'receiver': 'verify_otp'}
         ]
     },
     {

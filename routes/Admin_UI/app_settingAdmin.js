@@ -40,14 +40,15 @@ exports.update = async function (req, res, next) {
         
         let app_update=req.body;
         let id=app_update._Id;
-        let application= await  ApplicationSetting.updateOne({"_Id":id},
+        await  ApplicationSetting.updateOne({"_Id":id},
         { $set: {
             "negative_per_question":app_update.negative_per_question,
-            "total_life":app_update.total_life,
-            "score_per_life":app_update.score_per_life,
+            "total_lives":app_update.total_lives,
+            "score_per_lives":app_update.score_per_lives,
             "username":app_update.username,
             "password":app_update.password        }}
         );
+        let application= await  ApplicationSetting.findOne({"_Id":id});
         res.send(200, application);
     } catch (error) {
         res.send(500, new Error(error));
@@ -67,7 +68,7 @@ exports.create = async function (req, res, next) {
     try {
         let app_insert=req.body;
         let application= new  ApplicationSetting(app_insert);
-        application.save();
+        await application.save();
         res.send(200, application);
     } catch (error) {
         res.send(500, new Error(error));

@@ -176,7 +176,7 @@ exports.validate_answer = async function (req, res, next) {
             }
             let UAMObj=new  UserAnswerMapping({"mht_id":user_mhtid,"question_id":question_id,"quiz_type":question.quiz_type,"answer":selected_ans,"answer_status":answer_status});
             // entry in user answer, in case of bonus.
-            UAMObj.save();
+            await UAMObj.save();
         }
         else
         {
@@ -198,7 +198,7 @@ exports.validate_answer = async function (req, res, next) {
 
                    let UAMObj=new  UserAnswerMapping({"mht_id":user_mhtid,"question_id":question_id,"quiz_type":question.quiz_type,"answer":selected_ans,"answer_status":true });
                    // entry in user answer, if answer is right and in case of regular.
-                   UAMObj.save();
+                   await UAMObj.save();
                    user = await User.findOne({"mht_id":user_mhtid});
 
                     status = {"answer_status": true, "lives": user.lives , "score": user.totalscore};
@@ -295,11 +295,11 @@ exports.req_life = async function (req, res, next) {
         let user= await User.findOne({
             "mht_id":mht_id
         });
-        if(user.totalscore>app_setting.score_per_life)
+        if(user.totalscore>app_setting.score_per_lives)
         {
             user = await User.updateOne({
                 "mht_id":user.mht_id},
-                {$inc: {"lives": 1,"totalscore": (app_setting.score_per_life*-1)}
+                {$inc: {"lives": 1,"totalscore": (app_setting.score_per_lives*-1)}
             });
            let users= await User.findOne({
                 "mht_id":mht_id

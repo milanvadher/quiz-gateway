@@ -100,11 +100,10 @@ exports.get_quiz_levelByfilter = async function (req, res, next) {
  * @return {quize_level}
  */
 exports.update_quiz_level = async function (req, res, next) {
-    try {
-        
+    try {     
         let quiz_level = req.body;
         let index = quiz_level.level_index;
-        let quizlevel = await QuizLevel.updateOne({"level_index":index},
+        await QuizLevel.updateOne({"level_index":index},
         { $set: {
             "name": quiz_level.name,
             "level_type": quiz_level.level_type,
@@ -113,6 +112,7 @@ exports.update_quiz_level = async function (req, res, next) {
             "start_date": quiz_level.start_date,
             "end_date": quiz_level.end_date        }}
         );
+        let quizelevel= await  QuizeLevel.findOne({"level_index":index});
         res.send(200, quizlevel);
     } catch (error) {
         res.send(500, new Error(error));

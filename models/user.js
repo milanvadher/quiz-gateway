@@ -11,8 +11,8 @@ const UserSchema = new mongoose.Schema({
   },
 
   password: {
-    type: String,
-    required: true
+    type: String
+    //required: true
   },
 
   name: {
@@ -60,8 +60,8 @@ const UserSchema = new mongoose.Schema({
   },
 
   question_id: {
-    type: Number,
-    required: true    
+    type: Number
+    //,    required: true    
   }
 
 });

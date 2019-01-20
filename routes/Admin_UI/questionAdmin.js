@@ -96,7 +96,7 @@ exports.update_questionById  = async function (req, res, next) {
         // question = await Question.find({
         //     "question_id": question_id
         // });
-        question=  await Question.updateOne({ "question_id": question_id},
+        await Question.updateOne({ "question_id": question_id},
         {$set: { "question_st" : question_update.question_st,
                  "question_type" : question_update.question_type,
                  "question" : question_update.question,
@@ -110,6 +110,7 @@ exports.update_questionById  = async function (req, res, next) {
                  "reference" : question_update.reference,
                  "jumbledata": question_update.jumbledata
                 }} );
+        question=  await Question.findOne({ "question_id": question_id});
         res.send(200, question);
         next();
     } catch (error) {
@@ -148,7 +149,7 @@ exports.insert_question  = async function (req, res, next) {
             "reference" : question_insert.reference,
             "jumbledata": question_insert.jumbledata
         } );
-        question.save();
+        await  question.save();
         res.send(200, question);
         next();
     } catch (error) {
@@ -218,7 +219,7 @@ async function getNextSequenceValue(sequenceName){
       if(counters==undefined || counters==null)
       { 
             let count= new Counter({"sequence_name":sequenceName,"sequence_value":0});
-            count.save();
+            await count.save();
       }
   }
 /**
