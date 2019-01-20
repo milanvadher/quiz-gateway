@@ -340,25 +340,35 @@ exports.user_state = async function (req, res, next) {
         var datetimet=new Date(dt);
         results = await Promise.all([
             // Find all levels
-            // QuizLevel.find({
-            //     "start_date":{
-            //         $gte: datetime.getDate()
-            //     },
-            //     { $or : [{ "end_date": {
-            //          $type : 10 ,// 10 it's Check type to null
-            //         $lte: datetime.getDate()
-            //     }
-            // }]
-            // }
-            // })ApplicationSetting.findOne({});
             
             // $type : 10 --> 10 it's Check type to null
-            QuizLevel.find( {
-                $and : [
-                    { "start_date" :  { $lte: datetimet}  },
-                    { $or : [ { "end_date" : { $type : 10 } }, { "end_date" : { $gt : datetimet } } ] }
-                ]
-            } ),
+            // QuizLevel.find( {
+            //     $and : [
+            //         { "start_date" :  { $lte: datetimet}  },
+            //         { $or : [ { "end_date" : { $type : 10 } }, { "end_date" : { $gt : datetimet } } ] }
+            //     ]
+            // } ),
+            QuizLevel.aggregate([{
+                $lookup : {
+                  from: "questions",
+                  localField: "level_index",
+                  foreignField: "level",
+                  as: "questiondetails"
+                  }},{ $match:
+                  {
+                             $and : [
+                                 { "start_date" :  { $lte: datetimet}  },
+                                 { $or : [ { "end_date" : { $type : 10 } }, { "end_date" : { $gt : datetimet } } ] }
+                             ]
+                             }},
+                  {
+                  $project: {
+                  "level_index":1,"name":1,"level_type":1
+                  ,"total_questions":1,"categorys":1,"start_date":1,"end_date":1,"description":1,"imagepath":1     
+                  , "totalscores": {$sum:"$questiondetails.score"}
+                     }
+                  } 
+             ])  ,
 
             // Find levels that user has already completed
             UserScore.find({

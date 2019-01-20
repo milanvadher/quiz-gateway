@@ -74,20 +74,20 @@ const route_definitions = [
         // Question Admin Routes
         'handler': request_handlers.questionAdmin,
         'routes': [
-            {'path': '/get_question', 'method': 'get', 'receiver': 'get_questionByfilter'},
-            {'path': '/edit_questionByquestionid', 'method': 'post', 'receiver': 'update_questionById'},
-            {'path': '/add_questions', 'method': 'post', 'receiver': 'insert_questions'},
+            {'path': '/question', 'method': 'get', 'receiver': 'get_questionByfilter'},
+            {'path': '/question', 'method': 'put', 'receiver': 'update_questionById'},
+            {'path': '/addquestions', 'method': 'post', 'receiver': 'insert_questions'},
             {'path': '/deletequestion/:question_id', 'method': 'del', 'receiver': 'deletequestion'},
-            {'path': '/get_questionanswerBymhtid/:mhtid', 'method': 'get', 'receiver': 'get_questionanswerBymhtid'},
+            {'path': '/questionanswerBymhtid/:mhtid', 'method': 'get', 'receiver': 'get_questionanswerBymhtid'},
         ]
     },
     {
         // Quize Level Admin Routes
         'handler': request_handlers.quiz_levelAdmin,
         'routes': [
-            {'path': '/get_quizlevel', 'method': 'get', 'receiver': 'get_quiz_levelByfilter'},
-            {'path': '/edit_quizlevel', 'method': 'post', 'receiver': 'update_quiz_level'},
-            {'path': '/add_quizlevel', 'method': 'post', 'receiver': 'insert_quiz_level'},
+            {'path': '/quizlevel', 'method': 'get', 'receiver': 'get_quiz_levelByfilter'},
+            {'path': '/quizlevel', 'method': 'put', 'receiver': 'update_quiz_level'},
+            {'path': '/quizlevel', 'method': 'post', 'receiver': 'insert_quiz_level'},
             {'path': '/deletequizlevel/:id', 'method': 'del', 'receiver': 'delete_quiz_level'}
         ]
     }

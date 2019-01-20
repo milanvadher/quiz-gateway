@@ -110,6 +110,8 @@ exports.update_quiz_level = async function (req, res, next) {
             "total_questions": quiz_level.total_questions,
             "categorys": quiz_level.categorys,
             "start_date": quiz_level.start_date,
+            "description": quiz_level.description,
+            "imagepath": quiz_level.imagepath,
             "end_date": quiz_level.end_date        }}
         );
         let quizlevel = await QuizLevel.findOne({"level_index":index});
