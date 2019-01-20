@@ -15,7 +15,7 @@ const UserScore = require('../models/user_score');
  * @param {Function} next
  * @return {userscores}
  */
-exports.get_userScoresByfilter = async function (req, res, next) {
+exports.get = async function (req, res, next) {
     let userscores;
     try {
         userscores = await UserScore.find(req.params);

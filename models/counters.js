@@ -3,14 +3,12 @@ const timestamp = require('mongoose-timestamp');
 const mongooseStringQuery = require('mongoose-string-query');
 
 const CounterSchema = new mongoose.Schema({
-    
     sequence_value : {
       type: Number
     },
-    question_id: {
-        type:String
+    sequence_name: {
+      type: String
     }
-  
 });
 
 CounterSchema.plugin(timestamp);

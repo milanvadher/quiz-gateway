@@ -6,7 +6,7 @@ const errors = require('restify-errors');
 /**
  * Model Schema
  */
-const QuizeLevel=require('../../models/quiz_level');
+const QuizLevel = require('../../models/quiz_level');
 /**
 * Get quize level by index
 * @param req {Object} The request.
@@ -15,10 +15,10 @@ const QuizeLevel=require('../../models/quiz_level');
 * @param {Function} next
 * @return {quize_level}
 */
-exports.get_quize_leveByfilter = async function (req, res, next) {
+exports.get_quiz_levelByfilter = async function (req, res, next) {
    try {
-       let quizeLevel= await  QuizeLevel.find(req.params);
-       res.send(200, quizeLevel);
+       let quiz_level = await QuizeLevel.find(req.params);
+       res.send(200, quiz_level);
        next();
    } catch (error) {
        res.send(500, new Error(error));
@@ -99,28 +99,25 @@ exports.get_quize_leveByfilter = async function (req, res, next) {
  * @param {Function} next
  * @return {quize_level}
  */
-exports.update_quize_level = async function (req, res, next) {
-    try {
-        
-        let quize_level=req.body;
-        let index=quize_level.level_index;
-        await  QuizeLevel.updateOne({"level_index":index},
+exports.update_quiz_level = async function (req, res, next) {
+    try {     
+        let quiz_level = req.body;
+        let index = quiz_level.level_index;
+        await QuizLevel.updateOne({"level_index":index},
         { $set: {
-            "name":quize_level.name,
-            "level_type":quize_level.level_type,
-            "total_questions":quize_level.total_questions,
-            "categorys":quize_level.categorys,
-            "start_date":quize_level.start_date,
-            "end_date":quize_level.end_date        }}
+            "name": quiz_level.name,
+            "level_type": quiz_level.level_type,
+            "total_questions": quiz_level.total_questions,
+            "categorys": quiz_level.categorys,
+            "start_date": quiz_level.start_date,
+            "end_date": quiz_level.end_date        }}
         );
-        let quizelevel= await  QuizeLevel.findOne({"level_index":index});
-        res.send(200, quizelevel);
+        let quizlevel = await QuizLevel.findOne({"level_index":index});
+        res.send(200, quizlevel);
     } catch (error) {
         res.send(500, new Error(error));
-//        next();
     }
     next();
-
 };
 /**
  * insert in into quize level collection, responce new added object or give validation message if same level index exsisted.
@@ -130,19 +127,17 @@ exports.update_quize_level = async function (req, res, next) {
  * @param {Function} next
  * @return {quize_level}
  */
-exports.insert_quize_level = async function (req, res, next) {
+exports.insert_quiz_level = async function (req, res, next) {
     try {
-        let quize_level=req.body;
-        let quize_le=[];
+        let quiz_level = req.body;
+        let quiz_levels = [];
         
-        quize_le= await QuizeLevel.find({"level_index":quize_level.level_index});
-        if(quize_le == undefined || quize_le == null || quize_le.length==0 )
+        quiz_levels = await QuizLevel.find({"level_index": quiz_level.level_index});
+        if(quiz_levels == undefined || quiz_levels == null || quiz_levels.length==0 )
         {
-            //quize_le.push(quize_level);
-           // quize_le=  QuizeLevel.insertMany(quize_le);
-           let quiz=new QuizeLevel(quize_level);
-           await quiz.save();
-            res.send(200, quiz);
+            let quizLevel = new QuizLevel(quiz_level);
+            quizLevel.save();
+            res.send(200, quizLevel);
         }
         else
         {
@@ -165,12 +160,13 @@ exports.insert_quize_level = async function (req, res, next) {
  */
 exports.delete_quiz_level = async function (req, res, next) {
     try {
-        let result = await QuizeLevel.deleteOne({"level_index": req.params.id });
+        let result = await QuizLevel.deleteOne({"level_index": req.params.id});
         if (result.n) {
-            res.send(200, { msg: "Quize level deleted successfully !!" });
+            res.send(200, { msg: "Quiz level deleted successfully !!" });
             next();
         } else {
-            res.send(404, { msg: "Quize level not found" });
+            res.send(404, { msg: "Quiz level not found" });
+            next();
         }
     } catch (error) {
         res.send(500, new Error(error));
