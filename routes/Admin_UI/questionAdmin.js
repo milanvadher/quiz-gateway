@@ -2,6 +2,7 @@
  * Module Dependencies
  */
 const errors = require('restify-errors');
+const XLSX = require('xlsx')
 
 /**
  * Model Schema
@@ -222,6 +223,21 @@ async function getNextSequenceValue(sequenceName){
             await count.save();
       }
   }
+
+exports.test_excel =  async function (req, res, next) 
+  {
+      try{
+          console.log('fi');
+            var workbook = XLSX.readFile("G:\\Book1.xlsx");
+            var sheet_name_list = workbook.SheetNames;
+            var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
+            console.log(xlData);
+        } catch (error) {
+            console.log(error);
+            res.send(500, new Error(error));
+        }
+    next();
+  };
 /**
  * Delete Question by _id
  * @param req {Object} The request.

@@ -15,7 +15,8 @@
     "request": "^2.81.0",
     "restify": "7.3.0",
     "restify-errors": "6.1.1",
-    "restify-plugins": "1.6.0"
+    "restify-plugins": "1.6.0",
+    "xlsx": "^0.14.1"
   },
   "devDependencies": {
     "mongoose-faker": "^1.0.0"

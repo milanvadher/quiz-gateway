@@ -14,7 +14,7 @@ async function import_routes(dir_path) {
     // Walk directory
     fs.readdirSync(dir_path).forEach(function (file) {
         let file_path = `${dir_path}/${file}`;
-        console.log(file_path);
+        //console.log(file_path);
         let stat = fs.statSync(file_path);
         // If it is a directory, invoke again
         if(stat && stat.isDirectory()) {
@@ -81,6 +81,7 @@ const route_definitions = [
             {'path': '/admin/question', 'method': 'get', 'receiver': 'get_questionByfilter'},
             {'path': '/admin/question', 'method': 'put', 'receiver': 'update_questionById'},
             {'path': '/admin/questions', 'method': 'post', 'receiver': 'insert_questions'},
+            {'path': '/admin/test_excel', 'method': 'get', 'receiver': 'test_excel'},
             {'path': '/admin/question/:id', 'method': 'del', 'receiver': 'delete'},
             {'path': '/admin/questionanswerBymhtid/:mhtid', 'method': 'get', 'receiver': 'get_questionanswerBymhtid'},
         ]
@@ -102,7 +103,7 @@ module.exports = async function (server) {
         let route_def = route_definitions[index];
         for(ind in route_def.routes) {
             let route = route_def.routes[ind];
-            console.log(route);
+            //console.log(route);
             server[route.method](route.path, route_def.handler[route.receiver]);
         }
     }
