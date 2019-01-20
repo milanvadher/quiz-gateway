@@ -24,7 +24,6 @@ const ApplicationSetting=require('../models/app_setting');
  * @return {Question}
  */
 exports.get_question = async function (req, res, next) {
-    // TODO - Check User Authentication
     let question_st = req.body.question_st;
     let level = req.body.level;
     let question;
@@ -328,7 +327,8 @@ exports.get_lifefromScore = async function (req, res, next) {
  * @param {Function} next
  * @return {quiz_levels, completed_levels, current_level}
  */
-exports.get_quiz_details = async function (req, res, next) {
+exports.get_quiz_details = async function (req) {
+    console.log("rrrr1111");
     // TODO - Check User Authentication
     let mht_id = req.body.mhtid;
     let results;
@@ -414,10 +414,12 @@ exports.get_quiz_details = async function (req, res, next) {
             "current": results[2],
             "totalscore":user.totalscore
         }
-        res.send(200, { "results": response });
-        next();
+        return response;
+        //res.locals = response;
+        //res.send(200, { "results": response });
+        //next();
     } catch (error) {
-        res.send(500, new Error(error));
-        next();
+        //res.send(500, new Error(error));
+        //next();
     }
 };
