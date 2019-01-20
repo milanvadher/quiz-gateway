@@ -8,13 +8,13 @@ const ApplicationSettingSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  total_life: {
+  total_lives: {
     type: Number,
     required: true,
     default: 3
   },
 
-  score_per_life: {
+  score_per_lives: {
     type: Number,
     required: true,
     default: 100  

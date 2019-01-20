@@ -25,6 +25,8 @@ module.exports = function (server) {
     server.post('/login', request_handlers.user.login);
     server.get('/users', request_handlers.user.get_users);
     server.del('/deleteuser/:id', request_handlers.user.delete);
+    server.post('/generate_otp', request_handlers.user.generate_otp);
+    server.post('/verify_otp', request_handlers.user.verify_otp);
 
      // Application Routes
      server.get('/get_applicationSetting', request_handlers.app_settingAdmin.get_applicationSetting);

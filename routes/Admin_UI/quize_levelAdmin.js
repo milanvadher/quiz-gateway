@@ -104,7 +104,7 @@ exports.update_quize_level = async function (req, res, next) {
         
         let quize_level=req.body;
         let index=quize_level.level_index;
-        let quizelevel= await  QuizeLevel.updateOne({"level_index":index},
+        await  QuizeLevel.updateOne({"level_index":index},
         { $set: {
             "name":quize_level.name,
             "level_type":quize_level.level_type,
@@ -113,6 +113,7 @@ exports.update_quize_level = async function (req, res, next) {
             "start_date":quize_level.start_date,
             "end_date":quize_level.end_date        }}
         );
+        let quizelevel= await  QuizeLevel.findOne({"level_index":index});
         res.send(200, quizelevel);
     } catch (error) {
         res.send(500, new Error(error));
@@ -140,7 +141,7 @@ exports.insert_quize_level = async function (req, res, next) {
             //quize_le.push(quize_level);
            // quize_le=  QuizeLevel.insertMany(quize_le);
            let quiz=new QuizeLevel(quize_level);
-           quiz.save();
+           await quiz.save();
             res.send(200, quiz);
         }
         else
