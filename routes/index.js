@@ -28,8 +28,8 @@ module.exports = function (server) {
 
      // Application Routes
      server.get('/get_applicationSetting', request_handlers.app_settingAdmin.get_applicationSetting);
-     server.post('/edit_applicationSetting', request_handlers.app_settingAdmin.update_applicationSetting);
-     server.post('/add_applicationSetting', request_handlers.app_settingAdmin.insert_applicationSetting);
+     server.put('/applicationSetting', request_handlers.app_settingAdmin.update_applicationSetting);
+     server.post('/applicationSetting', request_handlers.app_settingAdmin.insert_applicationSetting);
  
 
     // Question Routes
@@ -42,22 +42,20 @@ module.exports = function (server) {
     server.post('/quiz_level', request_handlers.question.get_quiz_details);
 
      // User scores Routes
-     server.get('/get_userscores', request_handlers.user_score.get_userScoresByfilter);
+     server.get('/userscores', request_handlers.user_score.get_userScoresByfilter);
     
 
     // Question Admin Routes
-     server.get('/get_question', request_handlers.questionAdmin.get_questionByfilter);
-     server.post('/edit_questionByquestionid', request_handlers.questionAdmin.update_questionById);
-     server.post('/add_questions', request_handlers.questionAdmin.insert_questions);
+     server.get('/question', request_handlers.questionAdmin.get_questionByfilter);
+     server.put('/question', request_handlers.questionAdmin.update_questionById);
+     server.post('/addquestions', request_handlers.questionAdmin.insert_questions);
      server.del('/deletequestion/:question_id', request_handlers.questionAdmin.deletequestion);
-     server.get('/get_questionanswerBymhtid/:mhtid', request_handlers.questionAdmin.get_questionanswerBymhtid);
+     server.get('/questionanswer/:mhtid', request_handlers.questionAdmin.get_questionanswerBymhtid);
      
     // Quize Level Admin Routes
-    server.get('/get_quizleve', request_handlers.quize_levelAdmin.get_quize_leveByfilter);
-    server.post('/edit_quizlevel', request_handlers.quize_levelAdmin.update_quize_level);
-    server.post('/add_quizlevel', request_handlers.quize_levelAdmin.insert_quize_level);
+    server.get('/quizleve', request_handlers.quize_levelAdmin.get_quize_leveByfilter);
+    server.put('/quizlevel', request_handlers.quize_levelAdmin.update_quize_level);
+    server.post('/quizlevel', request_handlers.quize_levelAdmin.insert_quize_level);
     server.del('/deletequizlevel/:id', request_handlers.quize_levelAdmin.delete_quiz_level);
-
-
 
 };    
