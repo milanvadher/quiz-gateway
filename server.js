@@ -38,25 +38,25 @@ server.use(function (req, res, next) {
     const token = req.headers['x-access-token'] || req.query.token;
 
     // decode token
-    // if (token) {
-    //     // verifies secret and checks exp
-    //     jwt.verify(token, config.jwt_secret, function (err, decoded) {
-    //         if (err) {
-    //             return res.send(403, { success: false, message: 'Failed to authenticate token.' });
-    //         } else {
-    //             // if everything is good, save to request for use in other routes
-    //             req.decoded = decoded;
-    //             next();
-    //         }
-    //     });
-    // } else {
-    //     // if there is no token
-    //     // return an error
-    //     return res.send(403, {
-    //         success: false,
-    //         message: 'No token provided.'
-    //     });
-    // }
+    if (token) {
+        // verifies secret and checks exp
+        jwt.verify(token, config.jwt_secret, function (err, decoded) {
+            if (err) {
+                return res.send(403, { success: false, message: 'Failed to authenticate token.' });
+            } else {
+                // if everything is good, save to request for use in other routes
+                req.decoded = decoded;
+                next();
+            }
+        });
+    } else {
+        // if there is no token
+        // return an error
+        return res.send(403, {
+            success: false,
+            message: 'No token provided.'
+        });
+    }
     next();  
 });
 

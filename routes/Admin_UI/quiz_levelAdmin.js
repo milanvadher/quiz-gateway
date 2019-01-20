@@ -18,7 +18,7 @@ const QuizLevel = require('../../models/quiz_level');
 exports.get_quiz_levelByfilter = async function (req, res, next) {
    try {
        let quiz_level = await QuizeLevel.find(req.params);
-       res.send(200, quize_level);
+       res.send(200, quiz_level);
        next();
    } catch (error) {
        res.send(500, new Error(error));
@@ -112,7 +112,7 @@ exports.update_quiz_level = async function (req, res, next) {
             "start_date": quiz_level.start_date,
             "end_date": quiz_level.end_date        }}
         );
-        let quizelevel= await  QuizeLevel.findOne({"level_index":index});
+        let quizlevel = await QuizLevel.findOne({"level_index":index});
         res.send(200, quizlevel);
     } catch (error) {
         res.send(500, new Error(error));
@@ -132,10 +132,10 @@ exports.insert_quiz_level = async function (req, res, next) {
         let quiz_level = req.body;
         let quiz_levels = [];
         
-        quiz_levels = await QuizeLevel.find({"level_index": quiz_level.level_index});
+        quiz_levels = await QuizLevel.find({"level_index": quiz_level.level_index});
         if(quiz_levels == undefined || quiz_levels == null || quiz_levels.length==0 )
         {
-            let quizLevel = new QuizeLevel(quiz_level);
+            let quizLevel = new QuizLevel(quiz_level);
             quizLevel.save();
             res.send(200, quizLevel);
         }
