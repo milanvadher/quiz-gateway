@@ -14,7 +14,7 @@ const CategorySchema = new mongoose.Schema({
 });
 const QuizLevelSchema = new mongoose.Schema({
     level_index: {
-        type: String,
+        type: Number,
         required: true,
         unique:true,
         trim: true,
@@ -41,6 +41,12 @@ const QuizLevelSchema = new mongoose.Schema({
     },
     end_date: {
         type: Date
+    },
+    description:{
+        type:String
+    },
+    imagepath: {
+        type:String
     }
 });
 
