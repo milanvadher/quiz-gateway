@@ -333,11 +333,11 @@ exports.user_state = async function (req, res, next) {
     let results;
     var datetime = new Date();
     try {
-        let user= await User.findOne({"mht_id":mht_id});
-        var dt=datetime.getFullYear()+"-"+(datetime.getMonth()+1)+"-"+(datetime.getDate()+1);
-        var datetimef=new Date(dt);
-        dt=datetime.getFullYear()+"-"+(datetime.getMonth()+1)+"-"+(datetime.getDate());
-        var datetimet=new Date(dt);
+        let user = await User.findOne({"mht_id": mht_id });
+        var dt = `${datetime.getFullYear()}-${datetime.getMonth() + 1}-${datetime.getDate() + 1}`;
+        var datetimef = new Date(dt);
+        dt = `${datetime.getFullYear()}-${datetime.getMonth() + 1}-${datetime.getDate()}`;
+        var datetimet = new Date(dt);
         results = await Promise.all([
             // Find all levels
             
@@ -348,6 +348,7 @@ exports.user_state = async function (req, res, next) {
             //         { $or : [ { "end_date" : { $type : 10 } }, { "end_date" : { $gt : datetimet } } ] }
             //     ]
             // } ),
+            
             QuizLevel.aggregate([{
                 $lookup : {
                   from: "questions",
@@ -385,7 +386,6 @@ exports.user_state = async function (req, res, next) {
         
         let current_user_level = results[2];
         let completed_levels = results[1];
-
         let levels = results[0];
         let level_current;
         if ((!current_user_level || current_user_level.length == 0)&& (!completed_levels || completed_levels.length == 0)) {
@@ -418,11 +418,12 @@ exports.user_state = async function (req, res, next) {
             "quiz_levels": results[0],
             "completed": results[1],
             "current": results[2],
-            "totalscore":user.totalscore
+            "totalscore": user.totalscore
         }
         res.send(200, { "results": response });
         next();
     } catch (error) {
+        console.log(error);
         res.send(500, new Error(error));
         next();
     }

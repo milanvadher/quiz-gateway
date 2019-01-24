@@ -28,27 +28,25 @@ const SALT_WORK_FACTOR = 10; // For unique password even if same password (For h
  */
 exports.register = async function (req, res, next) {
     try {
-        let data = req.body || {};
-
         let hashPassword = await bcrypt.hash(req.body.password, SALT_WORK_FACTOR);
-        data.password = hashPassword;
-        await User.updateOne({"mht_id": data.mht_id},
-        { $set: {
-            "center":data.center,
-            "isactive":true,
-            "email":data.email,
-            "name":data.name,
-            "mobile":data.mobile,
-            "password":data.password        }}
-        )
-        let user =await User.findOne({"mht_id": data.mht_id});
-
-        if (user) {
-            res.send(201, user);
-            next();
-        } 
+        let app_setting = await ApplicationSetting.findOne({});
+        let user = new User(
+            {
+                "mobile": req.body.mobile,
+                "password": hashPassword,
+                "name": req.body.name,
+                "email": req.body.email,
+                "lives": app_setting.total_lives,
+                "isactive": true,   
+                "mht_id": req.body.mht_id,
+                "center": req.body.center,
+                "bonus": 0,
+                "question_id": 0,
+                "totalscore": 0
+            });
+        new_user = await user.save();
+        res.send(200, new_user);
     } catch (error) {
-        console.log(error);
         res.send(500, new Error(error));
         next();
     }
@@ -65,14 +63,14 @@ exports.register = async function (req, res, next) {
 exports.login = async function (req, res, next) {
     try {
         let data = req.body || {};
-        let user = await User.findOne({ mobile: data.mobile });
+        let user = await User.findOne({ mht_id: data.mht_id });
         if (user) {
             let result = await bcrypt.compare(data.password, user.password);
             if (!result) {
                 res.send(226, { msg: 'Password is incorrect.' });
                 next();
             } else {
-                let token = jwt.sign({ mobile: data.mobile }, config.jwt_secret, {
+                let token = jwt.sign({ mht_id: data.mht_id }, config.jwt_secret, {
                     expiresIn: '12h'
                 });
                 res.send(200, { success: true, user_info: user, token: token });
@@ -134,7 +132,92 @@ exports.remove = async function (req, res, next) {
     }
 };
 
- 
+ /**
+ * Generate OTP and chekc user is exsist in MBA Data if yes then check applicaiton data if no give message.
+ * @param req {Object} The request.
+ * @param res {Object} The response.
+ * @param req.body {Object} The JSON payload.
+ * @param {Function} next
+ * @return {User}
+ */
+exports.validate_user =async function (req, res, next) {
+    try {
+        let options = {min:  100000, max:  999999, integer: true};
+        let user_otp = rn(options);
+        let result = await MBAData.findOne({"mht_id": req.body.mht_id, "mobile": req.body.mobile});
+        console.log(result);
+        if (result && result.mobile) {
+            request('http://api.msg91.com/api/sendhttp.php?country=91&sender=QUIZEAPP&route=4&mobiles=+' + result.mobile + '&authkey=192315AnTq0Se1Q5a54abb2&message=JSCA! This is your one-time password ' + user_otp + '.', { json: true }, (err, otp, body) => {
+                if (err) {
+                    console.log(err);
+                    res.status(500).json({ msg: "An error occurred when sending OTP." });
+                } else {
+                    res.send(200, { otp: user_otp, msg: 'OTP is send to your Contact number.', data: result});                    
+                }
+            });
+        } else {
+            res.status(400).json({ msg: "Your mobile number is not in MBA list. Kindly update !!" });
+        }
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+};
+
+
+/**
+ * Generate OTP and chekc user is exsist in MBA Data if yes then check applicaiton data if no give message.
+ * @param req {Object} The request.
+ * @param res {Object} The response.
+ * @param req.body {Object} The JSON payload.
+ * @param {Function} next
+ * @return {User}
+ */
+exports.forgot_password = async function (req, res, next) {
+    try {
+        let options = {min:  100000, max:  999999, integer: true};
+        let user_otp = rn(options);
+        let user = await User.findOne({ "mht_id": req.body.mht_id });
+        console.log(user);
+        if (user && user.mobile) {
+            request('http://api.msg91.com/api/sendhttp.php?country=91&sender=QUIZEAPP&route=4&mobiles=+' + user.mobile + '&authkey=192315AnTq0Se1Q5a54abb2&message=JSCA! This is your one-time password ' + user_otp + '.', { json: true }, (err, otp, body) => {
+                if (err) {
+                    console.log(err);
+                    res.status(500).json({ msg: "internal server error please try again later." });
+                } else {
+                    res.send(200, {otp: user_otp, msg: 'OTP is send to your Contact number.', data: user});                    
+                }
+            });
+        }
+		else {
+            res.status(400).json({ msg: "You are not registered !!" });
+        }
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+};
+
+
+/**
+ * Generate OTP and chekc user is exsist in MBA Data if yes then check applicaiton data if no give message.
+ * @param req {Object} The request.
+ * @param res {Object} The response.
+ * @param req.body {Object} The JSON payload.
+ * @param {Function} next
+ * @return {User}
+ */
+exports.update_password = async function (req, res, next) {
+    try {
+        let hashPassword = await bcrypt.hash(req.body.password, SALT_WORK_FACTOR);
+        await User.updateOne({ "mht_id": req.body.mht_id }, {$set: {"password": hashPassword} });
+        res.send(200, {msg: "Password updated successfully !!!"})
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+};
+
 
 /**
  * Generate OTP and chekc user is exsist in MBA Data if yes then check applicaiton data if no give message.
@@ -146,16 +229,11 @@ exports.remove = async function (req, res, next) {
  */
 exports.generate_otp =async function (req, res, next) {
     try {
-
-        var options = {
-        min:  100000
-        , max:  999999
-        , integer: true
-        }
+        let options = {min:  100000, max:  999999, integer: true};
         let uesr_otp= rn(options);
-        console.log(uesr_otp);
-        let result=await MBAData.findOne({ "mht_id": req.body.mht_id,"modile":req.body.mobile });
-            
+      //  console.log(uesr_otp);
+        let result = await MBAData.findOne({ "mht_id": req.body.mht_id,"modile":req.body.mobile });
+        //console.log(result);
         let user=await User.findOne({ "mht_id": req.body.mht_id });
         //let app_setting= await ApplicationSetting.findOne({});
         if (result && result.mobile && !(user==null) ) {
@@ -185,7 +263,7 @@ exports.generate_otp =async function (req, res, next) {
             res.status(400).json({ err: "your mobile number is not in MBA List kindly update do it need full!!" });
         }
     } catch (error) {
-        console.log(error);
+        //console.log(error);
         res.send(500, new Error(error));
         next();
     }
@@ -231,7 +309,7 @@ exports.verify_otp =async function (req, res, next) {
         }
 		
     } catch (error) {
-        console.log(error);
+        //console.log(error);
         res.send(500, new Error(error));
         next();
     }
