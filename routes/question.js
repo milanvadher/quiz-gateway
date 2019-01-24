@@ -13,6 +13,7 @@ const UserAnswerMapping = require('../models/user_answer_mapping');
 const User = require('../models/user');
 
 const ApplicationSetting=require('../models/app_setting');
+
 /**
  * Get Question of a particular level and with specific question state
  * @param req {Object} The request.
@@ -328,7 +329,6 @@ exports.req_life = async function (req, res, next) {
  * @return {quiz_levels, completed_levels, current_level}
  */
 exports.user_state = async function (req, res, next) {
-    // TODO - Check User Authentication
     let mht_id = req.body.mhtid;
     let results;
     var datetime = new Date();
