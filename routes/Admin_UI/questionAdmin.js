@@ -230,9 +230,9 @@ async function getNextSequenceValue(sequenceName){
  * @param {Function} next
  * @return {Question}
  */
-exports.deletequestion = async function (req, res, next) {
+exports.delete = async function (req, res, next) {
     try {
-        let result = await Question.deleteOne({ "question_id": req.params.question_id });
+        let result = await Question.deleteOne({ "question_id": req.params.id });
         if (result.n) {
             res.send(200, { msg: "Question deleted successfully !!" });
         } else {

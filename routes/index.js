@@ -33,12 +33,16 @@ const route_definitions = [
         // User Routes
         'handler': request_handlers.user,
         'routes': [
+            {'path': '/validate_user', 'method': 'post', 'receiver': 'validate_user'},
             {'path': '/register', 'method': 'post', 'receiver': 'register'},
             {'path': '/login', 'method': 'post', 'receiver': 'login'},
+            {'path': '/forgot_password', 'method': 'post', 'receiver': 'forgot_password'},
+            {'path': '/update_password', 'method': 'post', 'receiver': 'update_password'},
             {'path': '/users', 'method': 'get', 'receiver': 'list'},
-            {'path': '/user/:id', 'method': 'del', 'receiver': 'remove'},
-            {'path': '/generate_otp', 'method': 'post', 'receiver': 'generate_otp'},
-            {'path': '/verify_otp', 'method': 'post', 'receiver': 'verify_otp'}
+            {'path': '/leaders', 'method': 'get', 'receiver': 'leaders'},
+            {'path': '/user/:id', 'method': 'del', 'receiver': 'remove'}
+            //{'path': '/generate_otp', 'method': 'post', 'receiver': 'generate_otp'},
+            //{'path': '/verify_otp', 'method': 'post', 'receiver': 'verify_otp'}
         ]
     },
     {
@@ -74,21 +78,21 @@ const route_definitions = [
         // Question Admin Routes
         'handler': request_handlers.questionAdmin,
         'routes': [
-            {'path': '/question', 'method': 'get', 'receiver': 'get_questionByfilter'},
-            {'path': '/question', 'method': 'put', 'receiver': 'update_questionById'},
-            {'path': '/addquestions', 'method': 'post', 'receiver': 'insert_questions'},
-            {'path': '/deletequestion/:question_id', 'method': 'del', 'receiver': 'deletequestion'},
-            {'path': '/questionanswerBymhtid/:mhtid', 'method': 'get', 'receiver': 'get_questionanswerBymhtid'},
+            {'path': '/admin/question', 'method': 'get', 'receiver': 'get_questionByfilter'},
+            {'path': '/admin/question', 'method': 'put', 'receiver': 'update_questionById'},
+            {'path': '/admin/questions', 'method': 'post', 'receiver': 'insert_questions'},
+            {'path': '/admin/question/:id', 'method': 'del', 'receiver': 'delete'},
+            {'path': '/admin/questionanswerBymhtid/:mhtid', 'method': 'get', 'receiver': 'get_questionanswerBymhtid'},
         ]
     },
     {
         // Quize Level Admin Routes
         'handler': request_handlers.quiz_levelAdmin,
         'routes': [
-            {'path': '/quizlevel', 'method': 'get', 'receiver': 'get_quiz_levelByfilter'},
-            {'path': '/quizlevel', 'method': 'put', 'receiver': 'update_quiz_level'},
-            {'path': '/quizlevel', 'method': 'post', 'receiver': 'insert_quiz_level'},
-            {'path': '/deletequizlevel/:id', 'method': 'del', 'receiver': 'delete_quiz_level'}
+            {'path': '/admin/quizlevel', 'method': 'get', 'receiver': 'get_quiz_levelByfilter'},
+            {'path': '/admin/quizlevel', 'method': 'put', 'receiver': 'update_quiz_level'},
+            {'path': '/admin/quizlevel', 'method': 'post', 'receiver': 'insert_quiz_level'},
+            {'path': '/admin/quizlevel/:id', 'method': 'del', 'receiver': 'delete_quiz_level'}
         ]
     }
 ];
@@ -102,4 +106,4 @@ module.exports = async function (server) {
             server[route.method](route.path, route_def.handler[route.receiver]);
         }
     }
-};    
+};

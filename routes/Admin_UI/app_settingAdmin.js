@@ -67,10 +67,12 @@ exports.update = async function (req, res, next) {
 exports.create = async function (req, res, next) {
     try {
         let app_insert=req.body;
+        //console.log(app_insert);
         let application= new  ApplicationSetting(app_insert);
         await application.save();
         res.send(200, application);
     } catch (error) {
+        console.log(error);
         res.send(500, new Error(error));
     }
     next();
