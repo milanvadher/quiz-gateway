@@ -57,7 +57,7 @@ server.use(function (req, res, next) {
             message: 'No token provided.'
         });
     }
-    next();  
+    next();
 });
 
 server.use(response_transformation.transform);

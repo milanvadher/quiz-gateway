@@ -39,6 +39,7 @@ const route_definitions = [
             {'path': '/forgot_password', 'method': 'post', 'receiver': 'forgot_password'},
             {'path': '/update_password', 'method': 'post', 'receiver': 'update_password'},
             {'path': '/users', 'method': 'get', 'receiver': 'list'},
+            {'path': '/leaders', 'method': 'get', 'receiver': 'leaders'},
             {'path': '/user/:id', 'method': 'del', 'receiver': 'remove'}
             //{'path': '/generate_otp', 'method': 'post', 'receiver': 'generate_otp'},
             //{'path': '/verify_otp', 'method': 'post', 'receiver': 'verify_otp'}
@@ -105,4 +106,4 @@ module.exports = async function (server) {
             server[route.method](route.path, route_def.handler[route.receiver]);
         }
     }
-};    
+};

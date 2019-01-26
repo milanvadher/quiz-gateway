@@ -37,7 +37,7 @@ exports.register = async function (req, res, next) {
                 "name": req.body.name,
                 "email": req.body.email,
                 "lives": app_setting.total_lives,
-                "isactive": true,   
+                "isactive": true,
                 "mht_id": req.body.mht_id,
                 "center": req.body.center,
                 "bonus": 0,
@@ -72,7 +72,7 @@ exports.login = async function (req, res, next) {
             } else {
                 let token = jwt.sign({ mht_id: data.mht_id }, config.jwt_secret);
                 user = user.toObject();
-                user.token = token;              
+                user.token = token;
                 res.send(200, user);
                 next();
             }
@@ -96,10 +96,22 @@ exports.login = async function (req, res, next) {
  */
 exports.list = async function (req, res, next) {
     try {
-        
         let users = await User.apiQuery(req.params);
         if (users) {
-            res.send(users);
+            res.send(200, {users:users});
+            next();
+        }
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+};
+
+exports.leaders = async function (req, res, next) {
+    try {
+        let leaders = await User.find({}).sort({totalscore: -1});
+        if (leaders) {
+            res.send(200, {leaders:leaders});
             next();
         }
     } catch (error) {
@@ -152,7 +164,7 @@ exports.validate_user =async function (req, res, next) {
                     console.log(err);
                     res.status(500).json({ msg: "An error occurred when sending OTP." });
                 } else {
-                    res.send(200, { otp: user_otp, msg: 'OTP is send to your Contact number.', data: result});                    
+                    res.send(200, { otp: user_otp, msg: 'OTP is send to your Contact number.', data: result});
                 }
             });
         } else {
@@ -185,7 +197,7 @@ exports.forgot_password = async function (req, res, next) {
                     console.log(err);
                     res.status(500).json({ msg: "internal server error please try again later." });
                 } else {
-                    res.send(200, {otp: user_otp, msg: 'OTP is send to your Contact number.', data: user});                    
+                    res.send(200, {otp: user_otp, msg: 'OTP is send to your Contact number.', data: user});
                 }
             });
         }
@@ -243,10 +255,10 @@ exports.update_password = async function (req, res, next) {
 //                     console.log(err);
 //                     res.status(500).json({ err: "internal server error please try again later." });
 //                 } else {
-//                     res.send(200,{ OTP: uesr_otp, msg: 'OTP is send to your Contact number.', Data:  user });                    
+//                     res.send(200,{ OTP: uesr_otp, msg: 'OTP is send to your Contact number.', Data:  user });
 //                 }
 //             });
-//         } 
+//         }
 //         else if( result && (user==null || user==undefined)) {
 //             if (result.mobile ) {
 //                 request('http://api.msg91.com/api/sendhttp.php?country=91&sender=QUIZEAPP&route=4&mobiles=+' + result.mobile + '&authkey=192315AnTq0Se1Q5a54abb2&message=JSCA! This is your one-time password ' + uesr_otp + '.', { json: true }, (err, otp, body) => {
@@ -257,7 +269,7 @@ exports.update_password = async function (req, res, next) {
 //                         res.send(200,{ OTP: uesr_otp, msg: 'OTP is send to your Contact number.', Data: null })
 //                     }
 //                 });
-//             } 
+//             }
 //         }
 // 		else {
 //             res.status(400).json({ err: "your mobile number is not in MBA List kindly update do it need full!!" });
@@ -280,14 +292,14 @@ exports.update_password = async function (req, res, next) {
 //  */
 // exports.verify_otp =async function (req, res, next) {
 //     try {
-        
+
 //         let result=await MBAData.findOne({ "mht_id": req.body.mht_id });
-            
+
 //         let user=await User.findOne({ "mht_id": req.body.mht_id });
 //         let app_setting= await ApplicationSetting.findOne({});
 //         if  (user) {
-//             res.send(200, user);                    
-//         } 
+//             res.send(200, user);
+//         }
 //         else if(!user) {
 //                 let insert_user=new User(
 //                     {
@@ -295,7 +307,7 @@ exports.update_password = async function (req, res, next) {
 //                         "name": result.name,
 //                         "email": result.email,
 //                         "lives": app_setting.total_lives,
-//                         "isactive": true,   
+//                         "isactive": true,
 //                         "mht_id": result.mht_id,
 //                         "center": result.center,
 //                         "bonus":0,
@@ -307,7 +319,7 @@ exports.update_password = async function (req, res, next) {
 
 //                 res.send(200, insert_user )
 //         }
-		
+
 //     } catch (error) {
 //         //console.log(error);
 //         res.send(500, new Error(error));
