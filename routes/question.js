@@ -102,7 +102,7 @@ exports.list = async function (req, res, next) {
  */
 exports.hint_question = async function (req, res, next) {
     // TODO - Check User Authentication
-    let user_mhtid = req.body.mhtid ; 
+    let user_mhtid = req.body.mht_id ; 
     let question_id = req.body.question_id;
     let question, scoreAdd;
 
@@ -145,10 +145,8 @@ exports.hint_question = async function (req, res, next) {
  * @return {Question}
  */
 exports.validate_answer = async function (req, res, next) {
-    //console.log(req);
-    // TODO - Check User Authentication
     let question_id = req.body.question_id;
-    let user_mhtid = req.body.mhtid;
+    let user_mhtid = req.body.mht_id;
     let selected_ans = req.body.answer;
     let user_level = req.body.level;
 
@@ -170,10 +168,10 @@ exports.validate_answer = async function (req, res, next) {
                     });
                 user = await User.findOne({"mht_id":user_mhtid});
 
-                status = {"answer_status": answer_status, "lives": user.lives , "score": user.totalscore};
+                status = {"answer_status": answer_status, "lives": user.lives , "totalscore": user.totalscore};
             } 
             else {
-                status = {"answer_status": answer_status,"lives": user.lives ,"score": user.totalscore};
+                status = {"answer_status": answer_status,"lives": user.lives ,"totalscore": user.totalscore};
             }
             let UAMObj=new  UserAnswerMapping({"mht_id":user_mhtid,"question_id":question_id,"quiz_type":question.quiz_type,"answer":selected_ans,"answer_status":answer_status});
             // entry in user answer, in case of bonus.
@@ -202,7 +200,7 @@ exports.validate_answer = async function (req, res, next) {
                    await UAMObj.save();
                    user = await User.findOne({"mht_id":user_mhtid});
 
-                    status = {"answer_status": true, "lives": user.lives , "score": user.totalscore};
+                    status = {"answer_status": true, "lives": user.lives , "totalscore": user.totalscore};
             } else {
                  await UserScore.updateOne({
                    "mht_id": user_mhtid,
@@ -215,7 +213,7 @@ exports.validate_answer = async function (req, res, next) {
                     $set: {"question_id":question_id}
                 });
                 user = await User.findOne({"mht_id":user_mhtid});
-                status = {"answer_status": false,"lives": user.lives ,"score": user.totalscore};
+                status = {"answer_status": false,"lives": user.lives ,"totalscore": user.totalscore};
             }
         }
       
@@ -239,7 +237,7 @@ exports.validate_answer = async function (req, res, next) {
  */
 exports.get_bonus_question = async function (req, res, next) {
     // TODO - Check User Authentication
-    let mhtid = req.body.mhtid;
+    let mhtid = req.body.mht_id;
     var datetime = new Date();
     var dt=datetime.getFullYear()+"-"+(datetime.getMonth()+1)+"-"+(datetime.getDate()-1);
     //console.log(dt)
@@ -329,7 +327,7 @@ exports.req_life = async function (req, res, next) {
  * @return {quiz_levels, completed_levels, current_level}
  */
 exports.user_state = async function (req, res, next) {
-    let mht_id = req.body.mhtid;
+    let mht_id = req.body.mht_id;
     let results;
     var datetime = new Date();
     try {
