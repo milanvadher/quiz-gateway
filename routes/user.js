@@ -109,9 +109,17 @@ exports.list = async function (req, res, next) {
 
 exports.leaders = async function (req, res, next) {
     try {
-        let leaders = await User.find({}).sort({totalscore: -1});
+        let leaders = await User.find(
+            {},
+            null,
+            {
+                limit: 10,
+                sort: {
+                    totalscore: -1
+                }
+            });
         if (leaders) {
-            res.send(200, {leaders:leaders});
+            res.send(200, {leaders});
             next();
         }
     } catch (error) {
