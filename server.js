@@ -30,11 +30,12 @@ server.use(morgan(':remote-addr - :method - :url - :status - HTTP/:http-version 
 server.use(restifyPlugins.jsonBodyParser({ mapParams: true }));
 server.use(restifyPlugins.acceptParser(server.acceptable));
 server.use(restifyPlugins.queryParser({ mapParams: true }));
+server.use(response_transformation.transform);
 server.use(restifyPlugins.fullResponse());
 server.use(function (req, res, next) {
     if (req.url === '/login' || req.url === '/validate_user' || req.url === '/register' || req.url === '/forgot_password' || req.url === '/update_password') return next();
 
-    // check header or url parameters or post parameters for token
+    // // check header or url parameters or post parameters for token
     const token = req.headers['x-access-token'] || req.query.token;
 
     // decode token
@@ -42,7 +43,8 @@ server.use(function (req, res, next) {
         // verifies secret and checks exp
         jwt.verify(token, config.jwt_secret, function (err, decoded) {
             if (err) {
-                return res.send(403, { success: false, message: 'Failed to authenticate token.' });
+                return res.send(403, { success: false, msg: 'Failed to authenticate token.' });
+                next(false);
             } else {
                 // if everything is good, save to request for use in other routes
                 req.decoded = decoded;
@@ -56,13 +58,9 @@ server.use(function (req, res, next) {
             success: false,
             message: 'No token provided.'
         });
+        next(false);
     }
-    next();
 });
-
-server.use(response_transformation.transform);
-
-
 
 /**
   * Start Server, Connect to DB & Require Routes

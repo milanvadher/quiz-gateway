@@ -6,7 +6,7 @@ exports.transform = function(req, res, next) {
             "status": code, 
             "message": body.msg,
             "data": body
-        }
+        };
         oldSend.apply(res, [code, response, headers]);
     }
     next();

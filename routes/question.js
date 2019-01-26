@@ -334,6 +334,9 @@ exports.user_state = async function (req, res, next) {
     var datetime = new Date();
     try {
         let user = await User.findOne({"mht_id": mht_id });
+        if(!user) {
+            return res.send(500, {msg: "User does not exist !!!"});
+        }
         var dt = `${datetime.getFullYear()}-${datetime.getMonth() + 1}-${datetime.getDate() + 1}`;
         var datetimef = new Date(dt);
         dt = `${datetime.getFullYear()}-${datetime.getMonth() + 1}-${datetime.getDate()}`;
@@ -423,7 +426,6 @@ exports.user_state = async function (req, res, next) {
         res.send(200, { "results": response });
         next();
     } catch (error) {
-        console.log(error);
         res.send(500, new Error(error));
         next();
     }
