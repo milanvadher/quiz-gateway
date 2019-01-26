@@ -107,6 +107,9 @@ exports.list = async function (req, res, next) {
     }
 };
 
+/**
+ * To get rank, you need to send mht_id of the user of whose rank is needed in the header
+ */
 exports.leaders = async function (req, res, next) {
     try {
         let leaders = await User.find(
@@ -118,8 +121,23 @@ exports.leaders = async function (req, res, next) {
                     totalscore: -1
                 }
             });
+
+
+        let userRank;
+
+        // Send MHT-ID in header
+        // If mht_id not sent, or wrong MHT-id sent, if fails silently
+        try {
+            userRank = await getRank(req.headers.mht_id);
+        }
+        catch (e) {
+        }
+
         if (leaders) {
-            res.send(200, {leaders});
+            res.send(200, {
+                leaders,
+                userRank
+            });
             next();
         }
     } catch (error) {
@@ -238,7 +256,21 @@ exports.update_password = async function (req, res, next) {
     }
 };
 
-
+/**
+ * Helper function for leaders. Returns rank of the user
+ * @param mht_id - unique ID of the user
+ * @returns {Promise<*>}
+ */
+async function getRank(mht_id) {
+    var user = await User.findOne({"mht_id": parseInt(mht_id)});
+    var score = user.totalscore;
+    var count = await User.count({
+        totalscore: {
+            "$gt": score
+        }
+    }) + 1;
+    return count;
+}
 // /**
 //  * Generate OTP and chekc user is exsist in MBA Data if yes then check applicaiton data if no give message.
 //  * @param req {Object} The request.
