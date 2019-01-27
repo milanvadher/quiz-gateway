@@ -419,7 +419,8 @@ exports.user_state = async function (req, res, next) {
             "quiz_levels": results[0],
             "completed": results[1],
             "current": results[2],
-            "totalscore": user.totalscore
+            "totalscore": user.totalscore,
+            "lives": user.lives
         }
         res.send(200, { "results": response });
         next();
