@@ -29,6 +29,13 @@ const UserAnswerMappingSchema = new mongoose.Schema({
 
 });
 
+UserAnswerMappingSchema.methods.toJSON = function() {
+  let obj = this.toObject();
+  delete obj.__v;
+  delete obj._id;
+  return obj;
+};
+
 
 UserAnswerMappingSchema.plugin(timestamp);
 UserAnswerMappingSchema.plugin(mongooseStringQuery);

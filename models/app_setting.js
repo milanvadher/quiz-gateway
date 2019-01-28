@@ -38,6 +38,13 @@ const ApplicationSettingSchema = new mongoose.Schema({
   
 });
 
+ApplicationSettingSchema.methods.toJSON = function() {
+  let obj = this.toObject();
+  delete obj.__v;
+  delete obj._id;
+  return obj;
+};
+
 ApplicationSettingSchema.plugin(timestamp);
 ApplicationSettingSchema.plugin(mongooseStringQuery);
 

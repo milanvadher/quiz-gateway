@@ -55,6 +55,13 @@ const UserScoreSchema = new mongoose.Schema({
   
 });
 
+UserScoreSchema.methods.toJSON = function() {
+  let obj = this.toObject();
+  delete obj.__v;
+  delete obj._id;
+  return obj;
+};
+
 UserScoreSchema.plugin(timestamp);
 UserScoreSchema.plugin(mongooseStringQuery);
 

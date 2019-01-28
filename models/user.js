@@ -66,6 +66,13 @@ const UserSchema = new mongoose.Schema({
 
 });
 
+UserSchema.methods.toJSON = function() {
+  let obj = this.toObject();
+  delete obj.password;
+  delete obj.__v;
+  delete obj._id;
+  return obj;
+};
 
 UserSchema.plugin(timestamp);
 UserSchema.plugin(mongooseStringQuery);

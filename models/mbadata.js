@@ -34,6 +34,12 @@ const MbaDataSchema = new mongoose.Schema({
   
 });
 
+MbaDataSchema.methods.toJSON = function() {
+  let obj = this.toObject();
+  delete obj.__v;
+  delete obj._id;
+  return obj;
+};
 
 MbaDataSchema.plugin(timestamp);
 MbaDataSchema.plugin(mongooseStringQuery);

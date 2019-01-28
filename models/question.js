@@ -97,6 +97,13 @@ const QuestionSchema = new mongoose.Schema({
   jumbledata: [JumbleSchema]
 });
 
+QuestionSchema.methods.toJSON = function() {
+  let obj = this.toObject();
+  delete obj.__v;
+  delete obj._id;
+  return obj;
+};
+
 QuestionSchema.plugin(timestamp);
 QuestionSchema.plugin(mongooseStringQuery);
 
