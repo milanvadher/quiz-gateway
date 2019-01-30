@@ -68,7 +68,7 @@ exports.list = async function (req, res, next) {
                     $gte: questionfrom
                 },
                 "level": level
-            }, "-_id");
+            });
         }
         else {
               question = await Question.find({
@@ -78,7 +78,7 @@ exports.list = async function (req, res, next) {
                     $lte: questionto
                 },
                 "level": level
-            }, "-_id");
+            });
         }
         res.charSet('utf-8');
         res.send(200, question);
@@ -364,7 +364,7 @@ exports.user_state = async function (req, res, next) {
                              ]
                              }},
                   {
-                  $project: {
+                  $project: { "_id" : 0 ,
                   "level_index":1,"name":1,"level_type":1
                   ,"total_questions":1,"categorys":1,"start_date":1,"end_date":1,"description":1,"imagepath":1     
                   , "totalscores": {$sum:"$questiondetails.score"}
