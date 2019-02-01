@@ -330,7 +330,8 @@ exports.puzzle_completed = async function(req, res, next) {
         } else if (puzzle_type == '5') {
             inc_lives = 2;
         }
-        await User.updateOne({"mht_id": mht_id, "$where": "this.lives < 3"}, {$inc: {"lives": inc_lives}});
+        let app_setting = await ApplicationSetting.findOne({});
+        await User.updateOne({"mht_id": mht_id, "$where": "this.lives < " + app_setting.total_lives }, {$inc: {"lives": inc_lives}});
         let user = await User.findOne({"mht_id": mht_id});
         res.send(200, {"lives": user.lives, "totalscore": user.totalscore});
         next();
