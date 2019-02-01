@@ -24,6 +24,16 @@ server.use(morgan(':remote-addr - :method - :url - :status - HTTP/:http-version 
     stream: fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
 }));
 
+const corsMiddleware = require('restify-cors-middleware');
+const cors = corsMiddleware({
+  preflightMaxAge: 5, //Optional
+  origins: ['*'],
+  allowHeaders: ['*'],
+  //exposeHeaders: ['API-Token-Expiry']
+})
+
+server.pre(cors.preflight)
+server.use(cors.actual)
 /**
   * Middleware
   */

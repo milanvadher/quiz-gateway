@@ -317,6 +317,31 @@ exports.req_life = async function (req, res, next) {
     }
 };
 
+exports.puzzle_completed = async function(req, res, next) {
+    let mht_id = req.body.mht_id;
+    let puzzle_name = req.body.puzzle_name;
+    let puzzle_type = req.body.puzzle_type;
+    let inc_lives = 0;
+    try {
+        if(puzzle_type == '3') {
+            inc_lives = 1;
+        } else if (puzzle_type == '4') {
+            inc_lives = 2;
+        } else if (puzzle_type == '5') {
+            inc_lives = 2;
+        }
+        await User.updateOne({"mht_id": mht_id, "$where": "this.lives < 3"}, {$inc: {"lives": inc_lives}});
+        let user = await User.findOne({"mht_id": mht_id});
+        res.send(200, {"lives": user.lives, "totalscore": user.totalscore});
+        next();
+    } catch (error) {
+        console.log(error);
+        res.send(500, new Error(error));
+        next();
+    }
+};
+
+
 /**
  * Get Quiz Details for a user, application level will be on start and end date for level.
  * @param req {Object} The request.

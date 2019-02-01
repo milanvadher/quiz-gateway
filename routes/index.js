@@ -65,6 +65,7 @@ const route_definitions = [
             {'path': '/bonus_question', 'method': 'post', 'receiver': 'get_bonus_question'},
             {'path': '/req_life', 'method': 'post', 'receiver': 'req_life'},
             {'path': '/user_state', 'method': 'post', 'receiver': 'user_state'},
+            {'path': '/puzzle_completed', 'method': 'post', 'receiver': 'puzzle_completed'},
         ]
     },
     {
