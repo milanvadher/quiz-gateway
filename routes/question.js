@@ -152,15 +152,28 @@ exports.validate_answer = async function (req, res, next) {
 
     let question, status, user,scoreAdd;
     try {
-        question = await Question.findOne({"question_id": question_id,}, "answer score quiz_type question_st");
+        question = await Question.findOne({"question_id": question_id,}, "answer pikacharanswer score quiz_type question_st");
         scoreAdd=question.score;
+
+        let isRightAnswer=false;
+        if(question.pikacharanswer && question.pickcharanswer.length>0)
+        {
+            if(question.pikacharanswer.length==selected_ans.length && 
+                selected_ans.every(function(u, i) {                
+                return is(u, question.pikacharanswer[i]);
+            }))
+            {
+                isRightAnswer=true;
+            }
+        }
+        if(question.answer[0].answer == selected_ans) {
+            isRightAnswer=true;
+        }
 
         user = await User.findOne({"mht_id": user_mhtid });
         if(question.quiz_type =="BONUS")
         {
-            let answer_status=false;
-            if(question.answer[0].answer == selected_ans) {
-                  answer_status=true;
+            if(isRightAnswer) {
                  //add total score field this have all user scores include regular and bonuses, so we can manage easly.
                 await User.updateOne({"mht_id": user_mhtid},
                     {$inc: {"totalscore":scoreAdd,"bonus":scoreAdd},
@@ -168,19 +181,18 @@ exports.validate_answer = async function (req, res, next) {
                     });
                 user = await User.findOne({"mht_id":user_mhtid});
 
-                status = {"answer_status": answer_status, "lives": user.lives , "totalscore": user.totalscore};
+                status = {"answer_status": isRightAnswer, "lives": user.lives , "totalscore": user.totalscore};
             } 
             else {
-                status = {"answer_status": answer_status,"lives": user.lives ,"totalscore": user.totalscore};
+                status = {"answer_status": isRightAnswer,"lives": user.lives ,"totalscore": user.totalscore};
             }
-            let UAMObj=new  UserAnswerMapping({"mht_id":user_mhtid,"question_id":question_id,"quiz_type":question.quiz_type,"answer":selected_ans,"answer_status":answer_status});
+            let UAMObj=new  UserAnswerMapping({"mht_id":user_mhtid,"question_id":question_id,"quiz_type":question.quiz_type,"answer":question.answer,"answer_status":answer_status});
             // entry in user answer, in case of bonus.
             await UAMObj.save();
         }
         else
         {
-            //console.log(question.answer[0].answer);
-            if(question.answer[0].answer == selected_ans) {
+            if(isRightAnswer) {
                  let new_question_st = question.question_st + 1; 
                  await UserScore.updateOne({
                    "mht_id": user_mhtid,
@@ -209,24 +221,19 @@ exports.validate_answer = async function (req, res, next) {
                       $set: {"question_id":question_id}
                     });
 
-                   let UAMObj=new  UserAnswerMapping({"mht_id":user_mhtid,"question_id":question_id,"quiz_type":question.quiz_type,"answer":selected_ans,"answer_status":true });
+                   let UAMObj=new  UserAnswerMapping({"mht_id":user_mhtid,"question_id":question_id,"quiz_type":question.quiz_type,"answer":question.answer,"answer_status":true });
                    // entry in user answer, if answer is right and in case of regular.
                    await UAMObj.save();
                    user = await User.findOne({"mht_id":user_mhtid});
-                   status = {"answer_status": true, "lives": user.lives , "totalscore": user.totalscore, "question_st": new_question_st};
-            } else {
-                //  await UserScore.updateOne({
-                //    "mht_id": user_mhtid,
-                //    "completed": false,
-                //    "level": user_level},
-                //    {$inc: {"total_questions":-1}});
+                   status = {"answer_status": isRightAnswer, "lives": user.lives , "totalscore": user.totalscore, "question_st": new_question_st};
+            } else { 
                    //add total score field this have all user scores include regular and bonuses, so we can manage easly.
                 await User.updateOne({"mht_id":user_mhtid},
                     {$inc: {"lives": -1},
                     $set: {"question_id":question_id}
                 });
                 user = await User.findOne({"mht_id":user_mhtid});
-                status = {"answer_status": false,"lives": user.lives ,"totalscore": user.totalscore, "question_st": question.question_st};
+                status = {"answer_status": isRightAnswer,"lives": user.lives ,"totalscore": user.totalscore, "question_st": question.question_st};
             }
         }
         res.send(200, status);
