@@ -116,21 +116,23 @@ exports.leaders = async function (req, res, next) {
             {},
             null,
             {
-                limit: 10,
                 sort: {
-                    totalscore: -1
+                    totalscore: -1,
+                    lives: -1,
+                    createdAt: -1
                 }
             });
 
-
+        
         let userRank;
 
         // Send MHT-ID in header
         // If mht_id not sent, or wrong MHT-id sent, if fails silently
         try {
-            userRank = await getRank(req.headers.mht_id);
+            userRank = await getRank(leaders, req.headers.mht_id);
         }
         catch (e) {
+            console.log(e);
         }
 
         if (leaders) {
@@ -258,16 +260,25 @@ exports.update_password = async function (req, res, next) {
 
 /**
  * Helper function for leaders. Returns rank of the user
+ * @param leaders - leaderlist
  * @param mht_id - unique ID of the user
  * @returns {Promise<*>}
  */
-async function getRank(mht_id) {
-    var user = await User.findOne({"mht_id": parseInt(mht_id)});
-    var score = user.totalscore;
-    var count = await User.count({
-        totalscore: {
-            "$gt": score
+async function getRank(leaders, mht_id) {
+    mht_id = parseInt(mht_id);
+    let rank = 0;
+    for(let leader in leaders) {
+        rank++;
+        if(mht_id == leaders[leader].mht_id) {
+            return rank;
         }
-    }) + 1;
-    return count;
+    }
+    // var user = await User.findOne({"mht_id": parseInt(mht_id)});
+    // var score = user.totalscore;
+    // var count = await User.count({
+    //     totalscore: {
+    //         "$gt": score
+    //     }
+    // }) + 1;
+    // return count;
 }
