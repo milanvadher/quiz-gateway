@@ -20,6 +20,17 @@ const ApplicationSetting = require('../models/app_setting');
 const SALT_WORK_FACTOR = 10; // For unique password even if same password (For handle brute force attack)
 
 /**
+ * Setup Email
+ */
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_ID,
+        pass: process.env.PASSWORD
+    }
+});
+
+/**
  * Register user with unique mobile no and encypted password.
  * @param req {Object} The request.
  * @param res {Object} The response.
@@ -48,6 +59,39 @@ exports.register = async function (req, res, next) {
         new_user = await user.save();
         res.send(200, new_user);
     } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+};
+
+/**
+ * Change mobile no. requsest --> send email to Devlopers ... 😎 😎 😎
+ * 
+ * @param req {Object} The request
+ * @param res {Object} The response.
+ * @param req.body {Object} The JSON payload.
+ * @param {Function} next
+ * @return {msg}
+ */
+exports.change_mobile = async function (req, res, next) {
+    try {
+        let new_mobile = req.body.new_mobile;
+        if (new_mobile) {
+            const mailOptions = {
+                from: process.env.EMAIL_ID,
+                to: [process.env.DEV1, process.env.DEV2, process.env.DEV3, process.env.DEV4],
+                subject: 'Change Mobile No. request',
+                text: 'JSCA! New request received from ' + new_mobile + ' to add into MBA database.'
+            };
+            let ack = await sendMail(mailOptions);
+            if (ack.status) {
+                res.send(200, { msg: 'Your request is submitted successfully!! We will contact you in 24 Hours.' });
+            } else {
+                throw new Error(ack.data);
+            }
+        }
+    } catch (error) {
+        console.log(error);
         res.send(500, new Error(error));
         next();
     }
@@ -201,7 +245,13 @@ exports.validate_user = async function (req, res, next) {
                 });
             } else {
                 if (result.mailId) {
-                    let ack = await sendMail(user_otp);
+                    const mailOptions = {
+                        from: process.env.EMAIL_ID,
+                        to: mailId,
+                        subject: 'MBA Quiz-GateWay',
+                        text: 'JSCA! This is your one-time password ' + user_otp + '.'
+                    };
+                    let ack = await sendMail(mailOptions);
                     if (ack.status) {
                         res.send(200, { otp: user_otp, msg: 'OTP is send to ' + result.mailId + ' Kindly check your email id.', data: result });
                     } else {
@@ -246,7 +296,13 @@ exports.forgot_password = async function (req, res, next) {
                 });
             } else {
                 if (user.mailId) {
-                    let ack = await sendMail(user_otp);
+                    const mailOptions = {
+                        from: process.env.EMAIL_ID,
+                        to: mailId,
+                        subject: 'MBA Quiz-GateWay',
+                        text: 'JSCA! This is your one-time password ' + user_otp + '.'
+                    };
+                    let ack = await sendMail(mailOptions);
                     if (ack.status) {
                         res.send(200, { otp: user_otp, msg: 'OTP is send to ' + result.mailId + ' Kindly check your email id.', data: result });
                     } else {
@@ -329,25 +385,16 @@ exports.test = async function (req, res, next) {
     }
 }
 
-async function sendMail(otp, mailId) {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_ID,
-            pass: process.env.PASSWORD
-        }
-    });
-
-    const mailOptions = {
-        from: process.env.EMAIL_ID,
-        to: mailId,
-        subject: 'MBA Quiz-GateWay',
-        text: 'JSCA! This is your one-time password ' + otp + '.'
-    };
-
+/**
+ * Send email to Out of INDIA's MBA.
+ * 
+ * @param otp 6 digit OTP
+ * @param mailId Email id of MBA
+ */
+async function sendMail(mailOptions) {
     let result = {};
     try {
-        let info = await transporter.sendMail(mailOptions)
+        let info = await transporter.sendMail(mailOptions);
         console.log('Email sent: ' + info.response);
         result.status = true;
         result.data = info;
