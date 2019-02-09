@@ -36,6 +36,7 @@ const route_definitions = [
             {'path': '/validate_user', 'method': 'post', 'receiver': 'validate_user'},
             {'path': '/register', 'method': 'post', 'receiver': 'register'},
             {'path': '/login', 'method': 'post', 'receiver': 'login'},
+            {'path': '/testMail', 'method': 'post', 'receiver': 'test'},
             {'path': '/forgot_password', 'method': 'post', 'receiver': 'forgot_password'},
             {'path': '/update_password', 'method': 'post', 'receiver': 'update_password'},
             {'path': '/users', 'method': 'get', 'receiver': 'list'},
