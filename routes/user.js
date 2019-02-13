@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const config = require('./../config');
 const request = require('request');
 const rn = require('random-number');
+const nodemailer = require("nodemailer");
 /**
  * Model Schema
  */
@@ -17,6 +18,17 @@ const ApplicationSetting = require('../models/app_setting');
  * Veriables
  */
 const SALT_WORK_FACTOR = 10; // For unique password even if same password (For handle brute force attack)
+
+/**
+ * Setup Email
+ */
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_ID,
+        pass: process.env.PASSWORD
+    }
+});
 
 /**
  * Register user with unique mobile no and encypted password.
@@ -47,6 +59,39 @@ exports.register = async function (req, res, next) {
         new_user = await user.save();
         res.send(200, new_user);
     } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+};
+
+/**
+ * Change mobile no. requsest --> send email to Devlopers ... 😎 😎 😎
+ * 
+ * @param req {Object} The request
+ * @param res {Object} The response.
+ * @param req.body {Object} The JSON payload.
+ * @param {Function} next
+ * @return {msg}
+ */
+exports.change_mobile = async function (req, res, next) {
+    try {
+        let new_mobile = req.body.new_mobile;
+        if (new_mobile) {
+            const mailOptions = {
+                from: process.env.EMAIL_ID,
+                to: [process.env.DEV1, process.env.DEV2, process.env.DEV3, process.env.DEV4],
+                subject: 'Change Mobile No. request',
+                text: 'JSCA! New request received from ' + new_mobile + ' to add into MBA database.'
+            };
+            let ack = await sendMail(mailOptions);
+            if (ack.status) {
+                res.send(200, { msg: 'Your request is submitted successfully!! We will contact you in 24 Hours.' });
+            } else {
+                throw new Error(ack.data);
+            }
+        }
+    } catch (error) {
+        console.log(error);
         res.send(500, new Error(error));
         next();
     }
@@ -98,7 +143,7 @@ exports.list = async function (req, res, next) {
     try {
         let users = await User.apiQuery(req.params);
         if (users) {
-            res.send(200, {users:users});
+            res.send(200, { users: users });
             next();
         }
     } catch (error) {
@@ -123,7 +168,7 @@ exports.leaders = async function (req, res, next) {
                 }
             });
 
-        
+
         let userRank;
 
         // Send MHT-ID in header
@@ -172,30 +217,50 @@ exports.remove = async function (req, res, next) {
     }
 };
 
- /**
- * Generate OTP and chekc user is exsist in MBA Data if yes then check applicaiton data if no give message.
- * @param req {Object} The request.
- * @param res {Object} The response.
- * @param req.body {Object} The JSON payload.
- * @param {Function} next
- * @return {User}
- */
-exports.validate_user =async function (req, res, next) {
+/**
+* Generate OTP and check user is exsist in MBA Data if yes then check applicaiton data if no give message.
+* If user mobile no. is from out of india then send OTP through E-MAIL.
+* @param req {Object} The request.
+* @param res {Object} The response.
+* @param req.body {Object} The JSON payload.
+* @param {Function} next
+* @return {User}
+*/
+exports.validate_user = async function (req, res, next) {
     try {
-        let options = {min:  100000, max:  999999, integer: true};
+        let options = { min: 100000, max: 999999, integer: true };
         let user_otp = rn(options);
-        let result = await MBAData.findOne({"mht_id": req.body.mht_id, "mobile": req.body.mobile});
+        let result = await MBAData.findOne({ "mht_id": req.body.mht_id, "mobile": req.body.mobile });
         console.log(result);
         if (result && result.mobile) {
-            console.log(process.env.SMS_KEY);
-            request('http://api.msg91.com/api/sendhttp.php?country=91&sender=QUIZEAPP&route=4&mobiles=+' + result.mobile + '&authkey=' + process.env.SMS_KEY + '&message=JSCA! This is your one-time password ' + user_otp + '.', { json: true }, (err, otp, body) => {
-                if (err) {
-                    console.log(err);
-                    res.status(500).json({ msg: "An error occurred when sending OTP." });
+            if (result.mobile.length == 10) {
+                console.log(process.env.SMS_KEY);
+                request('http://api.msg91.com/api/sendhttp.php?country=91&sender=QUIZEAPP&route=4&mobiles=+' + result.mobile + '&authkey=' + process.env.SMS_KEY + '&message=JSCA! This is your one-time password ' + user_otp + '.', { json: true }, (err, otp, body) => {
+                    if (err) {
+                        console.log(err);
+                        res.status(500).json({ msg: "An error occurred when sending OTP." });
+                    } else {
+                        res.send(200, { otp: user_otp, msg: 'OTP is send to your Contact number.', data: result });
+                    }
+                });
+            } else {
+                if (result.mailId) {
+                    const mailOptions = {
+                        from: process.env.EMAIL_ID,
+                        to: mailId,
+                        subject: 'MBA Quiz-GateWay',
+                        text: 'JSCA! This is your one-time password ' + user_otp + '.'
+                    };
+                    let ack = await sendMail(mailOptions);
+                    if (ack.status) {
+                        res.send(200, { otp: user_otp, msg: 'OTP is send to ' + result.mailId + ' Kindly check your email id.', data: result });
+                    } else {
+                        throw new Error(ack.data);
+                    }
                 } else {
-                    res.send(200, { otp: user_otp, msg: 'OTP is send to your Contact number.', data: result});
+                    res.status(400).json({ msg: "Your E-mail ID is not in MBA list. Kindly update !!" });
                 }
-            });
+            }
         } else {
             res.status(400).json({ msg: "Your mobile number is not in MBA list. Kindly update !!" });
         }
@@ -216,20 +281,39 @@ exports.validate_user =async function (req, res, next) {
  */
 exports.forgot_password = async function (req, res, next) {
     try {
-        let options = {min:  100000, max:  999999, integer: true};
+        let options = { min: 100000, max: 999999, integer: true };
         let user_otp = rn(options);
         let user = await User.findOne({ "mht_id": req.body.mht_id });
         if (user && user.mobile) {
-            request('http://api.msg91.com/api/sendhttp.php?country=91&sender=QUIZEAPP&route=4&mobiles=+' + user.mobile + '&authkey=' + process.env.SMS_KEY + '&message=JSCA! This is your one-time password ' + user_otp + '.', { json: true }, (err, otp, body) => {
-                if (err) {
-                    console.log(err);
-                    res.status(500).json({ msg: "internal server error please try again later." });
+            if (user.mobile.length == 10) {
+                request('http://api.msg91.com/api/sendhttp.php?country=91&sender=QUIZEAPP&route=4&mobiles=+' + user.mobile + '&authkey=' + process.env.SMS_KEY + '&message=JSCA! This is your one-time password ' + user_otp + '.', { json: true }, (err, otp, body) => {
+                    if (err) {
+                        console.log(err);
+                        res.status(500).json({ msg: "internal server error please try again later." });
+                    } else {
+                        res.send(200, { otp: user_otp, msg: 'OTP is send to your Contact number.', data: user });
+                    }
+                });
+            } else {
+                if (user.mailId) {
+                    const mailOptions = {
+                        from: process.env.EMAIL_ID,
+                        to: mailId,
+                        subject: 'MBA Quiz-GateWay',
+                        text: 'JSCA! This is your one-time password ' + user_otp + '.'
+                    };
+                    let ack = await sendMail(mailOptions);
+                    if (ack.status) {
+                        res.send(200, { otp: user_otp, msg: 'OTP is send to ' + result.mailId + ' Kindly check your email id.', data: result });
+                    } else {
+                        throw new Error(ack.data);
+                    }
                 } else {
-                    res.send(200, {otp: user_otp, msg: 'OTP is send to your Contact number.', data: user});
+                    res.status(400).json({ msg: "Your E-mail ID is not in MBA list. Kindly update !!" });
                 }
-            });
+            }
         }
-		else {
+        else {
             res.status(400).json({ msg: "You are not registered !!" });
         }
     } catch (error) {
@@ -250,8 +334,8 @@ exports.forgot_password = async function (req, res, next) {
 exports.update_password = async function (req, res, next) {
     try {
         let hashPassword = await bcrypt.hash(req.body.password, SALT_WORK_FACTOR);
-        await User.updateOne({ "mht_id": req.body.mht_id }, {$set: {"password": hashPassword} });
-        res.send(200, {msg: "Password updated successfully !!!"})
+        await User.updateOne({ "mht_id": req.body.mht_id }, { $set: { "password": hashPassword } });
+        res.send(200, { msg: "Password updated successfully !!!" })
     } catch (error) {
         res.send(500, new Error(error));
         next();
@@ -267,9 +351,9 @@ exports.update_password = async function (req, res, next) {
 async function getRank(leaders, mht_id) {
     mht_id = parseInt(mht_id);
     let rank = 0;
-    for(let leader in leaders) {
+    for (let leader in leaders) {
         rank++;
-        if(mht_id == leaders[leader].mht_id) {
+        if (mht_id == leaders[leader].mht_id) {
             return rank;
         }
     }
@@ -281,4 +365,46 @@ async function getRank(leaders, mht_id) {
     //     }
     // }) + 1;
     // return count;
+}
+
+
+exports.test = async function (req, res, next) {
+    try {
+        let mailId = req.body.mailId;
+        let ack = await sendMail(123456, mailId);
+        console.log(ack);
+        if (ack.status) {
+            res.send(200, { otp: 123456, msg: 'OTP is send to ' + mailId + ' Kindly check your email id.', data: [] });
+        } else {
+            throw new Error(ack.data);
+        }
+    } catch (error) {
+        console.log(error);
+        res.send(500, new Error(error));
+        next();
+    }
+}
+
+/**
+ * Send email to Out of INDIA's MBA.
+ * 
+ * @param otp 6 digit OTP
+ * @param mailId Email id of MBA
+ */
+async function sendMail(mailOptions) {
+    let result = {};
+    try {
+        let info = await transporter.sendMail(mailOptions);
+        console.log('Email sent: ' + info.response);
+        result.status = true;
+        result.data = info;
+        console.log(' ** ', result);
+        return result;
+    } catch (error) {
+        console.log(error);
+        result.status = false;
+        result.data = error;
+        console.log(' ** ', result);
+        return result;
+    }
 }
