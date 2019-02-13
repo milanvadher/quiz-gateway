@@ -181,27 +181,27 @@ exports.validate_answer = async function (req, res, next) {
         {
             //console.log(question.answer[0].answer);
             if(question.answer[0].answer == selected_ans) {
-              
+                 let new_question_st = question.question_st + 1; 
                  await UserScore.updateOne({
                    "mht_id": user_mhtid,
                    "completed": false,
                    "level": user_level},
                    {$inc: {"score": scoreAdd,"total_questions": -1},
-                    $set: {"question_st": question.question_st + 1}
+                    $set: {"question_st": new_question_st}
                    });
-                   let user_score = UserScore.findOne({
+                   let user_score = await UserScore.findOne({
                                     "mht_id": user_mhtid,
                                     "completed": false,
                                     "level": user_level});
-                    let new_question_st = question.question_st + 1; 
+                    
                     if(user_score.total_questions == 0) {
                       await UserScore.updateOne({
                             "mht_id": user_mhtid,
                             "completed": false,
                             "level": user_level},
-                               { $set: {"completed": true, "question_st": question.question_st - 1}}
+                               { $set: {"completed": true, "question_st": question.question_st}}
                             );  
-                        new_question_st = question.question_st - 1;
+                        new_question_st = question.question_st;
                     }
                     //add total score field this have all user scores include regular and bonuses, so we can manage easly.
                   await User.updateOne({"mht_id": user_mhtid},
