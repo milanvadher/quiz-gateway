@@ -318,7 +318,7 @@ exports.req_life = async function (req, res, next) {
 
         }
         else{
-            res.send(200, "please check score!!");
+            res.send(226, {"msg": "please check score!!"});
         }
 
         next();
