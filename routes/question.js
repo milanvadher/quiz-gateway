@@ -186,8 +186,8 @@ exports.validate_answer = async function (req, res, next) {
                    "mht_id": user_mhtid,
                    "completed": false,
                    "level": user_level},
-                   {$inc: {"score":scoreAdd,"total_questions":-1},
-                    $set: {"question_st":question.question_st}
+                   {$inc: {"score": scoreAdd,"total_questions": -1},
+                    $set: {"question_st": question.question_st}
                    });
                     //add total score field this have all user scores include regular and bonuses, so we can manage easly.
                   await User.updateOne({"mht_id": user_mhtid},
@@ -199,8 +199,7 @@ exports.validate_answer = async function (req, res, next) {
                    // entry in user answer, if answer is right and in case of regular.
                    await UAMObj.save();
                    user = await User.findOne({"mht_id":user_mhtid});
-
-                    status = {"answer_status": true, "lives": user.lives , "totalscore": user.totalscore};
+                   status = {"answer_status": true, "lives": user.lives , "totalscore": user.totalscore, "question_st": question.question_st};
             } else {
                  await UserScore.updateOne({
                    "mht_id": user_mhtid,
@@ -213,11 +212,9 @@ exports.validate_answer = async function (req, res, next) {
                     $set: {"question_id":question_id}
                 });
                 user = await User.findOne({"mht_id":user_mhtid});
-                status = {"answer_status": false,"lives": user.lives ,"totalscore": user.totalscore};
+                status = {"answer_status": false,"lives": user.lives ,"totalscore": user.totalscore, "question_st": question.question_st};
             }
         }
-      
-
         res.send(200, status);
         next();
     } catch (error) {
