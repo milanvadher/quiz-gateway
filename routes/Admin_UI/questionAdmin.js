@@ -198,6 +198,7 @@ exports.insert_questions  = async function (req, res, next) {
         res.send(200, questions_Res);
         next();
     } catch (error) {
+        console.log(error);
         res.send(500, new Error(error));
         next();
     }
