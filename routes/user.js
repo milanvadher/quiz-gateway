@@ -238,7 +238,7 @@ exports.validate_user = async function (req, res, next) {
                 request('http://api.msg91.com/api/sendhttp.php?country=91&sender=QUIZEAPP&route=4&mobiles=+' + result.mobile + '&authkey=' + process.env.SMS_KEY + '&message=JSCA! This is your one-time password ' + user_otp + '.', { json: true }, (err, otp, body) => {
                     if (err) {
                         console.log(err);
-                        res.status(500).json({ msg: "An error occurred when sending OTP." });
+                        res.send(500, { msg: "An error occurred when sending OTP." });
                     } else {
                         res.send(200, { otp: user_otp, msg: 'OTP is send to your Contact number.', data: result });
                     }
@@ -258,11 +258,11 @@ exports.validate_user = async function (req, res, next) {
                         throw new Error(ack.data);
                     }
                 } else {
-                    res.status(400).json({ msg: "Your E-mail ID is not in MBA list. Kindly update !!" });
+                    res.send(400, { msg: "Your E-mail ID is not in MBA list. Kindly update !!" });
                 }
             }
         } else {
-            res.status(400).json({ msg: "Your mobile number is not in MBA list. Kindly update !!" });
+            res.send(400, { msg: "Your mobile number is not in MBA list. Kindly update !!" });
         }
     } catch (error) {
         res.send(500, new Error(error));
