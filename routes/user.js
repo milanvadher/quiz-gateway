@@ -42,7 +42,7 @@ exports.register = async function (req, res, next) {
     try {
         let exists_user = await User.findOne({"mht_id": req.body.mht_id});
         if(exists_user) {
-            res.send(226, {'msg': 'A user with this mht_id already exists !!!'});
+            return res.send(226, {'msg': 'A user with this mht_id already exists !!!'});
         }
         let hashPassword = await bcrypt.hash(req.body.password, SALT_WORK_FACTOR);
         let app_setting = await ApplicationSetting.findOne({});
@@ -234,7 +234,7 @@ exports.validate_user = async function (req, res, next) {
     try {
         let exists_user = await User.findOne({"mht_id": req.body.mht_id});
         if(exists_user) {
-            res.send(226, {'msg': 'A user with this mht_id already exists !!!'});
+            return res.send(226, {'msg': 'A user with this mht_id already exists !!!'});
         }
         let options = { min: 100000, max: 999999, integer: true };
         let user_otp = rn(options);
