@@ -183,7 +183,7 @@ exports.insert_questions  = async function (req, res, next) {
             "options" : question_insert.options,
             "score" : question_insert.score,
             "answer" : question_insert.answer,
-            "pikacharanswer": question_update.pikacharanswer,
+            "pikacharanswer": question_insert.pikacharanswer,
             "artifact_path" : question_insert.artifact_path,
             "level" : question_insert.level,
             "quiz_type" : question_insert.quiz_type,

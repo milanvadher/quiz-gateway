@@ -152,21 +152,18 @@ exports.validate_answer = async function (req, res, next) {
 
     let question, status, user,scoreAdd;
     try {
-        question = await Question.findOne({"question_id": question_id,}, "answer pikacharanswer score quiz_type question_st");
+        question = await Question.findOne({"question_id": question_id}, "answer pikacharanswer score quiz_type question_st question_type");
         scoreAdd=question.score;
 
         let isRightAnswer=false;
-        if(question.pikacharanswer && question.pickcharanswer.length>0)
+        console.log(question);
+        if(question.question_type === 'PIKACHAR')
         {
-            if(question.pikacharanswer.length==selected_ans.length && 
-                selected_ans.every(function(u, i) {                
-                return is(u, question.pikacharanswer[i]);
-            }))
+            if(question.answer[0].answer.replace(' ', '') == selected_ans)
             {
                 isRightAnswer=true;
             }
-        }
-        if(question.answer[0].answer == selected_ans) {
+        } else if (question.answer[0].answer == selected_ans) {
             isRightAnswer=true;
         }
 
@@ -239,6 +236,7 @@ exports.validate_answer = async function (req, res, next) {
         res.send(200, status);
         next();
     } catch (error) {
+        console.log(error);
         res.send(500, new Error(error));
         next();
     }
