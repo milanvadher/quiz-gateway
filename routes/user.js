@@ -343,7 +343,8 @@ exports.update_password = async function (req, res, next) {
     try {
         let hashPassword = await bcrypt.hash(req.body.password, SALT_WORK_FACTOR);
         await User.updateOne({ "mht_id": req.body.mht_id }, { $set: { "password": hashPassword } });
-        res.send(200, { msg: "Password updated successfully !!!" })
+        let user = User.findOne({ "mht_id": req.body.mht_id })
+        res.send(200, user);
     } catch (error) {
         res.send(500, new Error(error));
         next();
