@@ -353,6 +353,31 @@ exports.update_password = async function (req, res, next) {
 };
 
 /**
+ * Update Notification Token.
+ * @param req {Object} The request.
+ * @param res {Object} The response.
+ * @param req.body {Object} The JSON payload.
+ * @param {Function} next
+ * @return {User}
+ */
+exports.update_notification_token = async function (req, res, next) {
+    try {
+
+        let hashPassword = await bcrypt.hash(req.body.password, SALT_WORK_FACTOR);
+        await User.updateOne({ "mht_id": req.body.mht_id }, { $set: 
+            { 
+                "fb_token": req.body.fb_token,
+                "onesignal_token" : req.body.onesignal_token
+            } 
+        });
+        res.send(200, { msg: "Token updated successfully !!!" })
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+};
+
+/**
  * Helper function for leaders. Returns rank of the user
  * @param leaders - leaderlist
  * @param mht_id - unique ID of the user

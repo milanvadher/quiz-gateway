@@ -62,7 +62,16 @@ const UserSchema = new mongoose.Schema({
   question_id: {
     type: Number
     //,    required: true    
-  }
+  },
+
+  fb_token: {
+    type: String
+  },
+
+  onesignal_token: {
+    type: String
+  },
+  
 
 });
 

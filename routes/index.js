@@ -40,6 +40,7 @@ const route_definitions = [
             {'path': '/change_mobile', 'method': 'post', 'receiver': 'change_mobile'},
             {'path': '/forgot_password', 'method': 'post', 'receiver': 'forgot_password'},
             {'path': '/update_password', 'method': 'post', 'receiver': 'update_password'},
+            {'path': '/update_notification_token', 'method': 'post', 'receiver': 'update_notification_token'},
             {'path': '/users', 'method': 'get', 'receiver': 'list'},
             {'path': '/leaders', 'method': 'get', 'receiver': 'leaders'},
             {'path': '/user/:id', 'method': 'del', 'receiver': 'remove'}
