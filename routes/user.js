@@ -362,8 +362,6 @@ exports.update_password = async function (req, res, next) {
  */
 exports.update_notification_token = async function (req, res, next) {
     try {
-
-        let hashPassword = await bcrypt.hash(req.body.password, SALT_WORK_FACTOR);
         await User.updateOne({ "mht_id": req.body.mht_id }, { $set: 
             { 
                 "fb_token": req.body.fb_token,
@@ -372,6 +370,7 @@ exports.update_notification_token = async function (req, res, next) {
         });
         res.send(200, { msg: "Token updated successfully !!!" })
     } catch (error) {
+        console.log(error);
         res.send(500, new Error(error));
         next();
     }
