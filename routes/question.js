@@ -433,10 +433,10 @@ exports.user_state = async function (req, res, next) {
         let level_current;
         if ((!current_user_level || current_user_level.length == 0)&& (!completed_levels || completed_levels.length == 0)) {
             level_current = 1;
-            results[2] = await UserScore.create({
+            results[2] = [await UserScore.create({
                 "mht_id": mht_id,
                 "total_questions": levels[0].total_questions
-            });
+            })];
         } else if ((!current_user_level || current_user_level.length == 0) && completed_levels) {
             let total_question = 0;
             if (levels.length > completed_levels.length) {
@@ -445,13 +445,13 @@ exports.user_state = async function (req, res, next) {
             }
             
             let question = await Question.find({ "level": level_current }, "question_st");
-            results[2] = await UserScore.create({
+            results[2] = [await UserScore.create({
                 "mht_id": mht_id,
                 "level": completed_levels.length + 1,
                 "total_questions": total_question,
                 "question_st": question.question_st
                 
-            });
+            })];
             level_current = completed_levels.length + 1;
         }
         else {
