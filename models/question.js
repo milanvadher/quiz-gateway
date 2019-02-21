@@ -51,7 +51,7 @@ const QuestionSchema = new mongoose.Schema({
   },
 
   answer: [AnswerSchema],
-  pikacharanswer: [String],
+  pikacharanswer: [[String]],
 
   artifact_type: {
     type: String,
