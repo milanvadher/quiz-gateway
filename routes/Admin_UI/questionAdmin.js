@@ -129,6 +129,7 @@ exports.update_questionById  = async function (req, res, next) {
  * @return {Question}
  */
 exports.insert_question  = async function (req, res, next) {
+    console.log("tttt");
     let question_insert=req.body;
     let question;
     try {
@@ -143,7 +144,7 @@ exports.insert_question  = async function (req, res, next) {
             "options" : question_insert.options,
             "score" : question_insert.score,
             "answer" : question_insert.answer,
-            "pikacharanswer": question_update.pikacharanswer,
+            "pikacharanswer": question_insert.pikacharanswer,
             "artifact_path" : question_insert.artifact_path,
             "level" : question_insert.level,
             "quiz_type" : question_insert.quiz_type,
@@ -155,6 +156,7 @@ exports.insert_question  = async function (req, res, next) {
         res.send(200, question);
         next();
     } catch (error) {
+        console.log(error);
         res.send(500, new Error(error));
         next();
     }
@@ -169,13 +171,15 @@ exports.insert_question  = async function (req, res, next) {
  * @return {Questions}
  */
 exports.insert_questions  = async function (req, res, next) {
+    console.log("33333", req.body);
     let question_inserts=req.body;
 
     let questions=[];
     try {
         let lastQid=await getNextSequenceValue("qid");
-        console.log(lastQid);
+        
         question_inserts.forEach(question_insert => {
+            console.log(question_insert.pikacharanswer);
             questions.push({   "question_id":lastQid,
             "question_st" : question_insert.question_st,
             "question_type" : question_insert.question_type,

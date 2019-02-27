@@ -155,7 +155,7 @@ exports.validate_answer = async function (req, res, next) {
         scoreAdd = question.score;
 
         let isRightAnswer = false;
-        console.log(question);
+       // console.log(question);
         if (question.question_type === 'PIKACHAR') {
             if (question.answer[0].answer.replace(' ', '') == selected_ans) {
                 isRightAnswer = true;
@@ -180,7 +180,7 @@ exports.validate_answer = async function (req, res, next) {
             else {
                 status = { "answer_status": isRightAnswer, "lives": user.lives, "totalscore": user.totalscore };
             }
-            let UAMObj = new UserAnswerMapping({ "mht_id": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type, "answer": question.answer, "answer_status": answer_status });
+            let UAMObj = new UserAnswerMapping({ "mht_id": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type, "answer":selected_ans, "answer_status": isRightAnswer });
             // entry in user answer, in case of bonus.
             await UAMObj.save();
         }
@@ -191,7 +191,7 @@ exports.validate_answer = async function (req, res, next) {
                     "mht_id": user_mhtid,
                     "completed": false,
                     "level": user_level
-                },
+                    },
                     {
                         $inc: { "score": scoreAdd, "total_questions": -1 },
                         $set: { "question_st": new_question_st }
@@ -217,11 +217,8 @@ exports.validate_answer = async function (req, res, next) {
                     {
                         $inc: { "totalscore": scoreAdd },
                         $set: { "question_id": question_id }
-                    });
+                    }); 
 
-                let UAMObj = new UserAnswerMapping({ "mht_id": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type, "answer": question.answer, "answer_status": true });
-                // entry in user answer, if answer is right and in case of regular.
-                await UAMObj.save();
                 user = await User.findOne({ "mht_id": user_mhtid });
                 status = { "answer_status": isRightAnswer, "lives": user.lives, "totalscore": user.totalscore, "question_st": new_question_st };
             } else {
@@ -234,7 +231,17 @@ exports.validate_answer = async function (req, res, next) {
                 user = await User.findOne({ "mht_id": user_mhtid });
                 status = { "answer_status": isRightAnswer, "lives": user.lives, "totalscore": user.totalscore, "question_st": question.question_st };
             }
+                //console.log('tet');
+                let UAMObj = await UserAnswerMapping.findOne({"mht_id": user_mhtid, "question_id": question_id});
+                console.log(UAMObj);
+                if(UAMObj==null)
+                {
+                    UAMObj = new UserAnswerMapping({ "mht_id": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type,  "answer":selected_ans, "answer_status": isRightAnswer });
+                    // entry in user answer, if answer is right and in case of regular.
+                    await UAMObj.save();
+                }
         }
+        
         res.send(200, status);
         next();
     } catch (error) {
@@ -265,6 +272,9 @@ exports.get_bonus_question = async function (req, res, next) {
 
     let question, usersanwered;
     try {
+        console.log("fsadfa");
+        /*
+        // Commet below code as created new query for mongo
         usersanwered = await UserAnswerMapping.find({
             "mht_id": mhtid,
             "quiz_type": "BONUS"
@@ -276,18 +286,59 @@ exports.get_bonus_question = async function (req, res, next) {
                 qidarrya.push(o.question_id);
             })
         }
+        console.log(qidarrya);
         //console.log(datetimec);
         //console.log(datetimef);
         question = await Question.find({
             "quiz_type": "BONUS",
-            "date": { $gte: datetimec, $lt: datetimef },
+            //"date": { $gte: datetimec, $lt: datetimef },
             "question_id": { $nin: qidarrya }
         }, "-_id");
+        */
+
+
+            question = await Question.aggregate([
+            {
+                $lookup:
+                    {
+                    from: "useranswermappings",
+                    let: { order_item: "$question_id",quiz_type:"$quiz_type" },
+                    pipeline: [
+                        { $match:
+                            { $expr:
+                            { $and:
+                                [
+                                    { $eq: [ "$quiz_type", "$$quiz_type" ] }  ,
+                                    { $eq: [ "$question_id",  "$$order_item" ] },
+                                    { $eq: [ "$mht_id", mhtid ] }
+            //                         {"date": { $gte: datetimec, $lt: datetimef }}
+                                ]
+                            }
+                            }
+                        },
+                        { $project: { stock_item: 0, _id: 0 } }
+                    ],
+                    as: "useransmapping"
+                    }
+            },
+            {
+                $match: { "quiz_type":"BONUS","useransmapping": { $eq: [] } }
+            },
+            {
+                $project: {
+                            "_id": 0,"question_id": 1,  "quiz_type": 1
+                            ,"answer": 1, "question_st": 1, "question_type": 1
+                            , "question": 1, "options": 1, "score": 1, "pikacharanswer": 1, "artifact_type": 1, "artifact_path": 1
+                            , "level": 1,   "date": 1, "reference": 1, "jumbledata": 1    
+                           }
+                },
+             { $limit : 1 }
+        ]);
 
         res.send(200, question);
         next();
     } catch (error) {
-        //  console.log(error);
+          console.log(error);
         res.send(500, new Error(error));
         next();
     }
