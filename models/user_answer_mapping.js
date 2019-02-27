@@ -25,14 +25,13 @@ const UserAnswerMappingSchema = new mongoose.Schema({
     required: true,
     default: 'REGULAR'
   },
-  // answer: {
-  //   type: String,
-  //   required: true,
-  //   trim: true
-  // },
-  answer: [AnswerSchema],
+  answer: {
+    type: String, 
+    trim: true
+  },
+  // answer: [AnswerSchema],
 
-  pikacharanswer: [AnswerSchema],
+  // pikacharanswer: [AnswerSchema],
   answer_status: {
       type:Boolean,
       required: true
