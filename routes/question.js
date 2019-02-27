@@ -428,7 +428,7 @@ exports.user_state = async function (req, res, next) {
             UserScore.find({
                 "mht_id": mht_id,
                 "completed": true
-            }, "level score -_id"),
+            }, "level score fifty_fifty -_id"),
 
             // Find current level of user
             UserScore.find({
@@ -475,6 +475,22 @@ exports.user_state = async function (req, res, next) {
             "lives": user.lives
         }
         res.send(200, { "results": response });
+        next();
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+};
+
+exports.use_fifty_fifty = async function (req, res, next) {
+    let mht_id = req.body.mht_id;
+    let level = req.body.level;
+    try {
+        let user_score = await UserScore.updateOne({
+            "mht_id": mht_id,
+            "level": level
+        }, {$set: {fifty_fifty: false}});
+        res.send(200, user_score);
         next();
     } catch (error) {
         res.send(500, new Error(error));

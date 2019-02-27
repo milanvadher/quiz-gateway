@@ -36,6 +36,11 @@ const UserScoreSchema = new mongoose.Schema({
       required:true
   },
 
+  fifty_fifty: {
+    type: Boolean,
+    required: true,
+    default: true
+  },
   // current_score: {
   //   type: Number,
   //   required: true,
