@@ -448,10 +448,11 @@ exports.feedback = async function (req, res, next) {
     try {
         let message = req.body.message;
         let contact = req.body.contact;
-        let feedback = await Feedback.insertOne({message: message, contact: contact});
+        let feedback = await Feedback.create({message: message, contact: contact});
         res.send(200, feedback);
         next();
     } catch (error) {
+        console.log(error);
         res.send(500, new Error(error));
         next();
     }
