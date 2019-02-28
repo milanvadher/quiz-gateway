@@ -13,6 +13,7 @@ const nodemailer = require("nodemailer");
 const User = require('../models/user');
 const MBAData = require('../models/mbadata');
 const ApplicationSetting = require('../models/app_setting');
+const Feedback = require('../models/feedback');
 
 /**
  * Veriables
