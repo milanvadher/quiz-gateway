@@ -272,8 +272,7 @@ exports.get_bonus_question = async function (req, res, next) {
 
     let question, usersanwered;
     try {
-        console.log("fsadfa");
-        /*
+        
         // Commet below code as created new query for mongo
         usersanwered = await UserAnswerMapping.find({
             "mht_id": mhtid,
@@ -286,55 +285,11 @@ exports.get_bonus_question = async function (req, res, next) {
                 qidarrya.push(o.question_id);
             })
         }
-        console.log(qidarrya);
-        //console.log(datetimec);
-        //console.log(datetimef);
         question = await Question.find({
             "quiz_type": "BONUS",
             //"date": { $gte: datetimec, $lt: datetimef },
             "question_id": { $nin: qidarrya }
         }, "-_id");
-        */
-
-
-            question = await Question.aggregate([
-            {
-                $lookup:
-                    {
-                    from: "useranswermappings",
-                    let: { order_item: "$question_id",quiz_type:"$quiz_type" },
-                    pipeline: [
-                        { $match:
-                            { $expr:
-                            { $and:
-                                [
-                                    { $eq: [ "$quiz_type", "$$quiz_type" ] }  ,
-                                    { $eq: [ "$question_id",  "$$order_item" ] },
-                                    { $eq: [ "$mht_id", mhtid ] }
-            //                         {"date": { $gte: datetimec, $lt: datetimef }}
-                                ]
-                            }
-                            }
-                        },
-                        { $project: { stock_item: 0, _id: 0 } }
-                    ],
-                    as: "useransmapping"
-                    }
-            },
-            {
-                $match: { "quiz_type":"BONUS","useransmapping": { $eq: [] } }
-            },
-            {
-                $project: {
-                            "_id": 0,"question_id": 1,  "quiz_type": 1
-                            ,"answer": 1, "question_st": 1, "question_type": 1
-                            , "question": 1, "options": 1, "score": 1, "pikacharanswer": 1, "artifact_type": 1, "artifact_path": 1
-                            , "level": 1,   "date": 1, "reference": 1, "jumbledata": 1    
-                           }
-                },
-             { $limit : 1 }
-        ]);
-
         res.send(200, question);
         next();
     } catch (error) {
