@@ -43,7 +43,8 @@ const route_definitions = [
             {'path': '/update_notification_token', 'method': 'post', 'receiver': 'update_notification_token'},
             {'path': '/users', 'method': 'get', 'receiver': 'list'},
             {'path': '/leaders', 'method': 'get', 'receiver': 'leaders'},
-            {'path': '/user/:id', 'method': 'del', 'receiver': 'remove'}
+            {'path': '/user/:id', 'method': 'del', 'receiver': 'remove'},
+            {'path': '/feedback', 'method': 'post', 'receiver': 'feedback'}
             //{'path': '/generate_otp', 'method': 'post', 'receiver': 'generate_otp'},
             //{'path': '/verify_otp', 'method': 'post', 'receiver': 'verify_otp'}
         ]
