@@ -34,6 +34,7 @@ exports.get = async function (req, res, next) {
             "quiz_type": "REGULAR",
             "level": level
         }, "-_id");
+        res.charSet('utf-8');
         res.send(200, question);
         next();
     } catch (error) {
@@ -290,6 +291,7 @@ exports.get_bonus_question = async function (req, res, next) {
             //"date": { $gte: datetimec, $lt: datetimef },
             "question_id": { $nin: qidarrya }
         }, "-_id");
+        res.charSet('utf-8');
         res.send(200, question);
         next();
     } catch (error) {
