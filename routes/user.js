@@ -7,6 +7,7 @@ const config = require('./../config');
 const request = require('request');
 const rn = require('random-number');
 const nodemailer = require("nodemailer");
+const fs = require('fs');
 /**
  * Model Schema
  */
@@ -14,6 +15,8 @@ const User = require('../models/user');
 const MBAData = require('../models/mbadata');
 const ApplicationSetting = require('../models/app_setting');
 const Feedback = require('../models/feedback');
+
+//const upload = multer();
 
 /**
  * Veriables
@@ -345,6 +348,9 @@ exports.update_password = async function (req, res, next) {
         let hashPassword = await bcrypt.hash(req.body.password, SALT_WORK_FACTOR);
         await User.updateOne({ "mht_id": req.body.mht_id }, { $set: { "password": hashPassword } });
         let user = await User.findOne({"mht_id": req.body.mht_id});
+        let token = jwt.sign({ mht_id: data.mht_id }, config.jwt_secret);
+        user = user.toObject();
+        user.token = token;
         res.send(200, user);
     } catch (error) {
         console.log(error)
@@ -452,8 +458,24 @@ exports.feedback = async function (req, res, next) {
         res.send(200, feedback);
         next();
     } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+}
+
+exports.upload_photo = async function(req, res, next) {
+    try {
+        console.log('tr');
+        console.log(req.body);
+        console.log('t2r')
+        let user = await User.findOne({mht_id: req.body.mht_id});
+        user.img = {data: fs.readFileSync(req.body)}
+        user.img = {contentType: 'image/png'};
+        user.save();
+    } catch (error) {
         console.log(error);
         res.send(500, new Error(error));
         next();
     }
+    
 }
