@@ -411,24 +411,25 @@ exports.forgot_password = async function (req, res, next) {
                         res.send(200, { otp: user_otp, msg: 'OTP is send to your Contact number.', data: user });
                     }
                 });
-            } else {
+            } 
+            // else {
                 if (user.mailId) {
                     const mailOptions = {
                         from: process.env.EMAIL_ID,
-                        to: mailId,
+                        to: user.mailId,
                         subject: 'MBA Quiz-GateWay',
                         text: 'JSCA! This is your one-time password ' + user_otp + '.'
                     };
                     let ack = await sendMail(mailOptions);
                     if (ack.status) {
-                        res.send(200, { otp: user_otp, msg: 'OTP is send to ' + result.mailId + ' Kindly check your email id.', data: result });
+                        res.send(200, { otp: user_otp, msg: 'OTP is send to ' + user.mailId + ' Kindly check your email id.', data: user });
                     } else {
                         throw new Error(ack.data);
                     }
                 } else {
                     res.send(400, { msg: "Your E-mail ID is not in MBA list. Kindly update !!" });
                 }
-            }
+            
         }
         else {
             res.send(400, { msg: "You are not registered !!" });
