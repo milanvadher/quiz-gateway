@@ -347,7 +347,7 @@ exports.update_password = async function (req, res, next) {
         let hashPassword = await bcrypt.hash(req.body.password, SALT_WORK_FACTOR);
         await User.updateOne({ "mht_id": req.body.mht_id }, { $set: { "password": hashPassword } });
         let user = await User.findOne({"mht_id": req.body.mht_id});
-        let token = jwt.sign({ mht_id: data.mht_id }, config.jwt_secret);
+        let token = jwt.sign({ mht_id: user.mht_id }, config.jwt_secret);
         user = user.toObject();
         user.token = token;
         res.send(200, user);
