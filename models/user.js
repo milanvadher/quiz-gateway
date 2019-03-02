@@ -5,9 +5,7 @@ const mongooseStringQuery = require('mongoose-string-query');
 const UserSchema = new mongoose.Schema({
   mobile: {
     type: String,
-    required: [true, 'Mobile no. is required.'],
-    trim: true,
-    unique: true
+    trim: true
   },
 
   password: {
