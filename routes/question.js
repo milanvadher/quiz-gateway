@@ -340,7 +340,7 @@ exports.req_life = async function (req, res, next) {
             if (user.lives > 2) {
                 res.send(226, { "msg": "You have enough lives!!" });
             } else {
-                res.send(226, { "msg": "please check score!!" });
+                res.send(226, { "msg": "You don't have sufficient coins!!" });
             }
         }
 
