@@ -348,11 +348,9 @@ exports.validate_user = async function (req, res, next) {
         }
         let options = { min: 100000, max: 999999, integer: true };
         let user_otp = rn(options);
-        let result = await MBAData.findOne({ "mht_id": req.body.mht_id, "mobile": req.body.mobile });
-        console.log(result);
-        if (result && result.mobile) {
-            if (result.mobile.length == 10) {
-                console.log(process.env.SMS_KEY);
+        if (req.body.mobile) {
+            let result = await MBAData.findOne({ "mht_id": req.body.mht_id, "mobile": req.body.mobile });
+            if (result && result.mobile) {
                 request('http://api.msg91.com/api/sendhttp.php?country=91&sender=QUIZEAPP&route=4&mobiles=+' + result.mobile + '&authkey=' + process.env.SMS_KEY + '&message=JSCA! This is your one-time password ' + user_otp + '.', { json: true }, (err, otp, body) => {
                     if (err) {
                         console.log(err);
@@ -362,25 +360,26 @@ exports.validate_user = async function (req, res, next) {
                     }
                 });
             } else {
-                if (result.mailId) {
-                    const mailOptions = {
-                        from: process.env.EMAIL_ID,
-                        to: mailId,
-                        subject: 'MBA Quiz-GateWay',
-                        text: 'JSCA! This is your one-time password ' + user_otp + '.'
-                    };
-                    let ack = await sendMail(mailOptions);
-                    if (ack.status) {
-                        res.send(200, { otp: user_otp, msg: 'OTP is send to ' + result.mailId + ' Kindly check your email id.', data: result });
-                    } else {
-                        throw new Error(ack.data);
-                    }
-                } else {
-                    res.send(400, { msg: "Your E-mail ID is not in MBA list. Kindly update !!" });
-                }
+                res.send(400, { msg: "Your mobile number is not in MBA list. Kindly update !!" });
             }
-        } else {
-            res.send(400, { msg: "Your mobile number is not in MBA list. Kindly update !!" });
+        } else if (req.body.emailId) {
+            let result = await MBAData.findOne({ "mht_id": req.body.mht_id, "email": req.body.emailId });
+            if(result && result.email) {
+                const mailOptions = {
+                    from: process.env.EMAIL_ID,
+                    to: mailId,
+                    subject: 'MBA Quiz-GateWay',
+                    text: 'JSCA! This is your one-time password ' + user_otp + '.'
+                };
+                let ack = await sendMail(mailOptions);
+                if (ack.status) {
+                    res.send(200, { otp: user_otp, msg: 'OTP is send to ' + result.mailId + ' Kindly check your email id.', data: result });
+                } else {
+                    throw new Error(ack.data);
+                }
+            } else {
+                res.send(400, { msg: "Your E-mail ID is not in MBA list. Kindly update !!" });
+            }
         }
     } catch (error) {
         res.send(500, new Error(error));
