@@ -198,6 +198,7 @@ exports.leader_center = async function (req, res, next) {
             next();
         }
     } catch (error) {
+        console.log(error);
         res.send(500, new Error(error));
         next();
     }
@@ -238,6 +239,7 @@ exports.leader_internal_center = async function (req, res, next) {
             next();
         }
     } catch (error) {
+        console.log(error);
         res.send(500, new Error(error));
         next();
     }
