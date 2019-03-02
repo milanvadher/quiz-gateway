@@ -401,8 +401,8 @@ exports.forgot_password = async function (req, res, next) {
         let options = { min: 100000, max: 999999, integer: true };
         let user_otp = rn(options);
         let user = await User.findOne({ "mht_id": req.body.mht_id });
-        if (user && user.mobile) {
-            if (user.mobile.length == 10) {
+        if (user) {
+            if ( user.mobile && user.mobile.length == 10) {
                 request('http://api.msg91.com/api/sendhttp.php?country=91&sender=QUIZEAPP&route=4&mobiles=+' + user.mobile + '&authkey=' + process.env.SMS_KEY + '&message=JSCA! This is your one-time password ' + user_otp + '.', { json: true }, (err, otp, body) => {
                     if (err) {
                         console.log(err);
