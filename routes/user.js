@@ -367,13 +367,13 @@ exports.validate_user = async function (req, res, next) {
             if(result && result.email) {
                 const mailOptions = {
                     from: process.env.EMAIL_ID,
-                    to: mailId,
+                    to: result.email,
                     subject: 'MBA Quiz-GateWay',
                     text: 'JSCA! This is your one-time password ' + user_otp + '.'
                 };
                 let ack = await sendMail(mailOptions);
                 if (ack.status) {
-                    res.send(200, { otp: user_otp, msg: 'OTP is send to ' + result.mailId + ' Kindly check your email id.', data: result });
+                    res.send(200, { otp: user_otp, msg: 'OTP is send to ' + result.email + ' Kindly check your email id.', data: result });
                 } else {
                     throw new Error(ack.data);
                 }
