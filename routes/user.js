@@ -165,6 +165,86 @@ exports.list = async function (req, res, next) {
 /**
  * To get rank, you need to send mht_id of the user of whose rank is needed in the header
  */
+exports.leader_center = async function (req, res, next) {
+    try {
+        let leaders = await User.aggregate([ 
+            {
+                $group : {
+                    "_id": {"center":"$center" },                    
+                    //"mobile": 1,"password":1,
+                  "totalscores": { $avg: "$totalscore" }
+                }
+            },
+             { $sort : { totalscore: -1,lives: -1,createdAt: -1 } }
+            ]);
+
+
+        let userRank;
+
+        // Send MHT-ID in header
+        // If mht_id not sent, or wrong MHT-id sent, if fails silently
+        try {
+            userRank = await getRank(leaders, req.headers.mht_id);
+        }
+        catch (e) {
+            console.log(e);
+        }
+
+        if (leaders) {
+            res.send(200, {
+                leaders,
+                userRank
+            });
+            next();
+        }
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+};
+/**
+ * To get rank, you need to send mht_id of the user of whose rank is needed in the header
+ */
+exports.leader_internal_center = async function (req, res, next) {
+    try {
+        let leaders = await User.find(
+            {"center":req.body.center},
+            null,
+            {
+                sort: {
+                    totalscore: -1,
+                    lives: -1,
+                    createdAt: -1
+                }
+            });
+
+
+        let userRank;
+
+        // Send MHT-ID in header
+        // If mht_id not sent, or wrong MHT-id sent, if fails silently
+        try {
+            userRank = await getRank(leaders, req.headers.mht_id);
+        }
+        catch (e) {
+            console.log(e);
+        }
+
+        if (leaders) {
+            res.send(200, {
+                leaders,
+                userRank
+            });
+            next();
+        }
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+};
+/**
+ * To get rank, you need to send mht_id of the user of whose rank is needed in the header
+ */
 exports.leaders = async function (req, res, next) {
     try {
         let leaders = await User.find(

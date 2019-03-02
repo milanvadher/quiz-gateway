@@ -43,6 +43,8 @@ const route_definitions = [
             {'path': '/update_notification_token', 'method': 'post', 'receiver': 'update_notification_token'},
             {'path': '/users', 'method': 'get', 'receiver': 'list'},
             {'path': '/leaders', 'method': 'get', 'receiver': 'leaders'},
+            {'path': '/leader_center', 'method': 'get', 'receiver': 'leader_center'},
+            {'path': '/leader_internal_center', 'method': 'post', 'receiver': 'leader_internal_center'},
             {'path': '/user/:id', 'method': 'del', 'receiver': 'remove'},
             {'path': '/feedback', 'method': 'post', 'receiver': 'feedback'},
             {'path': '/upload_photo', 'method': 'post', 'receiver': 'upload_photo'},
