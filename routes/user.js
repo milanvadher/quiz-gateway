@@ -227,6 +227,28 @@ exports.remove = async function (req, res, next) {
     }
 };
 
+exports.resend_otp= async function (req, res,next)
+{
+try{
+         let options = { min: 100000, max: 999999, integer: true };
+        let user_otp = rn(options);
+       await request('http://api.msg91.com/api/sendhttp.php?country=91&sender=QUIZEAPP&route=4&mobiles=+' + req.body.mobile + '&authkey=' + process.env.SMS_KEY + '&message=JSCA! This is your one-time password ' + user_otp + '.', { json: true }, (err, otp, body) => {
+                    if (err) {
+                        console.log(err);
+                        res.send(500, { msg: "An error occurred when sending OTP." });
+                    } else {
+                        res.send(200, { otp: user_otp, msg: 'OTP is send to your Contact number.', data: "" });
+                    }
+                });
+                    
+}
+catch(error)
+{
+    console.log(error);
+ res.send(500, new Error(error));
+        next();
+}
+}
 /**
 * Generate OTP and check user is exsist in MBA Data if yes then check applicaiton data if no give message.
 * If user mobile no. is from out of india then send OTP through E-MAIL.
