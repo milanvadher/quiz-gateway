@@ -3,7 +3,6 @@
  */
 const errors = require('restify-errors');
 const fs = require('fs');
-
 var request_handlers = {},
     handler_paths = `${process.cwd()}/routes`;
 
@@ -14,7 +13,7 @@ async function import_routes(dir_path) {
     // Walk directory
     fs.readdirSync(dir_path).forEach(function (file) {
         let file_path = `${dir_path}/${file}`;
-        console.log(file_path);
+      //  console.log(file_path);
         let stat = fs.statSync(file_path);
         // If it is a directory, invoke again
         if(stat && stat.isDirectory()) {
@@ -44,7 +43,9 @@ const route_definitions = [
             {'path': '/users', 'method': 'get', 'receiver': 'list'},
             {'path': '/leaders', 'method': 'get', 'receiver': 'leaders'},
             {'path': '/user/:id', 'method': 'del', 'receiver': 'remove'},
-            {'path': '/feedback', 'method': 'post', 'receiver': 'feedback'}
+            {'path': '/feedback', 'method': 'post', 'receiver': 'feedback'},
+            {'path': '/upload_photo', 'method': 'post', 'receiver': 'upload_photo'},
+            {'path': '/get_photo', 'method': 'post', 'receiver': 'get_photo'}
             //{'path': '/generate_otp', 'method': 'post', 'receiver': 'generate_otp'},
             //{'path': '/verify_otp', 'method': 'post', 'receiver': 'verify_otp'}
         ]
@@ -108,7 +109,7 @@ module.exports = async function (server) {
         let route_def = route_definitions[index];
         for(ind in route_def.routes) {
             let route = route_def.routes[ind];
-            console.log(route);
+            //console.log(route);
             server[route.method](route.path, route_def.handler[route.receiver]);
         }
     }

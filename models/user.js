@@ -71,7 +71,10 @@ const UserSchema = new mongoose.Schema({
   onesignal_token: {
     type: String
   },
-  
+
+  img: {
+    type: String
+  }
 
 });
 

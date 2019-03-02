@@ -16,7 +16,6 @@ const MBAData = require('../models/mbadata');
 const ApplicationSetting = require('../models/app_setting');
 const Feedback = require('../models/feedback');
 
-//const upload = multer();
 
 /**
  * Veriables
@@ -465,17 +464,28 @@ exports.feedback = async function (req, res, next) {
 
 exports.upload_photo = async function(req, res, next) {
     try {
-        console.log('tr');
-        console.log(req.body);
-        console.log('t2r')
-        let user = await User.findOne({mht_id: req.body.mht_id});
-        user.img = {data: fs.readFileSync(req.body)}
-        user.img = {contentType: 'image/png'};
-        user.save();
+        let mht_id = req.body.mht_id;
+        let image = req.body.image;
+        await User.updateOne({mht_id: mht_id}, {$set: {img: image}});
+        let user = await User.findOne({mht_id: mht_id});
+        res.send(200, {image: user.img});
+        next();
     } catch (error) {
         console.log(error);
         res.send(500, new Error(error));
         next();
     }
-    
+}
+
+exports.get_photo = async function(req, res, next) {
+    try {
+        let mht_id = req.body.mht_id;
+        let user = await User.findOne({mht_id: mht_id});
+        res.send(200, {image: user.img});
+        next();
+    } catch (error) {
+        console.log(error);
+        res.send(500, new Error(error));
+        next();
+    }
 }
