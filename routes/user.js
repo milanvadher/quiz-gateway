@@ -64,6 +64,9 @@ exports.register = async function (req, res, next) {
                 "totalscore": 0
             });
         new_user = await user.save();
+        let token = jwt.sign({ mht_id: req.body.mht_id }, config.jwt_secret);
+        new_user = new_user.toObject();
+        new_user.token = token;
         res.send(200, new_user);
     } catch (error) {
         res.send(500, new Error(error));
