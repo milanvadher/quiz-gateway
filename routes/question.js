@@ -288,11 +288,15 @@ exports.get_bonus_question = async function (req, res, next) {
         }
         question = await Question.find({
             "quiz_type": "BONUS",
-            //"date": { $gte: datetimec, $lt: datetimef },
+            "date": { $gte: datetimec, $lt: datetimef },
             "question_id": { $nin: qidarrya }
         }, "-_id");
         res.charSet('utf-8');
-        res.send(200, question);
+        if(question.length > 0) {
+            res.send(200, question);
+        } else {
+            res.send(200, {msg: 'You have already finished Today\'s challenge'});
+        }
         next();
     } catch (error) {
           console.log(error);
