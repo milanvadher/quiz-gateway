@@ -360,7 +360,7 @@ exports.validate_user = async function (req, res, next) {
                     }
                 });
             } else {
-                res.send(400, { msg: "Your mobile number is not in MBA list. Kindly update !!" });
+                res.send(400, { msg: "Mht Id or Mobile number not available in MBA List. Kindly update !!" });
             }
         } else if (req.body.emailId) {
             let result = await MBAData.findOne({ "mht_id": req.body.mht_id, "email": req.body.emailId });
