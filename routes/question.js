@@ -479,12 +479,42 @@ exports.user_state = async function (req, res, next) {
         else {
             level_current = current_user_level[0].level;
         }
+        var datetime = new Date();
+        var dt = datetime.getFullYear() + "-" + (datetime.getMonth() + 1) + "-" + (datetime.getDate() - 1);
+        //console.log(dt)
+        var datetimec = new Date(dt);
+        dt = datetime.getFullYear() + "-" + (datetime.getMonth() + 1) + "-" + (datetime.getDate() + 1);
+        var datetimef = new Date(dt);
+
+        let question, usersanwered;
+        try {
+            // Commet below code as created new query for mongo
+            usersanwered = await UserAnswerMapping.find({
+                "mht_id": mht_id,
+                "quiz_type": "BONUS"
+            }, "question_id -_id");
+            let qidarrya = [];
+            if (!usersanwered || usersanwered.length > 0) {
+                //console.log(datetime +'pppp');
+                usersanwered.forEach(o => {
+                    qidarrya.push(o.question_id);
+                })
+            }
+            question = await Question.find({
+                "quiz_type": "BONUS",
+                "date": { $gte: datetimec, $lt: datetimef },
+                "question_id": { $nin: qidarrya }
+            }, "-_id");
+        } catch (error) {
+            console.log(error);
+        }
         response = {
             "quiz_levels": results[0],
             "completed": results[1],
             "current": results[2],
             "totalscore": user.totalscore,
-            "lives": user.lives
+            "lives": user.lives, 
+            "bonus_count": question.length
         }
         res.send(200, { "results": response });
         next();
