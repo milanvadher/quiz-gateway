@@ -350,8 +350,9 @@ exports.validate_user = async function (req, res, next) {
         let user_otp = rn(options);
         if (req.body.mobile) {
             let result = await MBAData.findOne({ "mht_id": req.body.mht_id, "mobile": {$in: [req.body.mobile]} });
+            result.mobile = req.body.mobile;
             if (result && result.mobile) {
-                request('http://api.msg91.com/api/sendhttp.php?country=91&sender=QUIZEAPP&route=4&mobiles=+' + result.mobile + '&authkey=' + process.env.SMS_KEY + '&message=JSCA! This is your one-time password ' + user_otp + '.', { json: true }, (err, otp, body) => {
+                request('http://api.msg91.com/api/sendhttp.php?country=91&sender=QUIZEAPP&route=4&mobiles=+' + req.body.mobile + '&authkey=' + process.env.SMS_KEY + '&message=JSCA! This is your one-time password ' + user_otp + '.', { json: true }, (err, otp, body) => {
                     if (err) {
                         console.log(err);
                         res.send(500, { msg: "An error occurred when sending OTP." });
@@ -364,6 +365,7 @@ exports.validate_user = async function (req, res, next) {
             }
         } else if (req.body.emailId) {
             let result = await MBAData.findOne({ "mht_id": req.body.mht_id, "email": req.body.emailId });
+            result.mobile = result.mobile[0];
             if(result && result.email) {
                 const mailOptions = {
                     from: process.env.EMAIL_ID,
