@@ -4,7 +4,7 @@ const mongooseStringQuery = require('mongoose-string-query');
 
 const MbaDataSchema = new mongoose.Schema({
   mobile: {
-    type: String,
+    type: [String],
     required: [true, 'Mobile no. is required.'],
     trim: true,
     unique: true

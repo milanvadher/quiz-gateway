@@ -48,7 +48,8 @@ const route_definitions = [
             {'path': '/user/:id', 'method': 'del', 'receiver': 'remove'},
             {'path': '/feedback', 'method': 'post', 'receiver': 'feedback'},
             {'path': '/upload_photo', 'method': 'post', 'receiver': 'upload_photo'},
-            {'path': '/get_photo', 'method': 'post', 'receiver': 'get_photo'}
+            {'path': '/get_photo', 'method': 'post', 'receiver': 'get_photo'},
+            {'path': '/insertMBAData', 'method': 'post', 'receiver': 'insertMBAData'}
             //{'path': '/generate_otp', 'method': 'post', 'receiver': 'generate_otp'},
             //{'path': '/verify_otp', 'method': 'post', 'receiver': 'verify_otp'}
         ]

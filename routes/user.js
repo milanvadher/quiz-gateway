@@ -349,7 +349,7 @@ exports.validate_user = async function (req, res, next) {
         let options = { min: 100000, max: 999999, integer: true };
         let user_otp = rn(options);
         if (req.body.mobile) {
-            let result = await MBAData.findOne({ "mht_id": req.body.mht_id, "mobile": req.body.mobile });
+            let result = await MBAData.findOne({ "mht_id": req.body.mht_id, "mobile": {$in: [req.body.mobile]} });
             if (result && result.mobile) {
                 request('http://api.msg91.com/api/sendhttp.php?country=91&sender=QUIZEAPP&route=4&mobiles=+' + result.mobile + '&authkey=' + process.env.SMS_KEY + '&message=JSCA! This is your one-time password ' + user_otp + '.', { json: true }, (err, otp, body) => {
                     if (err) {
@@ -589,6 +589,22 @@ exports.get_photo = async function(req, res, next) {
         let mht_id = req.body.mht_id;
         let user = await User.findOne({mht_id: mht_id});
         res.send(200, {image: user.img});
+        next();
+    } catch (error) {
+        console.log(error);
+        res.send(500, new Error(error));
+        next();
+    }
+}
+
+exports.insertMBAData = async function(req, res, next) {
+    try {
+        let mbadata = MBAData.create({mobile: req.body.mobile,
+                                        name: req.body.name,
+                                        center: req.body.center,
+                                        mht_id: req.body.mht_id,
+                                        email: req.body.email})
+        res.send(200, mbadata);
         next();
     } catch (error) {
         console.log(error);
