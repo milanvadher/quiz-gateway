@@ -4,8 +4,12 @@ const mongooseStringQuery = require('mongoose-string-query');
 
 const MbaDataSchema = new mongoose.Schema({
   mobile: {
-    type: [String],
+    type: String,
     trim: true
+  },
+
+  mob_list: {
+    type: [String],
   },
 
   name: {
