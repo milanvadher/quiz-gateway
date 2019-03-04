@@ -357,11 +357,11 @@ exports.validate_user = async function (req, res, next) {
                         console.log(err);
                         res.send(500, { msg: "An error occurred when sending OTP." });
                     } else {
-                        res.send(200, { otp: user_otp, msg: 'OTP is send to your Contact number.', data: result });
+                        res.send(200, { otp: user_otp, msg: 'OTP is sent to your Contact number.', data: result });
                     }
                 });
             } else {
-                res.send(400, { msg: "Mht Id or Mobile number not available in MBA List. Kindly update !!" });
+                res.send(400, { msg: "Your Mht Id or Mobile number is not available in MBA List. Kindly update !!" });
             }
         } else if (req.body.emailId) {
             let result = await MBAData.findOne({ "mht_id": req.body.mht_id, "email": req.body.emailId });
@@ -380,7 +380,7 @@ exports.validate_user = async function (req, res, next) {
                     throw new Error(ack.data);
                 }
             } else {
-                res.send(400, { msg: "Your E-mail ID is not in MBA list. Kindly update !!" });
+                res.send(400, { msg: "Your Mht Id or E-mail ID is not available in MBA list. Kindly update !!" });
             }
         }
     } catch (error) {
@@ -410,7 +410,7 @@ exports.forgot_password = async function (req, res, next) {
                         console.log(err);
                         res.send(500, { msg: "internal server error please try again later." });
                     } else {
-                        res.send(200, { otp: user_otp, msg: 'OTP is send to your Contact number.', data: user });
+                        res.send(200, { otp: user_otp, msg: 'OTP is sent to your Contact number.', data: user });
                     }
                 });
             } 

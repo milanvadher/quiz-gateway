@@ -472,7 +472,7 @@ exports.user_state = async function (req, res, next) {
                     {
                         "$match" : {
                             "qu.quiz_type" : "BONUS",
-                            //"qu.date": { "$gte": datetimecb, "$lt": datetimefb },
+                            "qu.date": { "$gte": datetimecb, "$lt": datetimefb },
                             "$or" : [
                                 {
                                     "uam.mht_id" : null
