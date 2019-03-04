@@ -446,51 +446,52 @@ exports.user_state = async function (req, res, next) {
             UserScore.find({
                 "mht_id": mht_id,
                 "completed": false
-            }, "-_id"),
-           Question.aggregate(
-                [
-                    {
-                        "$project" : {
-                            "_id" : NumberInt(0),
-                            "qu" : "$$ROOT"
-                        }
-                    },
-                    {
-                        "$lookup" : {
-                            "localField" : "qu.question_id",
-                            "from" : "useranswermappings",
-                            "foreignField" : "question_id",
-                            "as" : "uam"
-                        }
-                    },
-                    {
-                        "$unwind" : {
-                            "path" : "$uam",
-                            "preserveNullAndEmptyArrays" : true
-                        }
-                    },
-                    {
-                        "$match" : {
-                            "qu.quiz_type" : "BONUS",
-                            "qu.date": { "$gte": datetimecb, "$lt": datetimefb },
-                            "$or" : [
-                                {
-                                    "uam.mht_id" : null
-                                },
-                                {
-                                    "uam.mht_id" : NumberLong(mht_id)
-                                }
-                            ]
-                        }
-                    }
-                ],
-                {
-                      $project:{
-                             "question_id":1,
-                             "userQuestion_id":"uam.question_id"
-                      }
-                }
-            )
+            }, "-_id")
+        //     ,
+        //    Question.aggregate(
+        //         [
+        //             {
+        //                 "$project" : {
+        //                     "_id" : NumberInt(0),
+        //                     "qu" : "$$ROOT"
+        //                 }
+        //             },
+        //             {
+        //                 "$lookup" : {
+        //                     "localField" : "qu.question_id",
+        //                     "from" : "useranswermappings",
+        //                     "foreignField" : "question_id",
+        //                     "as" : "uam"
+        //                 }
+        //             },
+        //             {
+        //                 "$unwind" : {
+        //                     "path" : "$uam",
+        //                     "preserveNullAndEmptyArrays" : true
+        //                 }
+        //             },
+        //             {
+        //                 "$match" : {
+        //                     "qu.quiz_type" : "BONUS",
+        //                     "qu.date": { "$gte": datetimecb, "$lt": datetimefb },
+        //                     "$or" : [
+        //                         {
+        //                             "uam.mht_id" : null
+        //                         },
+        //                         {
+        //                             "uam.mht_id" : NumberLong(mht_id)
+        //                         }
+        //                     ]
+        //                 }
+        //             }
+        //         ],
+        //         {
+        //               $project:{
+        //                      "question_id":1,
+        //                      "userQuestion_id":"uam.question_id"
+        //               }
+        //         }
+        //     )
         ]);
 
         let current_user_level = results[2];
@@ -557,8 +558,8 @@ exports.user_state = async function (req, res, next) {
             "completed": results[1],
             "current": results[2],
             "totalscore": user.totalscore,
-            "lives": user.lives, 
-            "bonus_count": results[3]
+            "lives": user.lives
+            //,             "bonus_count": results[3]
         }
         res.send(200, { "results": response });
         next();
