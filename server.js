@@ -12,7 +12,7 @@ const path = require('path');
 const response_transformation = require('./utility/transformation');
 const onesignal = require('./utility/onesignal-notification');
 const schedule = require('node-schedule');
-const Question = require('models/question');
+const Question = require('./models/question');
 /**
   * Initialize Server
   */
