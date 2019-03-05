@@ -100,9 +100,9 @@ server.listen(config.port, () => {
     });
 });
 function scheduleNotification() {
-    var j = schedule.scheduleJob('45 7 * * *', function (date) {
-        var datetimec = moment().tz('Asia/Kolkata').startOf("day")
-        var datetimef = datetimec.add(1, "days");
+    var j = schedule.scheduleJob('15 2 * * *', function (date) {
+        var datetimec = moment().tz('Asia/Kolkata').startOf("day");
+        var datetimef = moment().tz('Asia/Kolkata').startOf("day").add(1, "days");
         let questions=Question.findOne({ "quiz_type":"BONUS", "date": { $gte: datetimec, $lt: datetimef }})
         if(questions)
         {
