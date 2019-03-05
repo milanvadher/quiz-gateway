@@ -26,6 +26,17 @@ exports.get = async function (req, res, next) {
         next();
     }
 };
+exports.get_appversion= async function(req,res,next)
+{
+    try {
+        let application= await  ApplicationSetting.find(req.params,"-id appversion");
+        res.send(200, application);
+        next();
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+};
 
 /**
  * update application setting with _id, to update some setting like 'negative, total life per users etc..' 
