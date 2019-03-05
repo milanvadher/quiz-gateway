@@ -390,10 +390,8 @@ exports.user_state = async function (req, res, next) {
         if (!user) {
             return res.send(500, { msg: "User does not exist !!!" });
         }
-        var dt = `${datetime.getFullYear()}-${datetime.getMonth() + 1}-${datetime.getDate() + 1}`;
-        var datetimef = new Date(dt);
-        dt = `${datetime.getFullYear()}-${datetime.getMonth() + 1}-${datetime.getDate()}`;
-        var datetimet = new Date(dt);
+        var datetimef = moment().tz('Asia/Kolkata').startOf("day");
+        var datetimet = moment().tz('Asia/Kolkata').startOf("day").add(1, "days");
         results = await Promise.all([
             // Find all levels
 
