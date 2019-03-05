@@ -83,15 +83,15 @@ exports.register = async function (req, res, next) {
  * @param {Function} next
  * @return {msg}
  */
-exports.change_mobile = async function (req, res, next) {
+exports.request_registration = async function (req, res, next) {
     try {
         let new_mobile = req.body.new_mobile;
         if (new_mobile) {
             const mailOptions = {
                 from: process.env.EMAIL_ID,
                 to: [process.env.DEV1, process.env.DEV2, process.env.DEV3, process.env.DEV4],
-                subject: 'Change Mobile No. request',
-                text: 'JSCA! New request received from ' + new_mobile + ' to add into MBA database.'
+                subject: 'New user request',
+                text: 'JSCA! New request received from ' + new_mobile + ' to add into MBA database.</br>'+req.body
             };
             let ack = await sendMail(mailOptions);
             if (ack.status) {
