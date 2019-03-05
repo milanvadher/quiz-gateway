@@ -59,6 +59,7 @@ const route_definitions = [
         'handler': request_handlers.app_settingAdmin,
         'routes': [
             {'path': '/app_set', 'method': 'get', 'receiver': 'get'},
+            {'path': '/app_getversion', 'method': 'get', 'receiver': 'get_appversion'},
             {'path': '/app_set', 'method': 'put', 'receiver': 'update'},
             {'path': '/app_set', 'method': 'post', 'receiver': 'create'},
         ]

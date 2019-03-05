@@ -34,6 +34,9 @@ const ApplicationSettingSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true
+  },
+  appversion:{
+    type:String
   }
   
 });
