@@ -29,10 +29,11 @@ exports.get = async function (req, res, next) {
 exports.get_appversion= async function(req,res,next)
 {
     try {
-        let application= await  ApplicationSetting.find(req.params,"-id appversion");
+        let application= await  ApplicationSetting.findOne({},"appversion");
         res.send(200, application);
         next();
     } catch (error) {
+        console.log(error);
         res.send(500, new Error(error));
         next();
     }
