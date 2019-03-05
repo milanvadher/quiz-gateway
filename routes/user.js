@@ -251,14 +251,14 @@ exports.leaders = async function (req, res, next) {
     try {
         let leaders = await User.find(
             {},
-            null,
+            "-img",
             {
                 sort: {
                     totalscore: -1,
                     lives: -1,
-                    createdAt: -1
+                    createdAt: 1
                 }
-            });
+            }).limit(25);
 
 
         let userRank;
