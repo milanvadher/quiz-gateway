@@ -350,7 +350,7 @@ exports.validate_user = async function (req, res, next) {
         let user_otp = rn(options);
         if (req.body.mobile) {
             let result = await MBAData.findOne({ "mht_id": req.body.mht_id, "mob_list": {$in: [req.body.mobile]} });
-            if (result && result.mobile) {
+            if (result) {
                 result.mobile = req.body.mobile;
                 request('http://api.msg91.com/api/sendhttp.php?country=91&sender=QUIZEAPP&route=4&mobiles=+' + req.body.mobile + '&authkey=' + process.env.SMS_KEY + '&message=JSCA! This is your one-time password ' + user_otp + '.', { json: true }, (err, otp, body) => {
                     if (err) {
