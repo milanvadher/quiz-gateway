@@ -13,6 +13,7 @@ const response_transformation = require('./utility/transformation');
 const onesignal = require('./utility/onesignal-notification');
 const schedule = require('node-schedule');
 const Question = require('./models/question');
+const moment = require('moment-timezone');
 /**
   * Initialize Server
   */
@@ -100,16 +101,12 @@ server.listen(config.port, () => {
 });
 function scheduleNotification() {
     var j = schedule.scheduleJob('45 7 * * *', function (date) {
-        var datetime = new Date();
-        var dt = datetime.getFullYear() + "-" + (datetime.getMonth() + 1) + "-" + (datetime.getDate() - 1);
-        var datetimec = new Date(dt);
-        dt = datetime.getFullYear() + "-" + (datetime.getMonth() + 1) + "-" + (datetime.getDate() + 1);
-        var datetimef = new Date(dt);
+        var datetimec = moment().tz('Asia/Kolkata').startOf("day")
+        var datetimef = datetimec.add(1, "days");
         let questions=Question.findOne({ "quiz_type":"BONUS", "date": { $gte: datetimec, $lt: datetimef }})
         if(questions)
         {
-        //console.log("Notification event occured:" + date);
-        onesignal.sendNewChallengeMsg()
+            onesignal.sendNewChallengeMsg()
         }
     });
  }

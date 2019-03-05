@@ -11,6 +11,7 @@ const QuizLevel = require('../models/quiz_level');
 const UserScore = require('../models/user_score');
 const UserAnswerMapping = require('../models/user_answer_mapping');
 const User = require('../models/user');
+const moment = require('moment-timezone');
 
 const ApplicationSetting = require('../models/app_setting');
 
@@ -264,33 +265,27 @@ exports.validate_answer = async function (req, res, next) {
 exports.get_bonus_question = async function (req, res, next) {
     // TODO - Check User Authentication
     let mhtid = req.body.mht_id;
-    var datetime = new Date();
-    var dt = datetime.getFullYear() + "-" + (datetime.getMonth() + 1) + "-" + (datetime.getDate() - 1);
-    //console.log(dt)
-    var datetimec = new Date(dt);
-    dt = datetime.getFullYear() + "-" + (datetime.getMonth() + 1) + "-" + (datetime.getDate() + 1);
-    var datetimef = new Date(dt);
-
+    var datetimec = moment().tz('Asia/Kolkata').startOf("day")
+    var datetimef = datetimec.add(1, "days");
     let question, usersanwered;
     try {
-        
-        // Commet below code as created new query for mongo
         usersanwered = await UserAnswerMapping.find({
             "mht_id": mhtid,
             "quiz_type": "BONUS"
         }, "question_id -_id");
-        let qidarrya = [];
+        let qidarray = [];
         if (!usersanwered || usersanwered.length > 0) {
-            //console.log(datetime +'pppp');
             usersanwered.forEach(o => {
-                qidarrya.push(o.question_id);
+                qidarray.push(o.question_id);
             })
         }
         question = await Question.find({
             "quiz_type": "BONUS",
             "date": { $gte: datetimec, $lt: datetimef },
-            "question_id": { $nin: qidarrya }
+            "question_id": { $nin: qidarray }
         }, "-_id");
+
+        
         res.charSet('utf-8');
         if(question.length > 0) {
             res.send(200, question);
