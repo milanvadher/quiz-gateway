@@ -290,7 +290,7 @@ exports.get_bonus_question = async function (req, res, next) {
         if(question.length > 0) {
             res.send(200, question);
         } else {
-            res.send(200, {msg: 'You have already finished Today\'s challenge'});
+            res.send(200, {msg: 'You have already finished Daily Bonus'});
         }
         next();
     } catch (error) {
