@@ -13,7 +13,6 @@ async function import_routes(dir_path) {
     // Walk directory
     fs.readdirSync(dir_path).forEach(function (file) {
         let file_path = `${dir_path}/${file}`;
-      //  console.log(file_path);
         let stat = fs.statSync(file_path);
         // If it is a directory, invoke again
         if(stat && stat.isDirectory()) {
@@ -33,6 +32,7 @@ const route_definitions = [
         'handler': request_handlers.user,
         'routes': [
             {'path': '/validate_user', 'method': 'post', 'receiver': 'validate_user'},
+
             {'path': '/resend_otp', 'method': 'post', 'receiver': 'resend_otp'},
             {'path': '/register', 'method': 'post', 'receiver': 'register'},
             {'path': '/login', 'method': 'post', 'receiver': 'login'},
