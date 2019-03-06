@@ -89,7 +89,7 @@ exports.request_registration = async function (req, res, next) {
         if (new_mobile) {
             const mailOptions = {
                 from: process.env.EMAIL_ID,
-                to: [process.env.DEV1, process.env.DEV2, process.env.DEV3, process.env.DEV4],
+                to: [process.env.DEV1],
                 subject: 'New user request',
                 text: 'JSCA! New request received from ' + new_mobile + ' to add into MBA database.</br>'+req.body
             };
