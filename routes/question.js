@@ -318,7 +318,7 @@ exports.req_life = async function (req, res, next) {
         let user = await User.findOne({
             "mht_id": mht_id
         });
-        if (user.totalscore > app_setting.score_per_lives && user.lives < 3) {
+        if (user.totalscore >= app_setting.score_per_lives && user.lives < 3) {
             user = await User.updateOne({
                 "mht_id": user.mht_id
             },
