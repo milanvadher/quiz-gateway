@@ -91,7 +91,7 @@ exports.request_registration = async function (req, res, next) {
                 from: process.env.EMAIL_ID,
                 to: [process.env.DEV1],
                 subject: 'New user request',
-                text: 'JSCA! New request received from ' + new_mobile + ' to add into MBA database.'+ JSON.parse(req.body)
+                text: 'JSCA! New request received from ' + new_mobile + ' to add into MBA database.'+ JSON.stringify(req.body)
             };
             let ack = await sendMail(mailOptions);
             if (ack.status) {
@@ -361,7 +361,7 @@ exports.validate_user = async function (req, res, next) {
                     }
                 });
             } else {
-                res.send(400, { msg: "Your Mht Id or Mobile number is not available in MBA List. Kindly update !!" });
+                res.send(400, { msg: "Your Mht Id or Mobile No. is not registered with us, Kindly click below to enter registration detail." });
             }
         } else if (req.body.emailId) {
             let result = await MBAData.findOne({ "mht_id": req.body.mht_id, "email": req.body.emailId });
@@ -380,7 +380,7 @@ exports.validate_user = async function (req, res, next) {
                     throw new Error(ack.data);
                 }
             } else {
-                res.send(400, { msg: "Your Mht Id or E-mail ID is not available in MBA list. Kindly update !!" });
+                res.send(400, { msg: "Your Mht Id or Email Id is not registered with us, Kindly click below to enter registration detail." });
             }
         }
     } catch (error) {
