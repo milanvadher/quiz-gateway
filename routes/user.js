@@ -91,7 +91,7 @@ exports.request_registration = async function (req, res, next) {
                 from: process.env.EMAIL_ID,
                 to: [process.env.DEV1],
                 subject: 'New user request',
-                text: 'JSCA! New request received from ' + new_mobile + ' to add into MBA database.</br>'+req.body
+                text: 'JSCA! New request received from ' + new_mobile + ' to add into MBA database.'+ JSON.parse(req.body)
             };
             let ack = await sendMail(mailOptions);
             if (ack.status) {
