@@ -5,9 +5,11 @@ const mongooseStringQuery = require('mongoose-string-query');
 const MbaDataSchema = new mongoose.Schema({
   mobile: {
     type: String,
-    required: [true, 'Mobile no. is required.'],
-    trim: true,
-    unique: true
+    trim: true
+  },
+
+  mob_list: {
+    type: [String],
   },
 
   name: {
@@ -34,6 +36,12 @@ const MbaDataSchema = new mongoose.Schema({
   
 });
 
+MbaDataSchema.methods.toJSON = function() {
+  let obj = this.toObject();
+  delete obj.__v;
+  delete obj._id;
+  return obj;
+};
 
 MbaDataSchema.plugin(timestamp);
 MbaDataSchema.plugin(mongooseStringQuery);

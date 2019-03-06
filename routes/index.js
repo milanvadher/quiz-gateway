@@ -3,7 +3,6 @@
  */
 const errors = require('restify-errors');
 const fs = require('fs');
-
 var request_handlers = {},
     handler_paths = `${process.cwd()}/routes`;
 
@@ -14,7 +13,6 @@ async function import_routes(dir_path) {
     // Walk directory
     fs.readdirSync(dir_path).forEach(function (file) {
         let file_path = `${dir_path}/${file}`;
-        //console.log(file_path);
         let stat = fs.statSync(file_path);
         // If it is a directory, invoke again
         if(stat && stat.isDirectory()) {
@@ -34,13 +32,24 @@ const route_definitions = [
         'handler': request_handlers.user,
         'routes': [
             {'path': '/validate_user', 'method': 'post', 'receiver': 'validate_user'},
+
+            {'path': '/resend_otp', 'method': 'post', 'receiver': 'resend_otp'},
             {'path': '/register', 'method': 'post', 'receiver': 'register'},
             {'path': '/login', 'method': 'post', 'receiver': 'login'},
+            {'path': '/testMail', 'method': 'post', 'receiver': 'test'},
+            {'path': '/request_registration', 'method': 'post', 'receiver': 'request_registration'},
             {'path': '/forgot_password', 'method': 'post', 'receiver': 'forgot_password'},
             {'path': '/update_password', 'method': 'post', 'receiver': 'update_password'},
+            {'path': '/update_notification_token', 'method': 'post', 'receiver': 'update_notification_token'},
             {'path': '/users', 'method': 'get', 'receiver': 'list'},
             {'path': '/leaders', 'method': 'get', 'receiver': 'leaders'},
-            {'path': '/user/:id', 'method': 'del', 'receiver': 'remove'}
+            {'path': '/leader_center', 'method': 'get', 'receiver': 'leader_center'},
+            {'path': '/leader_internal_center', 'method': 'post', 'receiver': 'leader_internal_center'},
+            {'path': '/user/:id', 'method': 'del', 'receiver': 'remove'},
+            {'path': '/feedback', 'method': 'post', 'receiver': 'feedback'},
+            {'path': '/upload_photo', 'method': 'post', 'receiver': 'upload_photo'},
+            {'path': '/get_photo', 'method': 'post', 'receiver': 'get_photo'},
+            {'path': '/insertMBAData', 'method': 'post', 'receiver': 'insertMBAData'}
             //{'path': '/generate_otp', 'method': 'post', 'receiver': 'generate_otp'},
             //{'path': '/verify_otp', 'method': 'post', 'receiver': 'verify_otp'}
         ]
@@ -50,6 +59,7 @@ const route_definitions = [
         'handler': request_handlers.app_settingAdmin,
         'routes': [
             {'path': '/app_set', 'method': 'get', 'receiver': 'get'},
+            {'path': '/app_getversion', 'method': 'get', 'receiver': 'get_appversion'},
             {'path': '/app_set', 'method': 'put', 'receiver': 'update'},
             {'path': '/app_set', 'method': 'post', 'receiver': 'create'},
         ]
@@ -65,6 +75,9 @@ const route_definitions = [
             {'path': '/bonus_question', 'method': 'post', 'receiver': 'get_bonus_question'},
             {'path': '/req_life', 'method': 'post', 'receiver': 'req_life'},
             {'path': '/user_state', 'method': 'post', 'receiver': 'user_state'},
+            {'path': '/user_state_new', 'method': 'post', 'receiver': 'user_state_new'},
+            {'path': '/puzzle_completed', 'method': 'post', 'receiver': 'puzzle_completed'},
+            {'path': '/use_fifty_fifty', 'method': 'post', 'receiver': 'use_fifty_fifty'}
         ]
     },
     {
@@ -81,7 +94,6 @@ const route_definitions = [
             {'path': '/admin/question', 'method': 'get', 'receiver': 'get_questionByfilter'},
             {'path': '/admin/question', 'method': 'put', 'receiver': 'update_questionById'},
             {'path': '/admin/questions', 'method': 'post', 'receiver': 'insert_questions'},
-            {'path': '/admin/test_excel', 'method': 'get', 'receiver': 'test_excel'},
             {'path': '/admin/question/:id', 'method': 'del', 'receiver': 'delete'},
             {'path': '/admin/questionanswerBymhtid/:mhtid', 'method': 'get', 'receiver': 'get_questionanswerBymhtid'},
         ]

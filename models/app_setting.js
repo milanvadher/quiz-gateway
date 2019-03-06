@@ -34,9 +34,19 @@ const ApplicationSettingSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true
+  },
+  appversion:{
+    type:String
   }
   
 });
+
+ApplicationSettingSchema.methods.toJSON = function() {
+  let obj = this.toObject();
+  delete obj.__v;
+  delete obj._id;
+  return obj;
+};
 
 ApplicationSettingSchema.plugin(timestamp);
 ApplicationSettingSchema.plugin(mongooseStringQuery);

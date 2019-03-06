@@ -10,7 +10,10 @@ const morgan = require('morgan');
 const fs = require('fs');
 const path = require('path');
 const response_transformation = require('./utility/transformation');
-
+const onesignal = require('./utility/onesignal-notification');
+const schedule = require('node-schedule');
+const Question = require('./models/question');
+const moment = require('moment-timezone');
 /**
   * Initialize Server
   */
@@ -24,6 +27,16 @@ server.use(morgan(':remote-addr - :method - :url - :status - HTTP/:http-version 
     stream: fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
 }));
 
+const corsMiddleware = require('restify-cors-middleware');
+const cors = corsMiddleware({
+  preflightMaxAge: 5, //Optional
+  origins: ['*'],
+  allowHeaders: ['*'],
+  //exposeHeaders: ['API-Token-Expiry']
+})
+
+server.pre(cors.preflight)
+server.use(cors.actual)
 /**
   * Middleware
   */
@@ -33,7 +46,7 @@ server.use(restifyPlugins.queryParser({ mapParams: true }));
 server.use(response_transformation.transform);
 server.use(restifyPlugins.fullResponse());
 server.use(function (req, res, next) {
-    if (req.url === '/login' || req.url === '/validate_user' || req.url === '/register' || req.url === '/forgot_password' || req.url === '/update_password') return next();
+    if (req.url === '/login' || req.url === '/validate_user' || req.url === '/register' || req.url === '/forgot_password' || req.url === '/update_password' || req.url === '/testMail' || req.url === '/request_registration') return next();
 
     // // check header or url parameters or post parameters for token
     const token = req.headers['x-access-token'] || req.query.token;
@@ -68,6 +81,7 @@ server.use(function (req, res, next) {
 server.listen(config.port, () => {
     // establish connection to mongodb
     mongoose.Promise = global.Promise;
+    scheduleNotification();
     // mongoose.connect(config.db.uri, { useMongoClient: true });
     mongoose.connect(config.db.uri, { useNewUrlParser: true }).then(() => {
         console.log('Connected to DB Successfully !! ');
@@ -85,3 +99,14 @@ server.listen(config.port, () => {
         console.log(`Server is listening on port ${config.port}`);
     });
 });
+function scheduleNotification() {
+    var j = schedule.scheduleJob('15 2 * * *', function (date) {
+        var datetimec = moment().tz('Asia/Kolkata').startOf("day");
+        var datetimef = moment().tz('Asia/Kolkata').startOf("day").add(1, "days");
+        let questions=Question.findOne({ "quiz_type":"BONUS", "date": { $gte: datetimec, $lt: datetimef }})
+        if(questions)
+        {
+            onesignal.sendNewChallengeMsg()
+        }
+    });
+ }

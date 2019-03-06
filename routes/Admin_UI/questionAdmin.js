@@ -2,7 +2,7 @@
  * Module Dependencies
  */
 const errors = require('restify-errors');
-const XLSX = require('xlsx')
+// const XLSX = require('xlsx')
 
 /**
  * Model Schema
@@ -104,6 +104,7 @@ exports.update_questionById  = async function (req, res, next) {
                  "options" : question_update.options,
                  "score" : question_update.score,
                  "answer" : question_update.answer,
+                 "pikacharanswer": question_update.pikacharanswer,
                  "artifact_path" : question_update.artifact_path,
                  "level" : question_update.level,
                  "quiz_type" : question_update.quiz_type,
@@ -129,6 +130,7 @@ exports.update_questionById  = async function (req, res, next) {
  * @return {Question}
  */
 exports.insert_question  = async function (req, res, next) {
+    console.log("tttt");
     let question_insert=req.body;
     let question;
     try {
@@ -143,6 +145,7 @@ exports.insert_question  = async function (req, res, next) {
             "options" : question_insert.options,
             "score" : question_insert.score,
             "answer" : question_insert.answer,
+            "pikacharanswer": question_insert.pikacharanswer,
             "artifact_path" : question_insert.artifact_path,
             "level" : question_insert.level,
             "quiz_type" : question_insert.quiz_type,
@@ -154,6 +157,7 @@ exports.insert_question  = async function (req, res, next) {
         res.send(200, question);
         next();
     } catch (error) {
+        console.log(error);
         res.send(500, new Error(error));
         next();
     }
@@ -168,13 +172,15 @@ exports.insert_question  = async function (req, res, next) {
  * @return {Questions}
  */
 exports.insert_questions  = async function (req, res, next) {
+    console.log("33333", req.body);
     let question_inserts=req.body;
 
     let questions=[];
     try {
         let lastQid=await getNextSequenceValue("qid");
-        console.log(lastQid);
+        
         question_inserts.forEach(question_insert => {
+            console.log(question_insert.pikacharanswer);
             questions.push({   "question_id":lastQid,
             "question_st" : question_insert.question_st,
             "question_type" : question_insert.question_type,
@@ -182,6 +188,7 @@ exports.insert_questions  = async function (req, res, next) {
             "options" : question_insert.options,
             "score" : question_insert.score,
             "answer" : question_insert.answer,
+            "pikacharanswer": question_insert.pikacharanswer,
             "artifact_path" : question_insert.artifact_path,
             "level" : question_insert.level,
             "quiz_type" : question_insert.quiz_type,
@@ -199,6 +206,7 @@ exports.insert_questions  = async function (req, res, next) {
         res.send(200, questions_Res);
         next();
     } catch (error) {
+        console.log(error);
         res.send(500, new Error(error));
         next();
     }
@@ -224,20 +232,20 @@ async function getNextSequenceValue(sequenceName){
       }
   }
 
-exports.test_excel =  async function (req, res, next) 
-  {
-      try{
-          console.log('fi');
-            var workbook = XLSX.readFile("G:\\Book1.xlsx");
-            var sheet_name_list = workbook.SheetNames;
-            var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
-            console.log(xlData);
-        } catch (error) {
-            console.log(error);
-            res.send(500, new Error(error));
-        }
-    next();
-  };
+// exports.test_excel =  async function (req, res, next) 
+//   {
+//       try{
+//           console.log('fi');
+//             var workbook = XLSX.readFile("G:\\Book1.xlsx");
+//             var sheet_name_list = workbook.SheetNames;
+//             var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
+//             console.log(xlData);
+//         } catch (error) {
+//             console.log(error);
+//             res.send(500, new Error(error));
+//         }
+//     next();
+//   };
 /**
  * Delete Question by _id
  * @param req {Object} The request.
@@ -308,6 +316,7 @@ exports.get_questionanswerBymhtid = async function (req, res, next) {
                     mht_id : 1,
                     quiz_type:1,
                     answer:1,
+                    pikacharanswer: 1,
                     answer_status:1,
                     level : "$questiondetails.level",
                     score : "$questiondetails.score",

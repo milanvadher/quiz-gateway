@@ -2,6 +2,14 @@ const mongoose = require('mongoose');
 const timestamp = require('mongoose-timestamp');
 const mongooseStringQuery = require('mongoose-string-query');
 
+const AnswerSchema = new mongoose.Schema({
+  answer: {
+      type: String,
+      required: true,
+      trim: true    
+  }
+});
+
 const UserAnswerMappingSchema = new mongoose.Schema({
   mht_id: {
     type: Number,
@@ -18,16 +26,25 @@ const UserAnswerMappingSchema = new mongoose.Schema({
     default: 'REGULAR'
   },
   answer: {
-    type: String,
-    required: true,
+    type: String, 
     trim: true
   },
+  // answer: [AnswerSchema],
+
+  // pikacharanswer: [AnswerSchema],
   answer_status: {
       type:Boolean,
       required: true
   }
 
 });
+
+UserAnswerMappingSchema.methods.toJSON = function() {
+  let obj = this.toObject();
+  delete obj.__v;
+  delete obj._id;
+  return obj;
+};
 
 
 UserAnswerMappingSchema.plugin(timestamp);

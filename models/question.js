@@ -21,15 +21,7 @@ const AnswerSchema = new mongoose.Schema({
       trim: true    
   }
 });
-const JumbleSchema = new mongoose.Schema({
-  jumble_number: {
-      type: Number,
-  },
-  jumble: {
-      type: String,
-      trim: true    
-  }
-});
+
 const QuestionSchema = new mongoose.Schema({
   
   question_st: {
@@ -59,6 +51,7 @@ const QuestionSchema = new mongoose.Schema({
   },
 
   answer: [AnswerSchema],
+  pikacharanswer: [[String]],
 
   artifact_type: {
     type: String,
@@ -94,8 +87,15 @@ const QuestionSchema = new mongoose.Schema({
     type: String
   },
 
-  jumbledata: [JumbleSchema]
+  jumbledata: [String]
 });
+
+QuestionSchema.methods.toJSON = function() {
+  let obj = this.toObject();
+  delete obj.__v;
+  delete obj._id;
+  return obj;
+};
 
 QuestionSchema.plugin(timestamp);
 QuestionSchema.plugin(mongooseStringQuery);

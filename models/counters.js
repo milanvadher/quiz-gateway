@@ -11,6 +11,13 @@ const CounterSchema = new mongoose.Schema({
     }
 });
 
+CounterSchema.methods.toJSON = function() {
+  let obj = this.toObject();
+  delete obj.__v;
+  delete obj._id;
+  return obj;
+};
+
 CounterSchema.plugin(timestamp);
 CounterSchema.plugin(mongooseStringQuery);
 

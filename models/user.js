@@ -5,9 +5,7 @@ const mongooseStringQuery = require('mongoose-string-query');
 const UserSchema = new mongoose.Schema({
   mobile: {
     type: String,
-    required: [true, 'Mobile no. is required.'],
-    trim: true,
-    unique: true
+    trim: true
   },
 
   password: {
@@ -62,10 +60,29 @@ const UserSchema = new mongoose.Schema({
   question_id: {
     type: Number
     //,    required: true    
+  },
+
+  fb_token: {
+    type: String
+  },
+
+  onesignal_token: {
+    type: String
+  },
+
+  img: {
+    type: String
   }
 
 });
 
+UserSchema.methods.toJSON = function() {
+  let obj = this.toObject();
+  delete obj.password;
+  delete obj.__v;
+  delete obj._id;
+  return obj;
+};
 
 UserSchema.plugin(timestamp);
 UserSchema.plugin(mongooseStringQuery);
