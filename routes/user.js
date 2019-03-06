@@ -101,7 +101,6 @@ exports.request_registration = async function (req, res, next) {
             }
         }
     } catch (error) {
-        console.log(error);
         res.send(500, new Error(error));
         next();
     }
@@ -485,7 +484,6 @@ exports.update_notification_token = async function (req, res, next) {
         });
         res.send(200, { msg: "Token updated successfully !!!" })
     } catch (error) {
-        console.log(error);
         res.send(500, new Error(error));
         next();
     }
