@@ -257,7 +257,7 @@ exports.leaders = async function (req, res, next) {
                     lives: -1,
                     createdAt: 1
                 }
-            }).limit(25);
+            });
 
 
         let userRank;
