@@ -72,6 +72,13 @@ const UserSchema = new mongoose.Schema({
 
   img: {
     type: String
+  },
+
+  user_group: {
+    type: String,
+    enum: ['SANKUL','MBA'],
+    required: true,
+    default: 'MBA'
   }
 
 });

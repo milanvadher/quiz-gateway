@@ -249,7 +249,7 @@ exports.leader_internal_center = async function (req, res, next) {
 exports.leaders = async function (req, res, next) {
     try {
         let leaders = await User.find(
-            {},
+            {user_group :{$in: ['MBA']}},
             "-img",
             {
                 sort: {
@@ -504,6 +504,7 @@ async function getRank(leaders, mht_id) {
             return rank;
         }
     }
+    return rank;
     // var user = await User.findOne({"mht_id": parseInt(mht_id)});
     // var score = user.totalscore;
     // var count = await User.count({
