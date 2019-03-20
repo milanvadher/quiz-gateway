@@ -504,6 +504,7 @@ async function getRank(leaders, mht_id) {
             return rank;
         }
     }
+    rank = 0;
     return rank;
     // var user = await User.findOne({"mht_id": parseInt(mht_id)});
     // var score = user.totalscore;
