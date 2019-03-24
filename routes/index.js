@@ -32,7 +32,6 @@ const route_definitions = [
         'handler': request_handlers.user,
         'routes': [
             {'path': '/validate_user', 'method': 'post', 'receiver': 'validate_user'},
-
             {'path': '/resend_otp', 'method': 'post', 'receiver': 'resend_otp'},
             {'path': '/register', 'method': 'post', 'receiver': 'register'},
             {'path': '/login', 'method': 'post', 'receiver': 'login'},
@@ -49,7 +48,8 @@ const route_definitions = [
             {'path': '/feedback', 'method': 'post', 'receiver': 'feedback'},
             {'path': '/upload_photo', 'method': 'post', 'receiver': 'upload_photo'},
             {'path': '/get_photo', 'method': 'post', 'receiver': 'get_photo'},
-            {'path': '/insertMBAData', 'method': 'post', 'receiver': 'insertMBAData'}
+            {'path': '/insertMBAData', 'method': 'post', 'receiver': 'insertMBAData'},
+            {'path': '/rules', 'method': 'get', 'receiver': 'rules'}
             //{'path': '/generate_otp', 'method': 'post', 'receiver': 'generate_otp'},
             //{'path': '/verify_otp', 'method': 'post', 'receiver': 'verify_otp'}
         ]

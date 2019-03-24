@@ -33,7 +33,8 @@ const UserScoreSchema = new mongoose.Schema({
 
   total_questions: {
       type: Number,
-      required:true
+      required:true,
+      default: 10
   },
 
   fifty_fifty: {
