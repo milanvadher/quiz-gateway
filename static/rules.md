@@ -1,3 +1,4 @@
+![](http://purecelibacy.org/wp-content/themes/celibacy/images/gnyang.png)
 # RULES
 ## Welcome to Gnan-G!
 1. GnanG: Now boost your Knowledge with fun at your fingertips. GnanG is a fun quiz app.
