@@ -150,7 +150,7 @@ exports.login = async function (req, res, next) {
  */
 exports.list = async function (req, res, next) {
     try {
-        let users = await User.apiQuery(req.params);
+        let users = await User.find(req.params, "-img");
         if (users) {
             res.send(200, { users: users });
             next();
