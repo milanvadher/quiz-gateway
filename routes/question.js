@@ -184,8 +184,7 @@ exports.validate_answer = async function (req, res, next) {
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
                 await User.updateOne({ "mht_id": user_mhtid },
                     {
-                        $inc: { "lives": -1, "totalscore": -5  },
-                        $set: { "question_id": question_id }
+                        $inc: { "totalscore": -5  }                        
                     });
                 user = await User.findOne({ "mht_id": user_mhtid });
                 status = { "answer_status": isRightAnswer, "lives": user.lives, "totalscore": user.totalscore };
