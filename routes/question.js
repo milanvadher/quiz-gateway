@@ -180,6 +180,14 @@ exports.validate_answer = async function (req, res, next) {
                 status = { "answer_status": isRightAnswer, "lives": user.lives, "totalscore": user.totalscore };
             }
             else {
+
+                //add total score field this have all user scores include regular and bonuses, so we can manage easly.
+                await User.updateOne({ "mht_id": user_mhtid },
+                    {
+                        $inc: { "lives": -1, "totalscore": -5  },
+                        $set: { "question_id": question_id }
+                    });
+                user = await User.findOne({ "mht_id": user_mhtid });
                 status = { "answer_status": isRightAnswer, "lives": user.lives, "totalscore": user.totalscore };
             }
             let UAMObj = new UserAnswerMapping({ "mht_id": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type, "answer":selected_ans, "answer_status": isRightAnswer });
@@ -226,7 +234,7 @@ exports.validate_answer = async function (req, res, next) {
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
                 await User.updateOne({ "mht_id": user_mhtid },
                     {
-                        $inc: { "lives": -1 },
+                        $inc: { "lives": -1, "totalscore": -5  },
                         $set: { "question_id": question_id }
                     });
                 user = await User.findOne({ "mht_id": user_mhtid });
@@ -234,7 +242,7 @@ exports.validate_answer = async function (req, res, next) {
             }
                 //console.log('tet');
                 let UAMObj = await UserAnswerMapping.findOne({"mht_id": user_mhtid, "question_id": question_id});
-                console.log(UAMObj);
+                //console.log(UAMObj);
                 if(UAMObj==null)
                 {
                     UAMObj = new UserAnswerMapping({ "mht_id": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type,  "answer":selected_ans, "answer_status": isRightAnswer });
