@@ -87,7 +87,12 @@ const QuestionSchema = new mongoose.Schema({
     type: String
   },
 
-  jumbledata: [String]
+  jumbledata: [String],
+
+  timeout: {
+    type: Number,
+    default: 0
+  }
 });
 
 QuestionSchema.methods.toJSON = function() {

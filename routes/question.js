@@ -506,7 +506,7 @@ exports.user_state = async function (req, res, next) {
                 "total_questions": levels[0].total_questions
             })];
         } else if ((!current_user_level || current_user_level.length == 0) && completed_levels) {
-            let total_question = 0;
+            let total_question = 10;
             if (levels.length > completed_levels.length) {
                 //get total Questions for current level.
                 total_question = levels[completed_levels[completed_levels.length - 1].level].total_questions;

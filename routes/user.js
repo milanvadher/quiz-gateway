@@ -49,6 +49,7 @@ exports.register = async function (req, res, next) {
         }
         let hashPassword = await bcrypt.hash(req.body.password, SALT_WORK_FACTOR);
         let app_setting = await ApplicationSetting.findOne({});
+        let token = jwt.sign({ mht_id: req.body.mht_id }, config.jwt_secret);
         let user = new User(
             {
                 "mobile": req.body.mobile,
@@ -61,12 +62,12 @@ exports.register = async function (req, res, next) {
                 "center": req.body.center,
                 "bonus": 0,
                 "question_id": 0,
-                "totalscore": 0
+                "totalscore": 0,
+                "token": token
             });
         new_user = await user.save();
-        let token = jwt.sign({ mht_id: req.body.mht_id }, config.jwt_secret);
-        new_user = new_user.toObject();
-        new_user.token = token;
+        // new_user = new_user.toObject();
+        // new_user.token = token;
         res.send(200, new_user);
     } catch (error) {
         res.send(500, new Error(error));
@@ -127,6 +128,7 @@ exports.login = async function (req, res, next) {
                 let token = jwt.sign({ mht_id: data.mht_id }, config.jwt_secret);
                 user = user.toObject();
                 user.token = token;
+                await user.save();
                 res.send(200, user);
                 next();
             }
@@ -456,8 +458,9 @@ exports.update_password = async function (req, res, next) {
         await User.updateOne({ "mht_id": req.body.mht_id }, { $set: { "password": hashPassword } });
         let user = await User.findOne({"mht_id": req.body.mht_id});
         let token = jwt.sign({ mht_id: user.mht_id }, config.jwt_secret);
-        user = user.toObject();
+        // user = user.toObject();
         user.token = token;
+        user.save();
         res.send(200, user);
     } catch (error) {
         console.log(error)

@@ -79,6 +79,10 @@ const UserSchema = new mongoose.Schema({
     enum: ['SANKUL','MBA'],
     required: true,
     default: 'MBA'
+  },
+
+  token: {
+    type: String
   }
 
 });

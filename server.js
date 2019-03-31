@@ -13,6 +13,7 @@ const response_transformation = require('./utility/transformation');
 const onesignal = require('./utility/onesignal-notification');
 const schedule = require('node-schedule');
 const Question = require('./models/question');
+const User = require('./models/user');
 const moment = require('moment-timezone');
 /**
   * Initialize Server
@@ -54,16 +55,23 @@ server.use(function (req, res, next) {
     // decode token
     if (token) {
         // verifies secret and checks exp
-        jwt.verify(token, config.jwt_secret, function (err, decoded) {
-            if (err) {
-                return res.send(403, { success: false, msg: 'Failed to authenticate token.' });
-                next(false);
-            } else {
-                // if everything is good, save to request for use in other routes
-                req.decoded = decoded;
-                next();
-            }
-        });
+        let user = User.find({token: token});
+        if(user) {
+            jwt.verify(token, config.jwt_secret, function (err, decoded) {
+                if (err) {
+                    return res.send(403, { success: false, msg: 'Failed to authenticate token.' });
+                    next(false);
+                } else {
+                    // if everything is good, save to request for use in other routes
+                    req.decoded = decoded;
+                    next();
+                }
+            });
+        } else {
+            return res.send(227, { success: false, msg: 'User has logged in from another device.' });
+            next(false);
+        }
+        
     } else {
         // if there is no token
         // return an error
