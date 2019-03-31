@@ -313,7 +313,7 @@ exports.resend_otp= async function (req, res,next)
 try{
          let options = { min: 100000, max: 999999, integer: true };
         let user_otp = rn(options);
-    if(req.body.mht_id = 55555) {
+    if(req.body.mht_id === 55555) {
         user_otp = 111111
     }
        await request('http://api.msg91.com/api/sendhttp.php?country=91&sender=QUIZEAPP&route=4&mobiles=+' + req.body.mobile + '&authkey=' + process.env.SMS_KEY + '&message=JSCA! This is your one-time password ' + user_otp + '.', { json: true }, (err, otp, body) => {
@@ -351,7 +351,7 @@ exports.validate_user = async function (req, res, next) {
         
         let options = { min: 100000, max: 999999, integer: true };
         let user_otp = rn(options);
-        if(req.body.mht_id = 55555) {
+        if(req.body.mht_id === 55555) {
             user_otp = 111111
         }
         if (req.body.mobile) {
