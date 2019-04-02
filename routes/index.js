@@ -25,8 +25,8 @@ async function import_routes(dir_path) {
 }
 
 import_routes(handler_paths);
-
 const route_definitions = [
+
     {
         // User Routes
         'handler': request_handlers.user,
@@ -44,6 +44,8 @@ const route_definitions = [
             {'path': '/leaders', 'method': 'get', 'receiver': 'leaders'},
             {'path': '/leader_center', 'method': 'get', 'receiver': 'leader_center'},
             {'path': '/leader_internal_center', 'method': 'post', 'receiver': 'leader_internal_center'},
+            {'path': '/leaders_month', 'method': 'get', 'receiver': 'leaders_month'},
+            {'path': '/leaders_week', 'method': 'get', 'receiver': 'leaders_week'},
             {'path': '/user/:id', 'method': 'del', 'receiver': 'remove'},
             {'path': '/feedback', 'method': 'post', 'receiver': 'feedback'},
             {'path': '/upload_photo', 'method': 'post', 'receiver': 'upload_photo'},

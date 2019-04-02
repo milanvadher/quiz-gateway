@@ -50,6 +50,10 @@ exports.register = async function (req, res, next) {
         let hashPassword = await bcrypt.hash(req.body.password, SALT_WORK_FACTOR);
         let app_setting = await ApplicationSetting.findOne({});
         let token = jwt.sign({ mht_id: req.body.mht_id }, config.jwt_secret);
+        var datetime =new Date();// moment().tz('Asia/Kolkata').startOf("day").getFullYear();
+        console.log(datetime);
+        var dt =new Date(`${datetime.getFullYear()}-${datetime.getMonth() + 1}-1`);
+        console.log(dt);
         let user = new User(
             {
                 "mobile": req.body.mobile,
@@ -63,6 +67,10 @@ exports.register = async function (req, res, next) {
                 "bonus": 0,
                 "question_id": 0,
                 "totalscore": 0,
+                "totalscore_month": 0,
+                "totalscore_week": 0,                
+                "totalscore_month_update":dt,
+                "totalscore_week_update":datetime,
                 "token": token
             });
         new_user = await user.save();
@@ -286,6 +294,87 @@ exports.leaders = async function (req, res, next) {
     }
 };
 
+/**
+ * To get rank, you need to send mht_id of the user of whose rank is needed in the header
+ */
+exports.leaders_month = async function (req, res, next) {
+    try {
+        let leaders = await User.find(
+            {user_group :{$in: ['MBA']}},
+            "-img",
+            {
+                sort: {
+                    totalscore_month: -1,
+                    lives: -1,
+                    updatedAt: 1
+                }
+            });
+
+
+        let userRank;
+
+        // Send MHT-ID in header
+        // If mht_id not sent, or wrong MHT-id sent, if fails silently
+        try {
+            userRank = await getRank(leaders, req.headers.mht_id);
+        }
+        catch (e) {
+            console.log(e);
+        }
+
+        if (leaders) {
+            res.send(200, {
+                leaders,
+                userRank
+            });
+            next();
+        }
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+};
+
+/**
+ * To get rank, you need to send mht_id of the user of whose rank is needed in the header
+ */
+exports.leaders_week = async function (req, res, next) {
+    try {
+        let leaders = await User.find(
+            {user_group :{$in: ['MBA']}},
+            "-img",
+            {
+                sort: {
+                    totalscore_week: -1,
+                    lives: -1,
+                    updatedAt: 1
+                }
+            });
+
+
+        let userRank;
+
+        // Send MHT-ID in header
+        // If mht_id not sent, or wrong MHT-id sent, if fails silently
+        try {
+            userRank = await getRank(leaders, req.headers.mht_id);
+        }
+        catch (e) {
+            console.log(e);
+        }
+
+        if (leaders) {
+            res.send(200, {
+                leaders,
+                userRank
+            });
+            next();
+        }
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+};
 /**
  * Delete user by _id
  * @param req {Object} The request.
