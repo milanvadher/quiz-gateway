@@ -120,10 +120,27 @@ exports.hint_question = async function (req, res, next) {
         scoreAdd = question.score/2;
     }
     try {
+        var datetimetStartWeek = new Date(moment().tz('Asia/Kolkata').day("Monday").format());
+            //var datetimetendWeek = new Date(moment().tz('Asia/Kolkata').add(7,"days").format());
+        var datetimet =new Date(moment().tz('Asia/Kolkata').format());
+        var  datetimeEndMonth=new Date(datetimet.getFullYear(),datetimet.getMonth()+1,1);
+        var datetimeStartMonth=new Date(datetimet.getFullYear(),datetimet.getMonth(),1);
+        var datetimetendWeek=new Date(datetimetStartWeek.getFullYear(),datetimetStartWeek.getMonth(),datetimetStartWeek.getDay()+6);
+        datetimetStartWeek=new Date(datetimetStartWeek.getFullYear(),datetimetStartWeek.getMonth(),datetimetStartWeek.getDay());
+
+        let scoreAddMonth=0,scoreAddWeek=0;
+        if(datetimeStartMonth<=quiz_level.start_date && datetimeEndMonth>=quiz_level.start_date)
+        {
+            scoreAddMonth=scoreAdd;
+        }
+        if(datetimetStartWeek<=quiz_level.start_date && datetimetendWeek>=quiz_level.start_date)
+        {
+            scoreAddWeek=scoreAdd;
+        }
         await User.updateOne(
             { "mht_id": user_mhtid },
             {
-                $inc: { "totalscore": (scoreAdd * -1),"totalscore_month": (scoreAdd * -1),"totalscore_week": (scoreAdd * -1) }
+                $inc: { "totalscore": (scoreAdd * -1),"totalscore_month": (scoreAddMonth * -1),"totalscore_week": (scoreAddWeek * -1) }
             });
         let users = await User.findOne({ "mht_id": user_mhtid });
         res.send(200, users);
