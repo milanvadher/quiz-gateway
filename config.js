@@ -17,4 +17,4 @@ module.exports = function() {
 			break;
 	}
 	return conf;
-};
+}();

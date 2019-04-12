@@ -134,9 +134,9 @@ exports.login = async function (req, res, next) {
                 next();
             } else {
                 let token = jwt.sign({ mht_id: data.mht_id }, config.jwt_secret);
+                await User.updateOne({mht_id: data.mht_id}, {$set: {token: token}});
                 user = user.toObject();
                 user.token = token;
-                await user.save();
                 res.send(200, user);
                 next();
             }
@@ -544,12 +544,9 @@ exports.forgot_password = async function (req, res, next) {
 exports.update_password = async function (req, res, next) {
     try {
         let hashPassword = await bcrypt.hash(req.body.password, SALT_WORK_FACTOR);
-        await User.updateOne({ "mht_id": req.body.mht_id }, { $set: { "password": hashPassword } });
+        let token = jwt.sign({ mht_id: req.body.mht_id }, config.jwt_secret);
+        await User.updateOne({ "mht_id": req.body.mht_id }, { $set: { "password": hashPassword, "token": token}});
         let user = await User.findOne({"mht_id": req.body.mht_id});
-        let token = jwt.sign({ mht_id: user.mht_id }, config.jwt_secret);
-        // user = user.toObject();
-        user.token = token;
-        user.save();
         res.send(200, user);
     } catch (error) {
         console.log(error)
