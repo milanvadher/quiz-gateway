@@ -120,12 +120,12 @@ exports.hint_question = async function (req, res, next) {
         scoreAdd = question.score/2;
     }
     try {
-        var datetimetStartWeek = new Date(moment().tz('Asia/Kolkata').day("Monday").format());
+        var datetimetStartWeek = new Date(moment().tz('Asia/Kolkata').day("Saturday").format());
         var datetimet =new Date(moment().tz('Asia/Kolkata').format());
         var  datetimeEndMonth=new Date(datetimet.getFullYear(),datetimet.getMonth()+1,1);
         var datetimeStartMonth=new Date(datetimet.getFullYear(),datetimet.getMonth(),1);
-        var datetimetendWeek=new Date(datetimetStartWeek.getFullYear(),datetimetStartWeek.getMonth(),datetimetStartWeek.getDay()+6);
-        datetimetStartWeek=new Date(datetimetStartWeek.getFullYear(),datetimetStartWeek.getMonth(),datetimetStartWeek.getDay());
+        var datetimetendWeek=new Date(datetimetStartWeek.getFullYear(),datetimetStartWeek.getMonth(),datetimetStartWeek.getDate()+6);
+        datetimetStartWeek=new Date(datetimetStartWeek.getFullYear(),datetimetStartWeek.getMonth(),datetimetStartWeek.getDate());
 
 
         let scoreAddMonth=0,scoreAddWeek=0;
@@ -214,8 +214,8 @@ exports.validate_answer = async function (req, res, next) {
             var datetimet = new Date(moment().tz('Asia/Kolkata').format());
             var  datetimeEndMonth = new Date(datetimet.getFullYear(), datetimet.getMonth() + 1, 1);
             var datetimeStartMonth = new Date(datetimet.getFullYear(), datetimet.getMonth(), 1);
-            var datetimetendWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDay() + 6);
-            datetimetStartWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDay());    
+            var datetimetendWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDate() + 6);
+            datetimetStartWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDate());    
             
             if (isRightAnswer) {
                 quiz_level = await QuizLevel.findOne({"level_index": user_level});
