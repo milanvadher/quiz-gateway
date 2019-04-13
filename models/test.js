@@ -4,17 +4,19 @@ const timestamps = require('mongoose-timestamp');
 
 const TestSchema = new mongoose.Schema(
     {
-        task: {
+        habit: {
             type: String,
-            required: true,
             trim: true,
         },
-        status: {
-            type: String,
-            required: true,
-            enum: ['pending', 'complete', 'in progress', 'overdue'],
-            default: 'pending',
+        timestamps: {
+            type: Date
         },
+        value: {
+            type: Number
+        },
+        remark: {
+            type: String
+        }
     },
     { minimize: false },
 );

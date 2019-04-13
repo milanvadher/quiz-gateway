@@ -7,6 +7,7 @@ const errors = require('restify-errors');
  * Model Schema
  */
 const ApplicationSetting=require('../../models/app_setting');
+const Test=require('../../models/test');
 
 /**
  * get first Application setting object from applicaton settig.
@@ -89,3 +90,18 @@ exports.create = async function (req, res, next) {
     }
     next();
 };
+
+
+exports.sadhana_data = async function(req, res, next) {
+    try {
+        let app_insert=req.body;
+        //console.log(app_insert);
+        let application= new Test(app_insert);
+        await application.save();
+        res.send(200, application);
+    } catch (error) {
+        console.log(error);
+        res.send(500, new Error(error));
+    }
+    next();
+}
