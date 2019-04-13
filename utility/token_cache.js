@@ -2,7 +2,7 @@ const User = require('../models/user');
 
 var token_cache = {
     
-    token_cache_ = {},
+    token_cache_: {},
 
     get: function(mht_id) {
         return token_cache_[mht_id];
