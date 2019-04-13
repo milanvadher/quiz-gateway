@@ -25,9 +25,4 @@ var token_cache = {
 
 }
 
-exports.token_cache = {
-    get: get,
-    set: set,
-    init: init,
-    clear: clear
-}
+exports.token_cache = token_cache;
