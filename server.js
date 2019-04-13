@@ -55,7 +55,7 @@ server.use(function (req, res, next) {
     // decode token
     if (token) {
         // verifies secret and checks exp
-        let user = User.find({token: token});
+        let user = User.findOne({token: token});
         if(user) {
             jwt.verify(token, config.jwt_secret, function (err, decoded) {
                 if (err) {
