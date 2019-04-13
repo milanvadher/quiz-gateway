@@ -120,16 +120,13 @@ exports.hint_question = async function (req, res, next) {
         scoreAdd = question.score/2;
     }
     try {
-        var datetimetStartWeek = new Date(moment().tz('Asia/Kolkata').startOf("week").format());
-        datetimetStartWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDay());
+        var datetimetStartWeek = new Date(moment().tz('Asia/Kolkata').day("Monday").format());
+        var datetimet =new Date(moment().tz('Asia/Kolkata').format());
+        var  datetimeEndMonth=new Date(datetimet.getFullYear(),datetimet.getMonth()+1,1);
+        var datetimeStartMonth=new Date(datetimet.getFullYear(),datetimet.getMonth(),1);
+        var datetimetendWeek=new Date(datetimetStartWeek.getFullYear(),datetimetStartWeek.getMonth(),datetimetStartWeek.getDay()+6);
+        datetimetStartWeek=new Date(datetimetStartWeek.getFullYear(),datetimetStartWeek.getMonth(),datetimetStartWeek.getDay());
 
-        var datetimetendWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDay() + 6);
-
-        var datetimeStartMonth = new Date(moment().tz('Asia/Kolkata').startOf("month").format());
-        datetimeStartMonth = new Date(datetimeStartMonth.getFullYear(), datetimeStartMonth.getMonth(), datetimeStartMonth.getDay());
-
-        var datetimeEndMonth = new Date(moment().tz('Asia/Kolkata').endOf("month").format());
-        datetimeEndMonth = new Date(datetimeEndMonth.getFullYear(), datetimeEndMonth.getMonth(), datetimeEndMonth.getDay()); 
 
         let scoreAddMonth=0,scoreAddWeek=0;
         if(datetimeStartMonth <= quiz_level.start_date && datetimeEndMonth >= quiz_level.start_date)
@@ -213,16 +210,12 @@ exports.validate_answer = async function (req, res, next) {
             await UAMObj.save();
         }
         else {
-            var datetimetStartWeek = new Date(moment().tz('Asia/Kolkata').startOf("week").format());
-            datetimetStartWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDay());
-
+            var datetimetStartWeek = new Date(moment().tz('Asia/Kolkata').day("Saturday").format());
+            var datetimet = new Date(moment().tz('Asia/Kolkata').format());
+            var  datetimeEndMonth = new Date(datetimet.getFullYear(), datetimet.getMonth() + 1, 1);
+            var datetimeStartMonth = new Date(datetimet.getFullYear(), datetimet.getMonth(), 1);
             var datetimetendWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDay() + 6);
-
-            var datetimeStartMonth = new Date(moment().tz('Asia/Kolkata').startOf("month").format());
-            datetimeStartMonth = new Date(datetimeStartMonth.getFullYear(), datetimeStartMonth.getMonth(), datetimeStartMonth.getDay());
-
-            var datetimeEndMonth = new Date(moment().tz('Asia/Kolkata').endOf("month").format());
-            datetimeEndMonth = new Date(datetimeEndMonth.getFullYear(), datetimeEndMonth.getMonth(), datetimeEndMonth.getDay());       
+            datetimetStartWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDay());    
             
             if (isRightAnswer) {
                 quiz_level = await QuizLevel.findOne({"level_index": user_level});
