@@ -63,7 +63,7 @@ server.use(async function (req, res, next) {
             } else {
                 // if everything is good, save to request for use in other routes
                 req.decoded = decoded;
-                if(token_cache.get(decoded.mht_id) == null || !token.get(decoded.mht_id)) {
+                if(token_cache.get(decoded.mht_id) == null || !token_cache.get(decoded.mht_id)) {
                     User.updateOne({mht_id: decoded.mht_id}, {$set: {token: token}});
                     token_cache.set(decoded.mht_id, token);
                 } else if(token_cache.get(decoded.mht_id) != token) {
