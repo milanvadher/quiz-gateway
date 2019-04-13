@@ -1,6 +1,6 @@
 const User = require('../models/user');
 
-exports.token_cache = {
+module.exports = {
     
     token_cache_: {},
 
