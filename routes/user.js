@@ -16,6 +16,8 @@ const MBAData = require('../models/mbadata');
 const ApplicationSetting = require('../models/app_setting');
 const Feedback = require('../models/feedback');
 
+const token_cache = require('../utility/token_cache');
+
 
 /**
  * Veriables
@@ -72,6 +74,7 @@ exports.register = async function (req, res, next) {
                 "token": token
             });
         new_user = await user.save();
+        token_cache.set(new_user.mht_id, new_user.token);
         // new_user = new_user.toObject();
         // new_user.token = token;
         res.send(200, new_user);
@@ -135,6 +138,7 @@ exports.login = async function (req, res, next) {
                 await User.updateOne({mht_id: data.mht_id}, {$set: {token: token}});
                 user = user.toObject();
                 user.token = token;
+                token_cache.set(user.mht_id, user.token);
                 res.send(200, user);
                 next();
             }
@@ -545,6 +549,7 @@ exports.update_password = async function (req, res, next) {
         let token = jwt.sign({ mht_id: req.body.mht_id }, config.jwt_secret);
         await User.updateOne({ "mht_id": req.body.mht_id }, { $set: { "password": hashPassword, "token": token}});
         let user = await User.findOne({"mht_id": req.body.mht_id});
+        token_cache.set(user.mht_id, user.token);
         res.send(200, user);
     } catch (error) {
         console.log(error)

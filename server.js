@@ -11,10 +11,13 @@ const fs = require('fs');
 const path = require('path');
 const response_transformation = require('./utility/transformation');
 const onesignal = require('./utility/onesignal-notification');
+const token_cache = require('./utility/token_cache');
 const schedule = require('node-schedule');
 const Question = require('./models/question');
 const User = require('./models/user');
 const moment = require('moment-timezone');
+
+const token_cache = {};
 
 /**
   * Initialize Server
@@ -52,26 +55,26 @@ server.use(async function (req, res, next) {
 
     // // check header or url parameters or post parameters for token
     const token = req.headers['x-access-token'] || req.query.token;
-
     // decode token
     if (token) {
         // verifies secret and checks exp
-        let user = await User.findOne({token: token});
-        if(user) {
-            jwt.verify(token, config.jwt_secret, function (err, decoded) {
-                if (err) {
-                    return res.send(403, { success: false, msg: 'Failed to authenticate token.' });
+        jwt.verify(token, config.jwt_secret, function (err, decoded) {
+            if (err) {
+                return res.send(403, { success: false, msg: 'Failed to authenticate token.' });
+                next(false);
+            } else {
+                // if everything is good, save to request for use in other routes
+                req.decoded = decoded;
+                if(!token_cache.get(decoded)) {
+                    User.updateOne({mht_id: decoded}, {$set: {token: token}});
+                    token_cache.set(decoded, token);
+                } else if(token_cache.get(decoded) != token) {
+                    return res.send(227, { success: false, msg: 'User has logged in from another device.' });
                     next(false);
-                } else {
-                    // if everything is good, save to request for use in other routes
-                    req.decoded = decoded;
-                    next();
                 }
-            });
-        } else {
-            return res.send(227, { success: false, msg: 'User has logged in from another device.' });
-            next(false);
-        }
+                next();
+            }
+        });
         
     } else {
         // if there is no token
@@ -90,6 +93,7 @@ server.use(async function (req, res, next) {
 server.listen(config.port, () => {
     // establish connection to mongodb
     mongoose.Promise = global.Promise;
+    token_cache.init();
     scheduleNotification();
     cleanupWeekly();
     cleanupMonthly();
@@ -110,6 +114,7 @@ server.listen(config.port, () => {
         console.log(`Server is listening on port ${config.port}`);
     });
 });
+
 
 function scheduleNotification() {
     schedule.scheduleJob('15 2 * * *', function (date) {
