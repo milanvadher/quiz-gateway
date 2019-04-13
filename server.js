@@ -46,7 +46,7 @@ server.use(restifyPlugins.acceptParser(server.acceptable));
 server.use(restifyPlugins.queryParser({ mapParams: true }));
 server.use(response_transformation.transform);
 server.use(restifyPlugins.fullResponse());
-server.use(function (req, res, next) {
+server.use(async function (req, res, next) {
     if (req.url === '/login' || req.url === '/validate_user' || req.url === '/register' || req.url === '/forgot_password' || req.url === '/update_password' || req.url === '/testMail' || req.url === '/request_registration') return next();
 
     // // check header or url parameters or post parameters for token
