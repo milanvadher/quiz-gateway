@@ -84,19 +84,23 @@ const UserSchema = new mongoose.Schema({
   token: {
     type: String
   },
-  totalscore_month:{
-    type:Number
+
+  totalscore_month: {
+    type: Number,
+    default: 0
   },
-  totalscore_month_update:
-  {
+
+  totalscore_month_update: {
     type:Date
   },
-  totalscore_week:{
-    type:Number
+
+  totalscore_week: {
+    type: Number,
+    default: 0
   },
-  totalscore_week_update:
-  {
-    type:Date    
+
+  totalscore_week_update: {
+    type: Date    
   }
 });
 

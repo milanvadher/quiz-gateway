@@ -50,10 +50,8 @@ exports.register = async function (req, res, next) {
         let hashPassword = await bcrypt.hash(req.body.password, SALT_WORK_FACTOR);
         let app_setting = await ApplicationSetting.findOne({});
         let token = jwt.sign({ mht_id: req.body.mht_id }, config.jwt_secret);
-        var datetime =new Date();// moment().tz('Asia/Kolkata').startOf("day").getFullYear();
-        console.log(datetime);
-        var dt =new Date(`${datetime.getFullYear()}-${datetime.getMonth() + 1}-1`);
-        console.log(dt);
+        var datetime = new Date();// moment().tz('Asia/Kolkata').startOf("day").getFullYear();
+        var dt = new Date(`${datetime.getFullYear()}-${datetime.getMonth() + 1}-1`);
         let user = new User(
             {
                 "mobile": req.body.mobile,

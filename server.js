@@ -15,6 +15,7 @@ const schedule = require('node-schedule');
 const Question = require('./models/question');
 const User = require('./models/user');
 const moment = require('moment-timezone');
+
 /**
   * Initialize Server
   */
@@ -90,6 +91,8 @@ server.listen(config.port, () => {
     // establish connection to mongodb
     mongoose.Promise = global.Promise;
     scheduleNotification();
+    cleanupWeekly();
+    cleanupMonthly();
     // mongoose.connect(config.db.uri, { useMongoClient: true });
     mongoose.connect(config.db.uri, { useNewUrlParser: true }).then(() => {
         console.log('Connected to DB Successfully !! ');
@@ -107,14 +110,26 @@ server.listen(config.port, () => {
         console.log(`Server is listening on port ${config.port}`);
     });
 });
+
 function scheduleNotification() {
-    var j = schedule.scheduleJob('15 2 * * *', function (date) {
+    schedule.scheduleJob('15 2 * * *', function (date) {
         var datetimec = moment().tz('Asia/Kolkata').startOf("day");
         var datetimef = moment().tz('Asia/Kolkata').startOf("day").add(1, "days");
         let questions=Question.findOne({ "quiz_type":"BONUS", "date": { $gte: datetimec, $lt: datetimef }})
-        if(questions)
-        {
+        if(questions) {
             onesignal.sendNewChallengeMsg()
         }
+    });
+ }
+
+function cleanupWeekly() {
+    schedule.scheduleJob('00 59 23 * * 5', function (date) {
+        User.update({}, {"totalscore_week": 0});
+    });
+ }
+ 
+function cleanupMonthly() {
+    schedule.scheduleJob('0 0 1 * *', function (date) {
+        User.update({}, {"totalscore_month": 0});
     });
  }
