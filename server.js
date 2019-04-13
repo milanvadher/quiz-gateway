@@ -17,8 +17,6 @@ const Question = require('./models/question');
 const User = require('./models/user');
 const moment = require('moment-timezone');
 
-const token_cache = {};
-
 /**
   * Initialize Server
   */
