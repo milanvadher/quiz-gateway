@@ -12,7 +12,7 @@ var token_cache = {
         token_cache_[mht_id]= token;
     },
 
-    init: function() {
+    init: async function() {
         let users = await User.find({}, "token");
         users.forEach((user) => {
             token_cache_[user.mht_id] = user.token;
