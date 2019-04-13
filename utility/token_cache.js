@@ -1,26 +1,46 @@
 const User = require('../models/user');
 
-module.exports = {
+class TokenCache {
     
-    token_cache_: {},
+    constructor() {
+        this.token_cache_ = {};
+    }
+    
 
-    get: function(mht_id) {
-        return token_cache_[mht_id];
-    },
-
-    set: function(mht_id, token) {
-        token_cache_[mht_id]= token;
-    },
-
-    init: async function() {
-        let users = await User.find({}, "token");
-        users.forEach((user) => {
-            token_cache_[user.mht_id] = user.token;
-        });
-    },
-
-    clear: function() {
-        token_cache_ = {}
+    get(mht_id) {
+        return this.token_cache_[mht_id];
     }
 
-};
+    set(mht_id, token) {
+        this.token_cache_[mht_id]= token;
+    }
+
+    async init() {
+        let users = await User.find({}, "token");
+        users.forEach((user) => {
+            this.token_cache_[user.mht_id] = user.token;
+        });
+    }
+
+    clear() {
+        this.token_cache_ = {}
+    }
+
+}
+
+
+class Singleton {
+
+    constructor() {
+        if(!Singleton.instance) {
+            Singleton.instance = new TokenCache();
+        }
+    }
+
+    getInstance() {
+        return Singleton.instance;
+    }
+
+}
+
+module.exports = Singleton;

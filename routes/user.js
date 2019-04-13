@@ -16,8 +16,8 @@ const MBAData = require('../models/mbadata');
 const ApplicationSetting = require('../models/app_setting');
 const Feedback = require('../models/feedback');
 
-const token_cache = require('../utility/token_cache');
-
+const TokenCache = require('../utility/token_cache');
+const token_cache = new TokenCache().getInstance();
 
 /**
  * Veriables

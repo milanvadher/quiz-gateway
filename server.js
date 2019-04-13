@@ -11,12 +11,12 @@ const fs = require('fs');
 const path = require('path');
 const response_transformation = require('./utility/transformation');
 const onesignal = require('./utility/onesignal-notification');
-const token_cache = require('./utility/token_cache');
+const TokenCache = require('./utility/token_cache');
 const schedule = require('node-schedule');
 const Question = require('./models/question');
 const User = require('./models/user');
 const moment = require('moment-timezone');
-
+const token_cache = new TokenCache().getInstance();
 /**
   * Initialize Server
   */
