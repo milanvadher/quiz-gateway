@@ -16,7 +16,7 @@ class TokenCache {
     }
 
     async init() {
-        let users = await User.find({}, "token");
+        let users = await User.find({}, "mht_id token");
         users.forEach((user) => {
             this.token_cache_[user.mht_id] = user.token;
         });
