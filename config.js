@@ -8,8 +8,8 @@ module.exports = function() {
 	};
 	switch(process.env.NODE_ENV){
 		case 'development':
-			conf.db = {uri: `${process.env.OPENSHIFT_MONGODB_DB_URL}/QuizGateWay-Development`};
-			conf.port = process.env.OPENSHIFT_NODEJS_PORT;
+			conf.db = {uri: `mongodb://127.0.0.1:27017/QuizGateWay-Development`};
+			conf.port = 3001;
 			break;
         case 'production':
 			conf.db = {uri: 'mongodb://127.0.0.1:27017/QuizGateWay'};

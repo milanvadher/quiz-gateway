@@ -109,6 +109,9 @@ server.listen(config.port, () => {
 
     db.once('open', () => {
         require('./routes/index')(server);
+        server.get('/', (req, res, next) => {
+            res.send(200, "Server is running");
+        })
         console.log(`Server is listening on port ${config.port}`);
     });
 });
