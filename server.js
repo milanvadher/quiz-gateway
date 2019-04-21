@@ -101,8 +101,10 @@ server.listen(config.port, () => {
 });
 function scheduleNotification() {
     var j = schedule.scheduleJob('30 13 * * *', function (date) {
-        var datetimec = moment().tz('Asia/Kolkata').startOf("day").add(19, "hours");
-        var datetimef = moment().tz('Asia/Kolkata').startOf("day").add(19, "hours").add(1, "days");
+        var datetimec =  moment().tz('Asia/Kolkata').isBefore(moment().tz('Asia/Kolkata').startOf("day").add(19, "hours")) ?
+        moment().tz('Asia/Kolkata').startOf("day").minus(1, "days") : moment().tz('Asia/Kolkata').startOf("day");
+        var datetimef = moment().tz('Asia/Kolkata').isBefore(moment().tz('Asia/Kolkata').startOf("day").add(19, "hours")) ?
+        moment().tz('Asia/Kolkata').startOf("day") : moment().tz('Asia/Kolkata').startOf("day").add(1, "days");
         let questions=Question.findOne({ "quiz_type":"BONUS", "date": { $gte: datetimec, $lt: datetimef }});
         if(questions)
         {
