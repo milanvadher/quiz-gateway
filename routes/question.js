@@ -262,10 +262,9 @@ exports.validate_answer = async function (req, res, next) {
  * @return {Question}
  */
 exports.get_bonus_question = async function (req, res, next) {
-    // TODO - Check User Authentication
     let mhtid = req.body.mht_id;
-    var datetimec = moment().tz('Asia/Kolkata').startOf("day");
-    var datetimef = moment().tz('Asia/Kolkata').startOf("day").add(1, "days");
+    var datetimec = moment().tz('Asia/Kolkata').startOf("day").add(19, "hours");
+    var datetimef = datetimec.add(1, "days");
     let question, usersanwered;
 
     try {
