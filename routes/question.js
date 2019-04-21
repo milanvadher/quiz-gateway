@@ -103,20 +103,18 @@ exports.list = async function (req, res, next) {
  * @return {Question}
  */
 exports.hint_question = async function (req, res, next) {
-    // TODO - Check User Authentication
-
     let user_mhtid = req.body.mht_id;
     let question_id = req.body.question_id;
     let question, scoreAdd;
-
+    question = await Question.findOne({
+                "question_id": question_id,
+            }, "question_st score reference level");
+    let quiz_level = await QuizLevel.findOne({level_index: question.level});
     let app_sett = await ApplicationSetting.findOne({});
     if (app_sett.negative_per_hint > 0) {
         scoreAdd = app_sett.negative_per_hint;
     }
     else {
-        question = await Question.findOne({
-            "question_id": question_id,
-        }, "question_st score reference");
         scoreAdd = question.score/2;
     }
     try {
@@ -198,11 +196,6 @@ exports.validate_answer = async function (req, res, next) {
             else {
 
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
-                await User.updateOne({ "mht_id": user_mhtid },
-                    {
-                        $inc: { "totalscore": -2 ,"totalscore_month": -2,"totalscore_week": -2 }                        
-                    });
-                user = await User.findOne({ "mht_id": user_mhtid });
                 status = { "answer_status": isRightAnswer, "lives": user.lives, "totalscore": user.totalscore,"totalscore_month": user.totalscore_month,"totalscore_week": user.totalscore_week };
             }
             let UAMObj = new UserAnswerMapping({ "mht_id": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type, "answer":selected_ans, "answer_status": isRightAnswer });
@@ -216,10 +209,9 @@ exports.validate_answer = async function (req, res, next) {
             var datetimeStartMonth = new Date(datetimet.getFullYear(), datetimet.getMonth(), 1);
             var datetimetendWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDate() + 6);
             datetimetStartWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDate());    
-            
+
+            quiz_level = await QuizLevel.findOne({"level_index": user_level});
             if (isRightAnswer) {
-                quiz_level = await QuizLevel.findOne({"level_index": user_level});
-            //console.log(quiz_level.start_date);
 
                 let user_score = await UserScore.findOne({
                     "mht_id": user_mhtid,
@@ -318,7 +310,6 @@ exports.validate_answer = async function (req, res, next) {
  * @return {Question}
  */
 exports.get_bonus_question = async function (req, res, next) {
-    // TODO - Check User Authentication
     let mhtid = req.body.mht_id;
     var datetimec = moment().tz('Asia/Kolkata').startOf("day");
     var datetimef = moment().tz('Asia/Kolkata').startOf("day").add(1, "days");
