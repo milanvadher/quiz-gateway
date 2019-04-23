@@ -463,7 +463,7 @@ async function resetMonthWeekScore(mht_id)
  * @param {Function} next
  * @return {quiz_levels, completed_levels, current_level}
  */
-exports.user_state = async function (req, res, next) {
+    exports.user_state = async function (req, res, next) {
     let mht_id = req.body.mht_id;
     let results;
    await resetMonthWeekScore(mht_id);
@@ -503,7 +503,27 @@ exports.user_state = async function (req, res, next) {
                     , "total_questions": 1, "categorys": 1, "start_date": 1, "end_date": 1, "description": 1, "imagepath": 1
                     , "totalscores": { $sum: "$questiondetails.score" }
                 }
-            }
+            },
+                 {
+                        $group: {
+                            _id: '$categorys', // grouping key - group by field district
+                            quizlevel: {
+                                          $push: {
+                          level_index:"$level_index",
+                          name:"$name",
+                                              level_type:"$level_type",
+                                              total_questions:"$total_questions",
+                                              //start_date:"$start_date",
+                                              //end_date:"$end_date",
+                                              totalscores:"$totalscores",
+
+                      }
+
+                                } // we need some stats for each group (for each district)
+
+
+                 }
+             }
             ]),
 
             // Find levels that user has already completed
@@ -551,11 +571,11 @@ exports.user_state = async function (req, res, next) {
         }
         response = {
             "quiz_levels": results[0],
-            "completed": results[1],
+           // "completed": results[1],
             "current": results[2],
             "totalscore": user.totalscore,
-            "totalscore_month": user.totalscore_month,
-            "totalscore_week": user.totalscore_week,
+            //"totalscore_month": user.totalscore_month,
+            //"totalscore_week": user.totalscore_week,
             "lives": user.lives
             //,             "bonus_count": results[3]
         }
