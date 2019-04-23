@@ -480,13 +480,6 @@ exports.user_state = async function (req, res, next) {
         results = await Promise.all([
             // Find all levels
 
-            // $type : 10 --> 10 it's Check type to null
-            // QuizLevel.find( {
-            //     $and : [
-            //         { "start_date" :  { $lte: datetimet}  },
-            //         { $or : [ { "end_date" : { $type : 10 } }, { "end_date" : { $gt : datetimet } } ] }
-            //     ]
-            // } ),
             QuizLevel.aggregate([{
                 $lookup: {
                     from: "questions",
@@ -524,51 +517,6 @@ exports.user_state = async function (req, res, next) {
                 "mht_id": mht_id,
                 "completed": false
             }, "-_id")
-        //     ,
-        //    Question.aggregate(
-        //         [
-        //             {
-        //                 "$project" : {
-        //                     "_id" : NumberInt(0),
-        //                     "qu" : "$$ROOT"
-        //                 }
-        //             },
-        //             {
-        //                 "$lookup" : {
-        //                     "localField" : "qu.question_id",
-        //                     "from" : "useranswermappings",
-        //                     "foreignField" : "question_id",
-        //                     "as" : "uam"
-        //                 }
-        //             },
-        //             {
-        //                 "$unwind" : {
-        //                     "path" : "$uam",
-        //                     "preserveNullAndEmptyArrays" : true
-        //                 }
-        //             },
-        //             {
-        //                 "$match" : {
-        //                     "qu.quiz_type" : "BONUS",
-        //                     "qu.date": { "$gte": datetimecb, "$lt": datetimefb },
-        //                     "$or" : [
-        //                         {
-        //                             "uam.mht_id" : null
-        //                         },
-        //                         {
-        //                             "uam.mht_id" : NumberLong(mht_id)
-        //                         }
-        //                     ]
-        //                 }
-        //             }
-        //         ],
-        //         {
-        //               $project:{
-        //                      "question_id":1,
-        //                      "userQuestion_id":"uam.question_id"
-        //               }
-        //         }
-        //     )
         ]);
 
         let current_user_level = results[2];
@@ -601,42 +549,13 @@ exports.user_state = async function (req, res, next) {
         else {
             level_current = current_user_level[0].level;
         }
-        // var datetime = new Date();
-        // var dt = datetime.getFullYear() + "-" + (datetime.getMonth() + 1) + "-" + (datetime.getDate() - 1);
-        // //console.log(dt)
-        // var datetimec = new Date(dt);
-        // dt = datetime.getFullYear() + "-" + (datetime.getMonth() + 1) + "-" + (datetime.getDate() + 1);
-        // var datetimef = new Date(dt);
-
-        //let question, usersanwered;
-        // try {
-        //     // Commet below code as created new query for mongo
-        //     usersanwered = await UserAnswerMapping.find({
-        //         "mht_id": mht_id,
-        //         "quiz_type": "BONUS"
-        //     }, "question_id -_id");
-        //     let qidarrya = [];
-        //     if (!usersanwered || usersanwered.length > 0) {
-        //         //console.log(datetime +'pppp');
-        //         usersanwered.forEach(o => {
-        //             qidarrya.push(o.question_id);
-        //         })
-        //     }
-        //     question = await Question.find({
-        //         "quiz_type": "BONUS",
-        //         "date": { $gte: datetimec, $lt: datetimef },
-        //         "question_id": { $nin: qidarrya }
-        //     }, "-_id");
-        // } catch (error) {
-        //     console.log(error);
-        // }
         response = {
             "quiz_levels": results[0],
             "completed": results[1],
             "current": results[2],
             "totalscore": user.totalscore,
-            //"totalscore_month": user.totalscore_month,
-            //"totalscore_week": user.totalscore_week,
+            "totalscore_month": user.totalscore_month,
+            "totalscore_week": user.totalscore_week,
             "lives": user.lives
             //,             "bonus_count": results[3]
         }
