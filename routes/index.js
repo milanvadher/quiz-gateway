@@ -74,6 +74,7 @@ const route_definitions = [
             {'path': '/questions', 'method': 'post', 'receiver': 'list'},
             {'path': '/hint_question', 'method': 'post', 'receiver': 'hint_question'},
             {'path': '/validate_answer', 'method': 'post', 'receiver': 'validate_answer'},
+          {'path': '/mark_read', 'method': 'post', 'receiver': 'mark_read'},
             {'path': '/bonus_question', 'method': 'post', 'receiver': 'get_bonus_question'},
             {'path': '/req_life', 'method': 'post', 'receiver': 'req_life'},
             {'path': '/user_state', 'method': 'post', 'receiver': 'user_state'},

@@ -19,16 +19,22 @@ const UserScoreSchema = new mongoose.Schema({
     default: 1
   },
 
+  question_read_st: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+
   level: {
     type: Number,
     required: true,
-    default: 1  
+    default: 1
   },
 
   score: {
     type: Number,
     required: true,
-    default: 0  
+    default: 0
   },
 
   total_questions: {
@@ -45,7 +51,7 @@ const UserScoreSchema = new mongoose.Schema({
   // current_score: {
   //   type: Number,
   //   required: true,
-  //   default: 0  
+  //   default: 0
   // },
 
   completed: {
@@ -56,9 +62,9 @@ const UserScoreSchema = new mongoose.Schema({
 //   lifelines: {
 //     type: String,
 //     required: true,
-//     default: 0  
+//     default: 0
 //   },
-  
+
 });
 
 UserScoreSchema.methods.toJSON = function() {
