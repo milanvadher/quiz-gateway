@@ -19,6 +19,11 @@ const QuizLevelSchema = new mongoose.Schema({
         unique:true,
         trim: true,
     },
+    level:{
+        type:Number,
+        required:true,
+        trim:true
+    },
     name: {
         type: String,
         required: true,

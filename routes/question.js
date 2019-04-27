@@ -417,7 +417,7 @@ exports.puzzle_completed = async function (req, res, next) {
         next();
     }
 };
-
+/*
 async function resetMonthWeekScore(mht_id)
 {
     var datetimet =new Date(moment().tz('Asia/Kolkata').format());
@@ -453,6 +453,81 @@ async function resetMonthWeekScore(mht_id)
         }
     }
 }
+*/
+async function AddDefaultLevelByCate(mht_id,levels,completedlevels)
+{
+    for(var i = 0; i < levels.length;i++){
+        //console.log(levels[i]);
+        let find=completedlevels.find(function(element)
+        {
+            let objret;
+            //console.log(levels[i]._id[0].category_number);
+            if(element.categoryid==levels[i]._id[0].category_number)
+            {
+                objret=element;
+            }
+            return objret;
+        });
+        if(!find)
+        {
+            await UserScore.create({
+                "mht_id": mht_id,
+                "level":1,
+                "categoryid":levels[i]._id[0].category_number,
+                "completed":false,
+                "total_questions": 0
+            });
+        }
+        // to add next level 
+        let findliveCat=completedlevels.find(function(element)
+        {
+            let objret;
+            //console.log(levels[i]._id[0].category_number);
+            if(element.completed=true && element.categoryid==levels[i]._id[0].category_number)
+            {
+                objret=element;
+            }
+            return objret;
+        });
+        if(!findliveCat)
+        {
+            let findCat=completedlevels.find(function(element)
+            {
+                let objret;
+                //console.log(levels[i]._id[0].category_number);
+                if(element.completed=false && element.categoryid==levels[i]._id[0].category_number)
+                {
+                    objret=element;
+                }
+                return objret;
+            });
+            if(findCat)
+            {
+                let findall=completedlevels.find(function(element)
+                {
+                    let objret;
+                    //console.log(levels[i]._id[0].category_number);
+                    if(element.categoryid==levels[i]._id[0].category_number)
+                    {
+                        objret=element;
+                    }
+                    return objret;
+                });
+                if(levels[i].quizlevel.length>=findall.length)
+                {
+                    let lstobj=findall[findall.length-1];
+                    await UserScore.create({
+                        "mht_id": mht_id,
+                        "level":lstobj.level+1,
+                        "categoryid":findCat.categoryid,
+                        "completed":false,
+                        "total_questions": 0
+                    });
+                }
+            }
+        }
+    }    
+}
 
 /**
  * Get Quiz Details for a user, application level will be on start and end date for level.
@@ -466,7 +541,7 @@ async function resetMonthWeekScore(mht_id)
     exports.user_state = async function (req, res, next) {
     let mht_id = req.body.mht_id;
     let results;
-   await resetMonthWeekScore(mht_id);
+   //await resetMonthWeekScore(mht_id);
     var datetime = new Date();
     try {
         let user = await User.findOne({ "mht_id": mht_id });
@@ -499,7 +574,7 @@ async function resetMonthWeekScore(mht_id)
             {
                 $project: {
                     "_id": 0,
-                    "level_index": 1, "name": 1, "level_type": 1
+                    "level_index": 1,"level":1, "name": 1, "level_type": 1
                     , "total_questions": 1, "categorys": 1, "start_date": 1, "end_date": 1, "description": 1, "imagepath": 1
                     , "totalscores": { $sum: "$questiondetails.score" }
                 }
@@ -508,67 +583,65 @@ async function resetMonthWeekScore(mht_id)
                         $group: {
                             _id: '$categorys', // grouping key - group by field district
                             quizlevel: {
-                                          $push: {
-                          level_index:"$level_index",
-                          name:"$name",
-                                              level_type:"$level_type",
-                                              total_questions:"$total_questions",
-                                              //start_date:"$start_date",
-                                              //end_date:"$end_date",
-                                              totalscores:"$totalscores",
-
-                      }
-
-                                } // we need some stats for each group (for each district)
-
-
-                 }
+                                $push: {
+                                    level_index:"$level_index",
+                                    level:"$level",
+                                    name:"$name",
+                                    //level_type:"$level_type",
+                                    //total_questions:"$total_questions",
+                                    //start_date:"$start_date",
+                                    //end_date:"$end_date",
+                                    totalscores:"$totalscores",
+                                }
+                            } // we need some stats for each group (for each district)
+                        }
              }
             ]),
 
             // Find levels that user has already completed
             UserScore.find({
                 "mht_id": mht_id,
-                "completed": true
-            }, "level score fifty_fifty -_id"),
+                //"completed": true
+            }, "level score fifty_fifty -_id -updatedAt -createdAt -mht_id"),
 
             // Find current level of user
-            UserScore.find({
-                "mht_id": mht_id,
-                "completed": false
-            }, "-_id")
+          
         ]);
+        await AddDefaultLevelByCate(mht_id,results[0],results[1]);
+        results[2]=[await   UserScore.find({
+            "mht_id": mht_id,
+            "completed": false
+        }, "-_id")]
+        // let current_user_level = results[2];
+        // let completed_levels = results[1];
+        // let levels = results[0];
+        // let level_current;
+        // if ((!current_user_level || current_user_level.length == 0) && (!completed_levels || completed_levels.length == 0)) {
+        //     level_current = 1;
+        //     results[2] = [await UserScore.create({
+        //         "mht_id": mht_id,
+        //         "total_questions": 0
+        //     })];
+        // } else if ((!current_user_level || current_user_level.length == 0) && completed_levels) {
+        //     // let total_question = 10;
+        //     // if (levels.length > completed_levels.length) {
+        //     //     //get total Questions for current level.
+        //     //     total_question = levels[completed_levels[completed_levels.length - 1].level].total_questions;
+        //     // }
 
-        let current_user_level = results[2];
-        let completed_levels = results[1];
-        let levels = results[0];
-        let level_current;
-        if ((!current_user_level || current_user_level.length == 0) && (!completed_levels || completed_levels.length == 0)) {
-            level_current = 1;
-            results[2] = [await UserScore.create({
-                "mht_id": mht_id,
-                "total_questions": 0
-            })];
-        } else if ((!current_user_level || current_user_level.length == 0) && completed_levels) {
-            // let total_question = 10;
-            // if (levels.length > completed_levels.length) {
-            //     //get total Questions for current level.
-            //     total_question = levels[completed_levels[completed_levels.length - 1].level].total_questions;
-            // }
+        //     let question = await Question.find({ "level": level_current }, "question_st");
+        //     results[2] = [await UserScore.create({
+        //         "mht_id": mht_id,
+        //         "level": completed_levels.length + 1,
+        //         "total_questions": 0,
+        //         "question_st": question.question_st
 
-            let question = await Question.find({ "level": level_current }, "question_st");
-            results[2] = [await UserScore.create({
-                "mht_id": mht_id,
-                "level": completed_levels.length + 1,
-                "total_questions": 0,
-                "question_st": question.question_st
-
-            })];
-            level_current = completed_levels.length + 1;
-        }
-        else {
-            level_current = current_user_level[0].level;
-        }
+        //     })];
+        //     level_current = completed_levels.length + 1;
+        // }
+        // else {
+        //     level_current = current_user_level[0].level;
+        // }
         response = {
             "quiz_levels": results[0],
            // "completed": results[1],

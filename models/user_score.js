@@ -51,6 +51,10 @@ const UserScoreSchema = new mongoose.Schema({
   completed: {
     type: Boolean,
     default: false
+  },
+  categoryid:
+  {
+    type:Number
   }
 
 //   lifelines: {

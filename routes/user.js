@@ -69,8 +69,8 @@ exports.register = async function (req, res, next) {
                 "totalscore": 0,
                 "totalscore_month": 0,
                 "totalscore_week": 0,                
-                "totalscore_month_update":dt,
-                "totalscore_week_update":datetime,
+               // "totalscore_month_update":dt,
+                //"totalscore_week_update":datetime,
                 "token": token
             });
         new_user = await user.save();
