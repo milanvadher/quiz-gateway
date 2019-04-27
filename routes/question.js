@@ -214,6 +214,7 @@ exports.validate_answer = async function (req, res, next) {
             datetimetStartWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDate());
 
             quiz_level = await QuizLevel.findOne({"level_index": user_level});
+          let scoreAddMonth = 0, scoreAddWeek = 0;
             if (isRightAnswer) {
 
                 let user_score = await UserScore.findOne({
@@ -247,7 +248,7 @@ exports.validate_answer = async function (req, res, next) {
                     );
                     new_question_st = question.question_st;
                 }
-                let scoreAddMonth=0,scoreAddWeek=0;
+
                 if(datetimeStartMonth <= quiz_level.start_date && datetimeEndMonth >= quiz_level.start_date)
                 {
                     scoreAddMonth = scoreAdd;
@@ -263,7 +264,15 @@ exports.validate_answer = async function (req, res, next) {
                         $set: { "question_id": question_id }
                     });
                 user = await User.findOne({ "mht_id": user_mhtid });
-                status = { "answer_status": isRightAnswer, "lives": user.lives, "totalscore": user.totalscore,"totalscore_month": user.totalscore_month,"totalscore_week": user.totalscore_week, "question_st": new_question_st };
+              status = {
+                "answer_status": isRightAnswer,
+                "lives": user.lives,
+                "totalscore": user.totalscore,
+                "totalscore_month": user.totalscore_month,
+                "totalscore_week": user.totalscore_week,
+                "question_st": new_question_st,
+                "question_read_st": question.question_st
+              };
             } else {
 
                 if(datetimeStartMonth<=quiz_level.start_date && datetimeEndMonth>=quiz_level.start_date)
@@ -281,7 +290,15 @@ exports.validate_answer = async function (req, res, next) {
                         $set: { "question_id": question_id }
                     });
                 user = await User.findOne({ "mht_id": user_mhtid });
-                status = { "answer_status": isRightAnswer, "lives": user.lives, "totalscore": user.totalscore,"totalscore_month": user.totalscore_month,"totalscore_week": user.totalscore_week, "question_st": question.question_st };
+              status = {
+                "answer_status": isRightAnswer,
+                "lives": user.lives,
+                "totalscore": user.totalscore,
+                "totalscore_month": user.totalscore_month,
+                "totalscore_week": user.totalscore_week,
+                "question_st": question.question_st,
+                "question_read_st": question.question_st
+              };
             }
                 //console.log('tet');
                 let UAMObj = await UserAnswerMapping.findOne({"mht_id": user_mhtid, "question_id": question_id});
@@ -327,7 +344,9 @@ exports.mark_read = async function (req, res, next) {
     user_score.question_read_st = question_st;
 
     user_score.save();
-    res.send(200, {});
+    res.send(200, {
+      "question_read_st": question_st
+    });
     next();
 
   } catch (error) {
