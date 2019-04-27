@@ -611,7 +611,7 @@ async function AddDefaultLevelByCate(mht_id,levels,completedlevels)
         results[2]=[await   UserScore.find({
             "mht_id": mht_id,
             "completed": false
-        }, "-_id")]
+        }, "score fifty_fifty -_id  -updatedAt -createdAt -mht_id")]
         // let current_user_level = results[2];
         // let completed_levels = results[1];
         // let levels = results[0];
