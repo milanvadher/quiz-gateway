@@ -64,6 +64,7 @@ const route_definitions = [
             {'path': '/app_getversion', 'method': 'get', 'receiver': 'get_appversion'},
             {'path': '/app_set', 'method': 'put', 'receiver': 'update'},
             {'path': '/app_set', 'method': 'post', 'receiver': 'create'},
+            {'path': '/sadhana_data', 'method': 'post', 'receiver': 'sadhana_data'},
         ]
     },
     {

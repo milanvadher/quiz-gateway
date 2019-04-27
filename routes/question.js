@@ -103,20 +103,18 @@ exports.list = async function (req, res, next) {
  * @return {Question}
  */
 exports.hint_question = async function (req, res, next) {
-    // TODO - Check User Authentication
-
     let user_mhtid = req.body.mht_id;
     let question_id = req.body.question_id;
     let question, scoreAdd;
-
+    question = await Question.findOne({
+                "question_id": question_id,
+            }, "question_st score reference level");
+    let quiz_level = await QuizLevel.findOne({level_index: question.level});
     let app_sett = await ApplicationSetting.findOne({});
     if (app_sett.negative_per_hint > 0) {
         scoreAdd = app_sett.negative_per_hint;
     }
     else {
-        question = await Question.findOne({
-            "question_id": question_id,
-        }, "question_st score reference");
         scoreAdd = question.score/2;
     }
     try {
@@ -201,11 +199,6 @@ exports.validate_answer = async function (req, res, next) {
             else {
 
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
-                await User.updateOne({ "mht_id": user_mhtid },
-                    {
-                      $inc: {"totalscore": -2, "totalscore_month": -2, "totalscore_week": -2}
-                    });
-                user = await User.findOne({ "mht_id": user_mhtid });
                 status = { "answer_status": isRightAnswer, "lives": user.lives, "totalscore": user.totalscore,"totalscore_month": user.totalscore_month,"totalscore_week": user.totalscore_week };
             }
             let UAMObj = new UserAnswerMapping({ "mht_id": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type, "answer":selected_ans, "answer_status": isRightAnswer });
@@ -218,11 +211,10 @@ exports.validate_answer = async function (req, res, next) {
             var  datetimeEndMonth = new Date(datetimet.getFullYear(), datetimet.getMonth() + 1, 1);
             var datetimeStartMonth = new Date(datetimet.getFullYear(), datetimet.getMonth(), 1);
             var datetimetendWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDate() + 6);
-          datetimetStartWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDate());
+            datetimetStartWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDate());
 
+            quiz_level = await QuizLevel.findOne({"level_index": user_level});
             if (isRightAnswer) {
-                quiz_level = await QuizLevel.findOne({"level_index": user_level});
-            //console.log(quiz_level.start_date);
 
                 let user_score = await UserScore.findOne({
                     "mht_id": user_mhtid,
@@ -356,7 +348,6 @@ exports.mark_read = async function (req, res, next) {
  * @return {Question}
  */
 exports.get_bonus_question = async function (req, res, next) {
-    // TODO - Check User Authentication
     let mhtid = req.body.mht_id;
     var datetimec = moment().tz('Asia/Kolkata').startOf("day");
     var datetimef = moment().tz('Asia/Kolkata').startOf("day").add(1, "days");
@@ -417,7 +408,7 @@ exports.req_life = async function (req, res, next) {
                 "mht_id": user.mht_id
             },
                 {
-                    $inc: { "lives": 1, "totalscore": (app_setting.score_per_lives * -1) }
+                    $inc: { "lives": 1, "totalscore": (app_setting.score_per_lives * -1), "totalscore_month": (app_setting.score_per_lives * -1),"totalscore_week": (app_setting.score_per_lives * -1) }
                 });
             let users = await User.findOne({
                 "mht_id": mht_id
@@ -527,13 +518,6 @@ exports.user_state = async function (req, res, next) {
         results = await Promise.all([
             // Find all levels
 
-            // $type : 10 --> 10 it's Check type to null
-            // QuizLevel.find( {
-            //     $and : [
-            //         { "start_date" :  { $lte: datetimet}  },
-            //         { $or : [ { "end_date" : { $type : 10 } }, { "end_date" : { $gt : datetimet } } ] }
-            //     ]
-            // } ),
             QuizLevel.aggregate([{
                 $lookup: {
                     from: "questions",
@@ -571,51 +555,6 @@ exports.user_state = async function (req, res, next) {
                 "mht_id": mht_id,
                 "completed": false
             }, "-_id")
-        //     ,
-        //    Question.aggregate(
-        //         [
-        //             {
-        //                 "$project" : {
-        //                     "_id" : NumberInt(0),
-        //                     "qu" : "$$ROOT"
-        //                 }
-        //             },
-        //             {
-        //                 "$lookup" : {
-        //                     "localField" : "qu.question_id",
-        //                     "from" : "useranswermappings",
-        //                     "foreignField" : "question_id",
-        //                     "as" : "uam"
-        //                 }
-        //             },
-        //             {
-        //                 "$unwind" : {
-        //                     "path" : "$uam",
-        //                     "preserveNullAndEmptyArrays" : true
-        //                 }
-        //             },
-        //             {
-        //                 "$match" : {
-        //                     "qu.quiz_type" : "BONUS",
-        //                     "qu.date": { "$gte": datetimecb, "$lt": datetimefb },
-        //                     "$or" : [
-        //                         {
-        //                             "uam.mht_id" : null
-        //                         },
-        //                         {
-        //                             "uam.mht_id" : NumberLong(mht_id)
-        //                         }
-        //                     ]
-        //                 }
-        //             }
-        //         ],
-        //         {
-        //               $project:{
-        //                      "question_id":1,
-        //                      "userQuestion_id":"uam.question_id"
-        //               }
-        //         }
-        //     )
         ]);
 
         let current_user_level = results[2];
@@ -648,42 +587,13 @@ exports.user_state = async function (req, res, next) {
         else {
             level_current = current_user_level[0].level;
         }
-        // var datetime = new Date();
-        // var dt = datetime.getFullYear() + "-" + (datetime.getMonth() + 1) + "-" + (datetime.getDate() - 1);
-        // //console.log(dt)
-        // var datetimec = new Date(dt);
-        // dt = datetime.getFullYear() + "-" + (datetime.getMonth() + 1) + "-" + (datetime.getDate() + 1);
-        // var datetimef = new Date(dt);
-
-        //let question, usersanwered;
-        // try {
-        //     // Commet below code as created new query for mongo
-        //     usersanwered = await UserAnswerMapping.find({
-        //         "mht_id": mht_id,
-        //         "quiz_type": "BONUS"
-        //     }, "question_id -_id");
-        //     let qidarrya = [];
-        //     if (!usersanwered || usersanwered.length > 0) {
-        //         //console.log(datetime +'pppp');
-        //         usersanwered.forEach(o => {
-        //             qidarrya.push(o.question_id);
-        //         })
-        //     }
-        //     question = await Question.find({
-        //         "quiz_type": "BONUS",
-        //         "date": { $gte: datetimec, $lt: datetimef },
-        //         "question_id": { $nin: qidarrya }
-        //     }, "-_id");
-        // } catch (error) {
-        //     console.log(error);
-        // }
         response = {
             "quiz_levels": results[0],
             "completed": results[1],
             "current": results[2],
             "totalscore": user.totalscore,
-            //"totalscore_month": user.totalscore_month,
-            //"totalscore_week": user.totalscore_week,
+            "totalscore_month": user.totalscore_month,
+            "totalscore_week": user.totalscore_week,
             "lives": user.lives
             //,             "bonus_count": results[3]
         }

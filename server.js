@@ -49,14 +49,14 @@ server.use(restifyPlugins.queryParser({ mapParams: true }));
 server.use(response_transformation.transform);
 server.use(restifyPlugins.fullResponse());
 server.use(async function (req, res, next) {
-    if (req.url === '/login' || req.url === '/validate_user' || req.url === '/register' || req.url === '/forgot_password' || req.url === '/update_password' || req.url === '/testMail' || req.url === '/request_registration') return next();
+    if (req.url === '/login' || req.url === '/validate_user' || req.url === '/register' || req.url === '/forgot_password' || req.url === '/update_password' || req.url === '/testMail' || req.url === '/request_registration' || req.url === '/sadhana_data') return next();
 
     // // check header or url parameters or post parameters for token
     const token = req.headers['x-access-token'] || req.query.token;
     // decode token
     if (token) {
         // verifies secret and checks exp
-        jwt.verify(token, config.jwt_secret, function (err, decoded) {
+        jwt.verify(token, config.jwt_secret, async function (err, decoded) {
             if (err) {
                 return res.send(403, { success: false, msg: 'Failed to authenticate token.' });
                 next(false);
@@ -64,7 +64,7 @@ server.use(async function (req, res, next) {
                 // if everything is good, save to request for use in other routes
                 req.decoded = decoded;
                 if(token_cache.get(decoded.mht_id) == null || !token_cache.get(decoded.mht_id)) {
-                    User.updateOne({mht_id: decoded.mht_id}, {$set: {token: token}});
+                    await User.updateOne({mht_id: decoded.mht_id}, {$set: {token: token}});
                     token_cache.set(decoded.mht_id, token);
                 } else if(token_cache.get(decoded.mht_id) != token) {
                     return res.send(227, { success: false, msg: 'User has logged in from another device.' });
@@ -109,6 +109,9 @@ server.listen(config.port, () => {
 
     db.once('open', () => {
         require('./routes/index')(server);
+        server.get('/', (req, res, next) => {
+            res.send(200, "Server is running");
+        })
         console.log(`Server is listening on port ${config.port}`);
     });
 });
