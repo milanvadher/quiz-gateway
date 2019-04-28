@@ -93,7 +93,7 @@ server.listen(config.port, () => {
     mongoose.Promise = global.Promise;
     token_cache.init();
     scheduleNotification();
-    cleanupWeekly();
+    //cleanupWeekly();
     cleanupMonthly();
     // mongoose.connect(config.db.uri, { useMongoClient: true });
     mongoose.connect(config.db.uri, { useNewUrlParser: true }).then(() => {
@@ -114,6 +114,7 @@ server.listen(config.port, () => {
         })
         console.log(`Server is listening on port ${config.port}`);
     });
+    //console.log(User.update({},{$set: {"totalscore_month": 0}},{upsert:false,multi:true}));
 });
 
 
@@ -136,6 +137,10 @@ function cleanupWeekly() {
  
 function cleanupMonthly() {
     schedule.scheduleJob('0 0 1 * *', function (date) {
-        User.update({}, {"totalscore_month": 0});
+        console.log("calllloooooooooS!");
+        //User.update({},{$set: {"totalscore_month": 0}},{'upsert':false,'multi':true});
+        //console.log(User.find({mht_id:29077}, "-_id"));
+        User.updateMany({mht_id:29077},{$set: {totalscore_month: 0}});
+        console.log("end calllloooooooooS!");
     });
  }
