@@ -130,8 +130,8 @@ function scheduleNotification() {
  }
 
 function cleanupWeekly() {
-    schedule.scheduleJob('00 59 23 * * 5', function (date) {
-        User.update({}, {"totalscore_week": 0});
+    schedule.scheduleJob('00 59 23 * * 5',async function (date) {
+        await User.updateMany({},{$set: {totalscore_week: 0}});
     });
  }
  
