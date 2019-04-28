@@ -135,12 +135,12 @@ function cleanupWeekly() {
     });
  }
  
-function cleanupMonthly() {
-    schedule.scheduleJob('0 0 1 * *', function (date) {
+ function cleanupMonthly() {
+    schedule.scheduleJob('0 0 1 * *', async function (date) {
         console.log("calllloooooooooS!");
         //User.update({},{$set: {"totalscore_month": 0}},{'upsert':false,'multi':true});
         //console.log(User.find({mht_id:29077}, "-_id"));
-        User.updateMany({mht_id:29077},{$set: {totalscore_month: 0}});
+       await User.updateMany({},{$set: {totalscore_month: 0}});
         console.log("end calllloooooooooS!");
     });
  }
