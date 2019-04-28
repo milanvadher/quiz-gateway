@@ -461,7 +461,8 @@ async function AddDefaultLevelByCate(mht_id,levels,completedlevels)
         let find=completedlevels.find(function(element)
         {
             let objret;
-            //console.log(levels[i]._id[0].category_number);
+           // console.log(element);
+           // console.log(levels[i]._id[0].category_number);
             if(element.categoryid==levels[i]._id[0].category_number)
             {
                 objret=element;
@@ -602,16 +603,15 @@ async function AddDefaultLevelByCate(mht_id,levels,completedlevels)
             UserScore.find({
                 "mht_id": mht_id,
                 //"completed": true
-            }, "level score fifty_fifty -_id -updatedAt -createdAt -mht_id"),
-
-            // Find current level of user
-          
+            }),
+ 
         ]);
+        //console.log(results[1]);
         await AddDefaultLevelByCate(mht_id,results[0],results[1]);
         results[2]=[await   UserScore.find({
             "mht_id": mht_id,
             "completed": false
-        }, "score fifty_fifty -_id  -updatedAt -createdAt -mht_id")]
+        }, "-_id")]
         // let current_user_level = results[2];
         // let completed_levels = results[1];
         // let levels = results[0];
