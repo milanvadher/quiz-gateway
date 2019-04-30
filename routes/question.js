@@ -340,6 +340,15 @@ exports.mark_read = async function (req, res, next) {
       "completed": false,
       "level": user_level
     });
+
+    let currentLevel = await QuizLevel.findOne({
+      "level_index": user_level
+    });
+
+    if (question_st >= currentLevel.total_questions) {
+      user_score.completed = true;
+    }
+
     console.log("user_score", user_score);
     user_score.question_read_st = question_st;
 
@@ -427,7 +436,7 @@ exports.req_life = async function (req, res, next) {
                 "mht_id": user.mht_id
             },
                 {
-                    $inc: { "lives": 1, "totalscore": (app_setting.score_per_lives * -1), "totalscore_month": (app_setting.score_per_lives * -1),"totalscore_week": (app_setting.score_per_lives * -1) }
+                  $inc: {"lives": 1, "totalscore": (app_setting.score_per_lives * -1)}
                 });
             let users = await User.findOne({
                 "mht_id": mht_id
