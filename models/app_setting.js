@@ -37,6 +37,9 @@ const ApplicationSettingSchema = new mongoose.Schema({
   },
   appversion:{
     type:String
+  },
+  ios_appversion:{
+    type:String
   }
   
 });
