@@ -219,13 +219,11 @@ exports.validate_answer = async function (req, res, next) {
 
                 let user_score = await UserScore.findOne({
                     "mht_id": user_mhtid,
-                    "completed": false,
                     "level": user_level
                 });
                 let new_question_st = question.question_st + 1;
                 await UserScore.updateOne({
                     "mht_id": user_mhtid,
-                    "completed": false,
                     "level": user_level
                     },
                     {
