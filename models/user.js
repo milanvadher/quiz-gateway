@@ -85,6 +85,7 @@ const UserSchema = new mongoose.Schema({
     type: String
   },
 
+
   totalscore_month: {
     type: Number,
     default: 0

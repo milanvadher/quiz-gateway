@@ -311,8 +311,10 @@ exports.validate_answer = async function (req, res, next) {
  */
 exports.get_bonus_question = async function (req, res, next) {
     let mhtid = req.body.mht_id;
-    var datetimec = moment().tz('Asia/Kolkata').startOf("day");
-    var datetimef = moment().tz('Asia/Kolkata').startOf("day").add(1, "days");
+    var datetimec =  moment().tz('Asia/Kolkata').isBefore(moment().tz('Asia/Kolkata').startOf("day").add(19, "hours")) ?
+    moment().tz('Asia/Kolkata').startOf("day").subtract(1, "days") : moment().tz('Asia/Kolkata').startOf("day");
+    var datetimef = moment().tz('Asia/Kolkata').isBefore(moment().tz('Asia/Kolkata').startOf("day").add(19, "hours")) ?
+    moment().tz('Asia/Kolkata').startOf("day") : moment().tz('Asia/Kolkata').startOf("day").add(1, "days");
     let question, usersanwered;
 
     try {
