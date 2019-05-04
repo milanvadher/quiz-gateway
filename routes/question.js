@@ -148,8 +148,11 @@ exports.hint_question = async function (req, res, next) {
         next();
     }
 };
-/** 
- * Check the answer is right or not and add score as it's regular question or bonus 
+
+
+/**
+ * Check the answer is right or not and add score as it's regular question or bonus
+ * TODO: For Time based level, when validate answer, also update read state to match question state in case the mark read API failed.
  * @param req {Object} The request.
  * @param res {Object} The response.
  * @param req.body {Object} The JSON payload.
@@ -208,9 +211,10 @@ exports.validate_answer = async function (req, res, next) {
             var  datetimeEndMonth = new Date(datetimet.getFullYear(), datetimet.getMonth() + 1, 1);
             var datetimeStartMonth = new Date(datetimet.getFullYear(), datetimet.getMonth(), 1);
             var datetimetendWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDate() + 6);
-            datetimetStartWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDate());    
+            datetimetStartWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDate());
 
             quiz_level = await QuizLevel.findOne({"level_index": user_level});
+          let scoreAddMonth = 0, scoreAddWeek = 0;
             if (isRightAnswer) {
 
                 let user_score = await UserScore.findOne({
@@ -225,8 +229,8 @@ exports.validate_answer = async function (req, res, next) {
                     "level": user_level
                     },
                     {
-                        $inc: { "score": scoreAdd, "total_questions": 1 },
-                        $set: { "question_st": new_question_st }
+                        $inc: { "score": scoreAdd, "total_questions": user_score.total_questions },
+                      $set: {"question_st": new_question_st, "question_read_st": question.question_st}
                     });
                 // let user_score = await UserScore.findOne({
                 //     "mht_id": user_mhtid,
@@ -244,7 +248,7 @@ exports.validate_answer = async function (req, res, next) {
                     );
                     new_question_st = question.question_st;
                 }
-                let scoreAddMonth=0,scoreAddWeek=0;
+
                 if(datetimeStartMonth <= quiz_level.start_date && datetimeEndMonth >= quiz_level.start_date)
                 {
                     scoreAddMonth = scoreAdd;
@@ -258,11 +262,19 @@ exports.validate_answer = async function (req, res, next) {
                     {
                         $inc: { "totalscore": scoreAdd,"totalscore_month": scoreAddMonth,"totalscore_week": scoreAddWeek  },
                         $set: { "question_id": question_id }
-                    }); 
+                    });
                 user = await User.findOne({ "mht_id": user_mhtid });
-                status = { "answer_status": isRightAnswer, "lives": user.lives, "totalscore": user.totalscore,"totalscore_month": user.totalscore_month,"totalscore_week": user.totalscore_week, "question_st": new_question_st };
+              status = {
+                "answer_status": isRightAnswer,
+                "lives": user.lives,
+                "totalscore": user.totalscore,
+                "totalscore_month": user.totalscore_month,
+                "totalscore_week": user.totalscore_week,
+                "question_st": new_question_st,
+                "question_read_st": question.question_st
+              };
             } else {
-                
+
                 if(datetimeStartMonth<=quiz_level.start_date && datetimeEndMonth>=quiz_level.start_date)
                 {
                     scoreAddMonth=-2;
@@ -278,7 +290,15 @@ exports.validate_answer = async function (req, res, next) {
                         $set: { "question_id": question_id }
                     });
                 user = await User.findOne({ "mht_id": user_mhtid });
-                status = { "answer_status": isRightAnswer, "lives": user.lives, "totalscore": user.totalscore,"totalscore_month": user.totalscore_month,"totalscore_week": user.totalscore_week, "question_st": question.question_st };
+              status = {
+                "answer_status": isRightAnswer,
+                "lives": user.lives,
+                "totalscore": user.totalscore,
+                "totalscore_month": user.totalscore_month,
+                "totalscore_week": user.totalscore_week,
+                "question_st": question.question_st,
+                "question_read_st": question.question_st
+              };
             }
                 //console.log('tet');
                 let UAMObj = await UserAnswerMapping.findOne({"mht_id": user_mhtid, "question_id": question_id});
@@ -290,7 +310,7 @@ exports.validate_answer = async function (req, res, next) {
                     await UAMObj.save();
                 }
         }
-        
+
         res.send(200, status);
         next();
     } catch (error) {
@@ -298,6 +318,52 @@ exports.validate_answer = async function (req, res, next) {
         res.send(500, new Error(error));
         next();
     }
+};
+
+/**
+ * Mark question as read for time based level.
+ * @param req
+ * @param res
+ * @param next
+ * @returns {Promise<void>}
+ */
+exports.mark_read = async function (req, res, next) {
+  let question_id = req.body.question_id;
+  let user_mhtid = req.body.mht_id;
+  let user_level = req.body.level;
+  let question_st = req.body.question_st;
+
+  try {
+    console.log(user_mhtid, user_level);
+    let user_score = await UserScore.findOne({
+      "mht_id": user_mhtid,
+      "completed": false,
+      "level": user_level
+    });
+
+    let currentLevel = await QuizLevel.findOne({
+      "level_index": user_level
+    });
+
+    if (question_st >= currentLevel.total_questions) {
+      user_score.completed = true;
+    }
+
+    console.log("user_score", user_score);
+    user_score.question_read_st = question_st;
+
+    user_score.save();
+    res.send(200, {
+      "question_read_st": question_st
+    });
+    next();
+
+  } catch (error) {
+    console.log(error);
+    res.send(500, new Error(error));
+    next();
+  }
+
 };
 
 /**
@@ -334,8 +400,8 @@ exports.get_bonus_question = async function (req, res, next) {
             "question_id": { $nin: qidarray }
         }, "-_id");
 
-        
-        res.charSet('utf-8');
+
+      res.charSet('utf-8');
         if(question.length > 0) {
             res.send(200, question);
         } else {
@@ -349,7 +415,7 @@ exports.get_bonus_question = async function (req, res, next) {
     }
 };
 /**
- * get new life from user score, dudect some amount of score 
+ * get new life from user score, dudect some amount of score
  * @param req {Object} The request.
  * @param res {Object} The response.
  * @param req.body {Object} The JSON payload.
@@ -372,7 +438,7 @@ exports.req_life = async function (req, res, next) {
                 "mht_id": user.mht_id
             },
                 {
-                    $inc: { "lives": 1, "totalscore": (app_setting.score_per_lives * -1), "totalscore_month": (app_setting.score_per_lives * -1),"totalscore_week": (app_setting.score_per_lives * -1) }
+                  $inc: {"lives": 1, "totalscore": (app_setting.score_per_lives * -1)}
                 });
             let users = await User.findOne({
                 "mht_id": mht_id
@@ -443,7 +509,7 @@ async function resetMonthWeekScore(mht_id)
         {
             await User.updateOne({ "mht_id": mht_id },{$set : {"totalscore_month": 0,"totalscore_month_update":datetimetMonth}});
         }
-    }    
+    }
     if(n=='Monday')
     {
         let user = await User.findOne({ "mht_id": mht_id });

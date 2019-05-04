@@ -9,7 +9,7 @@ const CategorySchema = new mongoose.Schema({
     category: {
         type: String,
         required: true,
-        trim: true    
+      trim: true
     }
 });
 const QuizLevelSchema = new mongoose.Schema({
@@ -26,7 +26,7 @@ const QuizLevelSchema = new mongoose.Schema({
     },
     level_type: {
         type: String,
-        enum: ['REGULAR'],
+      enum: ['REGULAR', 'TIME_BASED'],
         required: true,
         trim: true
     },

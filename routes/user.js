@@ -68,7 +68,7 @@ exports.register = async function (req, res, next) {
                 "question_id": 0,
                 "totalscore": 0,
                 "totalscore_month": 0,
-                "totalscore_week": 0,                
+              "totalscore_week": 0,
                 "totalscore_month_update":dt,
                 "totalscore_week_update":datetime,
                 "token": token
@@ -86,7 +86,7 @@ exports.register = async function (req, res, next) {
 
 /**
  * Change mobile no. requsest --> send email to Devlopers ... 😎 😎 😎
- * 
+ *
  * @param req {Object} The request
  * @param res {Object} The response.
  * @param req.body {Object} The JSON payload.
@@ -178,10 +178,10 @@ exports.list = async function (req, res, next) {
  */
 exports.leader_center = async function (req, res, next) {
     try {
-        let leaders = await User.aggregate([ 
+      let leaders = await User.aggregate([
             {
                 $group : {
-                    "_id": {"center":"$center" },                    
+                  "_id": {"center": "$center"},
                     //"mobile": 1,"password":1,
                   "totalscores": { $avg: "$totalscore" }
                 }
@@ -417,7 +417,7 @@ try{
                         res.send(200, { otp: user_otp, msg: 'OTP is send to your Contact number.', data: "" });
                     }
                 });
-                    
+
 }
 catch(error)
 {
@@ -515,7 +515,7 @@ exports.forgot_password = async function (req, res, next) {
                         res.send(200, { otp: user_otp, msg: 'OTP is sent to your Contact number.', data: user });
                     }
                 });
-            } 
+            }
             // else {
                 if (user.email) {
                     const mailOptions = {
@@ -533,7 +533,7 @@ exports.forgot_password = async function (req, res, next) {
                 } else {
                   //  res.send(400, { msg: "Your E-mail ID is not in MBA list. Kindly update !!" });
                 }
-            
+
         }
         else {
             res.send(400, { msg: "You are not registered !!" });
@@ -578,11 +578,12 @@ exports.update_password = async function (req, res, next) {
  */
 exports.update_notification_token = async function (req, res, next) {
     try {
-        await User.updateOne({ "mht_id": req.body.mht_id }, { $set: 
-            { 
+      await User.updateOne({"mht_id": req.body.mht_id}, {
+        $set:
+          {
                 "fb_token": req.body.fb_token,
                 "onesignal_token" : req.body.onesignal_token
-            } 
+          }
         });
         res.send(200, { msg: "Token updated successfully !!!" })
     } catch (error) {
@@ -638,7 +639,7 @@ exports.test = async function (req, res, next) {
 
 /**
  * Send email to Out of INDIA's MBA.
- * 
+ *
  * @param otp 6 digit OTP
  * @param mailId Email id of MBA
  */
