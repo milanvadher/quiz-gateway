@@ -229,7 +229,7 @@ exports.validate_answer = async function (req, res, next) {
                     "level": user_level
                     },
                     {
-                        $inc: { "score": scoreAdd, "total_questions": user_score.total_questions },
+                        $inc: { "score": scoreAdd, "total_questions": 1 },
                       $set: {"question_st": new_question_st, "question_read_st": question.question_st}
                     });
                 // let user_score = await UserScore.findOne({
