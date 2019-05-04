@@ -607,7 +607,8 @@ exports.user_state = async function (req, res, next) {
                 "mht_id": mht_id,
                 "level": completed_levels.length + 1,
                 "total_questions": 0,
-                "question_st": question.question_st
+                "question_st": question.question_st,
+                "question_read_st": 0
 
             })];
             level_current = completed_levels.length + 1;
