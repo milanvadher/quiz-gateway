@@ -139,7 +139,7 @@ function cleanupWeekly() {
  }
  
  function cleanupMonthly() {
-    schedule.scheduleJob('0 0 1 * *', async function (date) {
+    schedule.scheduleJob('15 15 5 * *', async function (date) {
         console.log("calllloooooooooS!");
         //User.update({},{$set: {"totalscore_month": 0}},{'upsert':false,'multi':true});
         //console.log(User.find({mht_id:29077}, "-_id"));
