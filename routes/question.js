@@ -532,7 +532,7 @@ async function resetMonthWeekScore(mht_id)
 exports.user_state = async function (req, res, next) {
     let mht_id = req.body.mht_id;
     let results;
-   await resetMonthWeekScore(mht_id);
+   //await resetMonthWeekScore(mht_id);
     var datetime = new Date();
     try {
         let user = await User.findOne({ "mht_id": mht_id });
