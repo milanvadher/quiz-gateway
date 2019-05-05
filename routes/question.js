@@ -352,7 +352,8 @@ exports.mark_read = async function (req, res, next) {
 
     user_score.save();
     res.send(200, {
-      "question_read_st": question_st
+      "question_read_st": question_st,
+      "completed": user_score.completed
     });
     next();
 
