@@ -79,8 +79,30 @@ const UserSchema = new mongoose.Schema({
     enum: ['SANKUL','MBA'],
     required: true,
     default: 'MBA'
-  }
+  },
 
+  token: {
+    type: String
+  },
+
+
+  totalscore_month: {
+    type: Number,
+    default: 0
+  },
+
+  totalscore_month_update: {
+    type:Date
+  },
+
+  totalscore_week: {
+    type: Number,
+    default: 0
+  },
+
+  totalscore_week_update: {
+    type: Date    
+  }
 });
 
 UserSchema.methods.toJSON = function() {

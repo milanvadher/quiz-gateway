@@ -10,7 +10,7 @@ const OptionSchema = new mongoose.Schema({
     option: {
         type: String,
         required: true,
-        trim: true    
+      trim: true
     }
 });
 
@@ -18,12 +18,12 @@ const AnswerSchema = new mongoose.Schema({
   answer: {
       type: String,
       required: true,
-      trim: true    
+    trim: true
   }
 });
 
 const QuestionSchema = new mongoose.Schema({
-  
+
   question_st: {
     type: Number,
     required: true
@@ -64,7 +64,7 @@ const QuestionSchema = new mongoose.Schema({
   },
 
   level: {
-    type: Number 
+    type: Number
   },
 
   quiz_type: {
@@ -76,7 +76,7 @@ const QuestionSchema = new mongoose.Schema({
 
   question_id: {
     type: Number,
-    required: true  
+    required: true
   },
 
   date: {
@@ -87,7 +87,12 @@ const QuestionSchema = new mongoose.Schema({
     type: String
   },
 
-  jumbledata: [String]
+  jumbledata: [String],
+
+  timeout: {
+    type: Number,
+    default: 0
+  }
 });
 
 QuestionSchema.methods.toJSON = function() {

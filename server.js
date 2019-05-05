@@ -11,9 +11,12 @@ const fs = require('fs');
 const path = require('path');
 const response_transformation = require('./utility/transformation');
 const onesignal = require('./utility/onesignal-notification');
+const TokenCache = require('./utility/token_cache');
 const schedule = require('node-schedule');
 const Question = require('./models/question');
+const User = require('./models/user');
 const moment = require('moment-timezone');
+const token_cache = new TokenCache().getInstance();
 /**
   * Initialize Server
   */
@@ -45,25 +48,32 @@ server.use(restifyPlugins.acceptParser(server.acceptable));
 server.use(restifyPlugins.queryParser({ mapParams: true }));
 server.use(response_transformation.transform);
 server.use(restifyPlugins.fullResponse());
-server.use(function (req, res, next) {
-    if (req.url === '/login' || req.url === '/validate_user' || req.url === '/register' || req.url === '/forgot_password' || req.url === '/update_password' || req.url === '/testMail' || req.url === '/request_registration') return next();
+server.use(async function (req, res, next) {
+    if (req.url === '/login' || req.url === '/validate_user' || req.url === '/register' || req.url === '/forgot_password' || req.url === '/update_password' || req.url === '/testMail' || req.url === '/request_registration' || req.url === '/sadhana_data') return next();
 
     // // check header or url parameters or post parameters for token
     const token = req.headers['x-access-token'] || req.query.token;
-
     // decode token
     if (token) {
         // verifies secret and checks exp
-        jwt.verify(token, config.jwt_secret, function (err, decoded) {
+        jwt.verify(token, config.jwt_secret, async function (err, decoded) {
             if (err) {
                 return res.send(403, { success: false, msg: 'Failed to authenticate token.' });
                 next(false);
             } else {
                 // if everything is good, save to request for use in other routes
                 req.decoded = decoded;
+                if(token_cache.get(decoded.mht_id) == null || !token_cache.get(decoded.mht_id)) {
+                    await User.updateOne({mht_id: decoded.mht_id}, {$set: {token: token}});
+                    token_cache.set(decoded.mht_id, token);
+                } else if(token_cache.get(decoded.mht_id) != token) {
+                    return res.send(227, { success: false, msg: 'User has logged in from another device.' });
+                    next(false);
+                }
                 next();
             }
         });
+        
     } else {
         // if there is no token
         // return an error
@@ -81,7 +91,10 @@ server.use(function (req, res, next) {
 server.listen(config.port, () => {
     // establish connection to mongodb
     mongoose.Promise = global.Promise;
+    token_cache.init();
     scheduleNotification();
+    //cleanupWeekly();
+    cleanupMonthly();
     // mongoose.connect(config.db.uri, { useMongoClient: true });
     mongoose.connect(config.db.uri, { useNewUrlParser: true }).then(() => {
         console.log('Connected to DB Successfully !! ');
@@ -96,17 +109,41 @@ server.listen(config.port, () => {
 
     db.once('open', () => {
         require('./routes/index')(server);
+        server.get('/', (req, res, next) => {
+            res.send(200, "Server is running");
+        })
         console.log(`Server is listening on port ${config.port}`);
     });
+    //console.log(User.update({},{$set: {"totalscore_month": 0}},{upsert:false,multi:true}));
 });
+
+
 function scheduleNotification() {
-    var j = schedule.scheduleJob('15 2 * * *', function (date) {
-        var datetimec = moment().tz('Asia/Kolkata').startOf("day");
-        var datetimef = moment().tz('Asia/Kolkata').startOf("day").add(1, "days");
-        let questions=Question.findOne({ "quiz_type":"BONUS", "date": { $gte: datetimec, $lt: datetimef }})
+    var j = schedule.scheduleJob('30 13 * * *', function (date) {
+        var datetimec =  moment().tz('Asia/Kolkata').isBefore(moment().tz('Asia/Kolkata').startOf("day").add(19, "hours")) ?
+        moment().tz('Asia/Kolkata').startOf("day").subtract(1, "days") : moment().tz('Asia/Kolkata').startOf("day");
+        var datetimef = moment().tz('Asia/Kolkata').isBefore(moment().tz('Asia/Kolkata').startOf("day").add(19, "hours")) ?
+        moment().tz('Asia/Kolkata').startOf("day") : moment().tz('Asia/Kolkata').startOf("day").add(1, "days");
+        let questions=Question.findOne({ "quiz_type":"BONUS", "date": { $gte: datetimec, $lt: datetimef }});
         if(questions)
         {
-            onesignal.sendNewChallengeMsg()
+            onesignal.sendNewChallengeMsg();
         }
+    });
+ }
+
+function cleanupWeekly() {
+    schedule.scheduleJob('00 59 23 * * 5',async function (date) {
+        await User.updateMany({},{$set: {totalscore_week: 0}});
+    });
+ }
+ 
+ function cleanupMonthly() {
+    schedule.scheduleJob('30 18 1 * *', async function (date) {
+        console.log("calllloooooooooS!");
+        //User.update({},{$set: {"totalscore_month": 0}},{'upsert':false,'multi':true});
+        //console.log(User.find({mht_id:29077}, "-_id"));
+       await User.updateMany({},{$set: {totalscore_month: 0}});
+        console.log("end calllloooooooooS!");
     });
  }

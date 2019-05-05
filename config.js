@@ -1,12 +1,20 @@
 require('dotenv').config()
 
-module.exports = {
-	name: 'QUIZ_GATEWAY',
-	env: process.env.NODE_ENV || 'development',
-	port: process.env.PORT || 3000,
-	base_url: process.env.BASE_URL || 'http://localhost:3000',
-	db: {
-		uri: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/QuizGateWay',
-	},
-	jwt_secret: process.env.JWT_SECRET || 'MBA-QUIZ'
-};
+module.exports = function() {
+	let conf = {
+		name: 'QUIZ_GATEWAY',
+		env: process.env.NODE_ENV || 'development',
+		jwt_secret: process.env.JWT_SECRET || 'MBA-QUIZ'
+	};
+	switch(process.env.NODE_ENV){
+		case 'development':
+			conf.db = {uri: `mongodb://127.0.0.1:27017/QuizGateWay-Development`};
+			conf.port = 3001;
+			break;
+        case 'production':
+			conf.db = {uri: 'mongodb://127.0.0.1:27017/QuizGateWay'};
+			conf.port = 3000;
+			break;
+	}
+	return conf;
+}();

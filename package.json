@@ -24,11 +24,12 @@
     "restify-plugins": "1.6.0"
   },
   "devDependencies": {
-    "mongoose-faker": "^1.0.0"
+    "mongoose-faker": "^1.0.0",
+    "nodemon": "^1.18.11"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "start": "nodemon server.js"
   },
   "author": "DBF",
   "license": "ISC"

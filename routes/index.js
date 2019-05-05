@@ -25,8 +25,8 @@ async function import_routes(dir_path) {
 }
 
 import_routes(handler_paths);
-
 const route_definitions = [
+
     {
         // User Routes
         'handler': request_handlers.user,
@@ -44,6 +44,8 @@ const route_definitions = [
             {'path': '/leaders', 'method': 'get', 'receiver': 'leaders'},
             {'path': '/leader_center', 'method': 'get', 'receiver': 'leader_center'},
             {'path': '/leader_internal_center', 'method': 'post', 'receiver': 'leader_internal_center'},
+            {'path': '/leaders_month', 'method': 'get', 'receiver': 'leaders_month'},
+            {'path': '/leaders_week', 'method': 'get', 'receiver': 'leaders_week'},
             {'path': '/user/:id', 'method': 'del', 'receiver': 'remove'},
             {'path': '/feedback', 'method': 'post', 'receiver': 'feedback'},
             {'path': '/upload_photo', 'method': 'post', 'receiver': 'upload_photo'},
@@ -62,6 +64,7 @@ const route_definitions = [
             {'path': '/app_getversion', 'method': 'get', 'receiver': 'get_appversion'},
             {'path': '/app_set', 'method': 'put', 'receiver': 'update'},
             {'path': '/app_set', 'method': 'post', 'receiver': 'create'},
+            {'path': '/sadhana_data', 'method': 'post', 'receiver': 'sadhana_data'},
         ]
     },
     {
@@ -72,6 +75,7 @@ const route_definitions = [
             {'path': '/questions', 'method': 'post', 'receiver': 'list'},
             {'path': '/hint_question', 'method': 'post', 'receiver': 'hint_question'},
             {'path': '/validate_answer', 'method': 'post', 'receiver': 'validate_answer'},
+          {'path': '/mark_read', 'method': 'post', 'receiver': 'mark_read'},
             {'path': '/bonus_question', 'method': 'post', 'receiver': 'get_bonus_question'},
             {'path': '/req_life', 'method': 'post', 'receiver': 'req_life'},
             {'path': '/user_state', 'method': 'post', 'receiver': 'user_state'},
