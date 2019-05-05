@@ -721,6 +721,7 @@ exports.insertMBAData = async function(req, res, next) {
 exports.rules = async function(req, res, next) {
     try {
         let rules = fs.readFileSync(`${process.cwd()}/static/rules.md`, 'utf-8');
+        res.charSet('utf-8');
         res.send(200, {rules: rules});
     } catch (error) {
         res.send(500, new Error(error));
