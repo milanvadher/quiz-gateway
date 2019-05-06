@@ -227,7 +227,7 @@ exports.validate_answer = async function (req, res, next) {
                     "level": user_level
                     },
                     {
-                        $inc: { "score": scoreAdd, "total_questions": 1 },
+                        $inc: { "score": scoreAdd, "total_questions": -1 },
                       $set: {"question_st": new_question_st, "question_read_st": question.question_st}
                     });
                 // let user_score = await UserScore.findOne({
@@ -236,7 +236,7 @@ exports.validate_answer = async function (req, res, next) {
                 //     "level": user_level
                 // });
 
-                if ((user_score.total_questions + 1) == quiz_level.total_questions) {
+                if (user_score.total_questions == 0) {
                     await UserScore.updateOne({
                         "mht_id": user_mhtid,
                         "completed": false,
@@ -594,20 +594,20 @@ exports.user_state = async function (req, res, next) {
             level_current = 1;
             results[2] = [await UserScore.create({
                 "mht_id": mht_id,
-                "total_questions": 0
+                "total_questions": levels[0].total_questions
             })];
         } else if ((!current_user_level || current_user_level.length == 0) && completed_levels) {
-            // let total_question = 10;
-            // if (levels.length > completed_levels.length) {
-            //     //get total Questions for current level.
-            //     total_question = levels[completed_levels[completed_levels.length - 1].level].total_questions;
-            // }
+             let total_question = 10;
+             if (levels.length > completed_levels.length) {
+                 //get total Questions for current level.
+                 total_question = levels[completed_levels[completed_levels.length - 1].level].total_questions;
+             }
 
             let question = await Question.find({ "level": level_current }, "question_st");
             results[2] = [await UserScore.create({
                 "mht_id": mht_id,
                 "level": completed_levels.length + 1,
-                "total_questions": 0,
+                "total_questions": total_question,
                 "question_st": question.question_st,
                 "question_read_st": 0
 
