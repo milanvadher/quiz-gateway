@@ -93,7 +93,7 @@ server.listen(config.port, () => {
     mongoose.Promise = global.Promise;
     token_cache.init();
     scheduleNotification();
-    cleanupWeekly();
+    //cleanupWeekly();
     cleanupMonthly();
     // mongoose.connect(config.db.uri, { useMongoClient: true });
     mongoose.connect(config.db.uri, { useNewUrlParser: true }).then(() => {
@@ -114,28 +114,36 @@ server.listen(config.port, () => {
         })
         console.log(`Server is listening on port ${config.port}`);
     });
+    //console.log(User.update({},{$set: {"totalscore_month": 0}},{upsert:false,multi:true}));
 });
 
 
 function scheduleNotification() {
-    schedule.scheduleJob('15 2 * * *', function (date) {
-        var datetimec = moment().tz('Asia/Kolkata').startOf("day");
-        var datetimef = moment().tz('Asia/Kolkata').startOf("day").add(1, "days");
-        let questions=Question.findOne({ "quiz_type":"BONUS", "date": { $gte: datetimec, $lt: datetimef }})
-        if(questions) {
-            onesignal.sendNewChallengeMsg()
+    var j = schedule.scheduleJob('30 13 * * *', function (date) {
+        var datetimec =  moment().tz('Asia/Kolkata').isBefore(moment().tz('Asia/Kolkata').startOf("day").add(19, "hours")) ?
+        moment().tz('Asia/Kolkata').startOf("day").subtract(1, "days") : moment().tz('Asia/Kolkata').startOf("day");
+        var datetimef = moment().tz('Asia/Kolkata').isBefore(moment().tz('Asia/Kolkata').startOf("day").add(19, "hours")) ?
+        moment().tz('Asia/Kolkata').startOf("day") : moment().tz('Asia/Kolkata').startOf("day").add(1, "days");
+        let questions=Question.findOne({ "quiz_type":"BONUS", "date": { $gte: datetimec, $lt: datetimef }});
+        if(questions)
+        {
+            onesignal.sendNewChallengeMsg();
         }
     });
  }
 
 function cleanupWeekly() {
-    schedule.scheduleJob('00 59 23 * * 5', function (date) {
-        User.update({}, {"totalscore_week": 0});
+    schedule.scheduleJob('00 59 23 * * 5',async function (date) {
+        await User.updateMany({},{$set: {totalscore_week: 0}});
     });
  }
  
-function cleanupMonthly() {
-    schedule.scheduleJob('0 0 1 * *', function (date) {
-        User.update({}, {"totalscore_month": 0});
+ function cleanupMonthly() {
+    schedule.scheduleJob('30 18 1 * *', async function (date) {
+        console.log("calllloooooooooS!");
+        //User.update({},{$set: {"totalscore_month": 0}},{'upsert':false,'multi':true});
+        //console.log(User.find({mht_id:29077}, "-_id"));
+       await User.updateMany({},{$set: {totalscore_month: 0}});
+        console.log("end calllloooooooooS!");
     });
  }

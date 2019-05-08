@@ -52,7 +52,7 @@ exports.get_quiz_levelByfilter = async function (req, res, next) {
 //  * @param req {Object} The request.
 //  * @param res {Object} The response.
 //  * @param req.body {Object} The JSON payload.
-//  * @param req.body.level_name {String} quize level 
+//  * @param req.body.level_name {String} quize level
 //  * @param {Function} next
 //  * @return {quize_level}
 //  */
@@ -73,7 +73,7 @@ exports.get_quiz_levelByfilter = async function (req, res, next) {
 //  * @param req {Object} The request.
 //  * @param res {Object} The response.
 //  * @param req.body {Object} The JSON payload.
-//  * @param req.body.level_type {String} quize level type 
+//  * @param req.body.level_type {String} quize level type
 //  * @param {Function} next
 //  * @return {quize_levels}
 //  */
@@ -100,7 +100,7 @@ exports.get_quiz_levelByfilter = async function (req, res, next) {
  * @return {quize_level}
  */
 exports.update_quiz_level = async function (req, res, next) {
-    try {     
+  try {
         let quiz_level = req.body;
         let index = quiz_level.level_index;
         await QuizLevel.updateOne({"level_index":index},
@@ -133,10 +133,9 @@ exports.insert_quiz_level = async function (req, res, next) {
     try {
         let quiz_level = req.body;
         let quiz_levels = [];
-        
+
         quiz_levels = await QuizLevel.find({"level_index": quiz_level.level_index});
-        if(quiz_levels == undefined || quiz_levels == null || quiz_levels.length==0 )
-        {
+      if (quiz_levels == undefined || quiz_levels == null || quiz_levels.length == 0) {
             let quizLevel = new QuizLevel(quiz_level);
             quizLevel.save();
             res.send(200, quizLevel);
