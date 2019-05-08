@@ -105,41 +105,41 @@ exports.list = async function (req, res, next) {
 exports.hint_question = async function (req, res, next) {
     let user_mhtid = req.body.mht_id;
     let question_id = req.body.question_id;
-    let question, scoreAdd;
-    question = await Question.findOne({
-                "question_id": question_id,
-            }, "question_st score reference level");
-    let quiz_level = await QuizLevel.findOne({level_index: question.level});
-    let app_sett = await ApplicationSetting.findOne({});
-    if (app_sett.negative_per_hint > 0) {
-        scoreAdd = app_sett.negative_per_hint;
-    }
-    else {
-        scoreAdd = question.score/2;
-    }
+    // let question, scoreAdd;
+    // question = await Question.findOne({
+    //             "question_id": question_id,
+    //         }, "question_st score reference level");
+    //let quiz_level = await QuizLevel.findOne({level_index: question.level});
+    // let app_sett = await ApplicationSetting.findOne({});
+    // if (app_sett.negative_per_hint > 0) {
+    //     scoreAdd = app_sett.negative_per_hint;
+    // }
+    // else {
+    //     scoreAdd = question.score/2;
+    // }
     try {
-        var datetimetStartWeek = new Date(moment().tz('Asia/Kolkata').day("Saturday").format());
-        var datetimet =new Date(moment().tz('Asia/Kolkata').format());
-        var  datetimeEndMonth=new Date(datetimet.getFullYear(),datetimet.getMonth()+1,1);
-        var datetimeStartMonth=new Date(datetimet.getFullYear(),datetimet.getMonth(),1);
-        var datetimetendWeek=new Date(datetimetStartWeek.getFullYear(),datetimetStartWeek.getMonth(),datetimetStartWeek.getDate()+6);
-        datetimetStartWeek=new Date(datetimetStartWeek.getFullYear(),datetimetStartWeek.getMonth(),datetimetStartWeek.getDate());
+        // var datetimetStartWeek = new Date(moment().tz('Asia/Kolkata').day("Saturday").format());
+        // var datetimet =new Date(moment().tz('Asia/Kolkata').format());
+        // var  datetimeEndMonth=new Date(datetimet.getFullYear(),datetimet.getMonth()+1,1);
+        // var datetimeStartMonth=new Date(datetimet.getFullYear(),datetimet.getMonth(),1);
+        // var datetimetendWeek=new Date(datetimetStartWeek.getFullYear(),datetimetStartWeek.getMonth(),datetimetStartWeek.getDate()+6);
+        // datetimetStartWeek=new Date(datetimetStartWeek.getFullYear(),datetimetStartWeek.getMonth(),datetimetStartWeek.getDate());
 
 
-        let scoreAddMonth=0,scoreAddWeek=0;
-        if(datetimeStartMonth <= quiz_level.start_date && datetimeEndMonth >= quiz_level.start_date)
-        {
-            scoreAddMonth = scoreAdd;
-        }
-        if(datetimetStartWeek <= quiz_level.start_date && datetimetendWeek >= quiz_level.start_date)
-        {
-            scoreAddWeek = scoreAdd;
-        }
-        await User.updateOne(
-            { "mht_id": user_mhtid },
-            {
-                $inc: { "totalscore": (scoreAdd * -1),"totalscore_month": (scoreAddMonth * -1),"totalscore_week": (scoreAddWeek * -1) }
-            });
+        // let scoreAddMonth=0,scoreAddWeek=0;
+        // if(datetimeStartMonth <= quiz_level.start_date && datetimeEndMonth >= quiz_level.start_date)
+        // {
+        //     scoreAddMonth = scoreAdd;
+        // }
+        // if(datetimetStartWeek <= quiz_level.start_date && datetimetendWeek >= quiz_level.start_date)
+        // {
+        //     scoreAddWeek = scoreAdd;
+        // }
+        // await User.updateOne(
+        //     { "mht_id": user_mhtid },
+        //     {
+        //         $inc: { "totalscore": (scoreAdd * -1),"totalscore_month": (scoreAddMonth * -1),"totalscore_week": (scoreAddWeek * -1) }
+        //     });
         let users = await User.findOne({ "mht_id": user_mhtid });
         res.send(200, users);
         next();
