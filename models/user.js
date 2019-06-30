@@ -95,14 +95,10 @@ const UserSchema = new mongoose.Schema({
     type:Date
   },
 
-  totalscore_week: {
-    type: Number,
-    default: 0
+  update_date: {
+    type: Date    
   },
 
-  totalscore_week_update: {
-    type: Date    
-  }
 });
 
 UserSchema.methods.toJSON = function() {

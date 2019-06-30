@@ -81,7 +81,8 @@ const route_definitions = [
             {'path': '/user_state', 'method': 'post', 'receiver': 'user_state'},
             {'path': '/user_state_new', 'method': 'post', 'receiver': 'user_state_new'},
             {'path': '/puzzle_completed', 'method': 'post', 'receiver': 'puzzle_completed'},
-            {'path': '/use_fifty_fifty', 'method': 'post', 'receiver': 'use_fifty_fifty'}
+            {'path': '/use_fifty_fifty', 'method': 'post', 'receiver': 'use_fifty_fifty'},
+            {'path': '/check_user_score', 'method': 'post', 'receiver': 'check_user_score'}
         ]
     },
     {
