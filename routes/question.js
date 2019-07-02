@@ -168,7 +168,7 @@ exports.validate_answer = async function (req, res, next) {
     let user_mhtid = req.body.mht_id;
     let selected_ans = req.body.answer;
     let user_level = req.body.level;
-
+    let currentdate=new Date();
     let question, status, user, scoreAdd,quiz_level;
     try {
         question = await Question.findOne({ "question_id": question_id }, "answer pikacharanswer score quiz_type question_st question_type");
@@ -190,8 +190,8 @@ exports.validate_answer = async function (req, res, next) {
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
                 await User.updateOne({ "mht_id": user_mhtid },
                     {
-                        $inc: { "totalscore": scoreAdd,"totalscore_week": scoreAdd,"totalscore_month": scoreAdd, "bonus": scoreAdd },
-                        $set: { "question_id": question_id }
+                        $inc: { "totalscore": scoreAdd,"totalscore_month": scoreAdd, "bonus": scoreAdd },
+                        $set: { "updatedAt":currentdate,"question_id": question_id }
                     });
                 user = await User.findOne({ "mht_id": user_mhtid });
                 status = { "answer_status": isRightAnswer, "lives": user.lives, "totalscore": user.totalscore,"totalscore_month": user.totalscore_month,"totalscore_week": user.totalscore_week };
@@ -210,9 +210,7 @@ exports.validate_answer = async function (req, res, next) {
             var datetimet = new Date(moment().tz('Asia/Kolkata').format());
             var  datetimeEndMonth = new Date(datetimet.getFullYear(), datetimet.getMonth() + 1, 1);
             var datetimeStartMonth = new Date(datetimet.getFullYear(), datetimet.getMonth(), 1);
-            var datetimetendWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDate() + 6);
-            datetimetStartWeek = new Date(datetimetStartWeek.getFullYear(), datetimetStartWeek.getMonth(), datetimetStartWeek.getDate());
-
+         
             quiz_level = await QuizLevel.findOne({"level_index": user_level});
           let scoreAddMonth = 0, scoreAddWeek = 0;
             if (isRightAnswer) {
@@ -250,16 +248,12 @@ exports.validate_answer = async function (req, res, next) {
                 if(datetimeStartMonth <= quiz_level.start_date && datetimeEndMonth >= quiz_level.start_date)
                 {
                     scoreAddMonth = scoreAdd;
-                }
-                if(datetimetStartWeek <= quiz_level.start_date && datetimetendWeek >= quiz_level.start_date)
-                {
-                    scoreAddWeek=scoreAdd;
-                }
+                } 
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
                 await User.updateOne({ "mht_id": user_mhtid },
                     {
-                        $inc: { "totalscore": scoreAdd,"totalscore_month": scoreAddMonth,"totalscore_week": scoreAddWeek  },
-                        $set: { "question_id": question_id }
+                        $inc: { "totalscore": scoreAdd,"totalscore_month": scoreAddMonth },
+                        $set: { "updatedAt":currentdate,"question_id": question_id }
                     });
                 user = await User.findOne({ "mht_id": user_mhtid });
               status = {
@@ -277,10 +271,7 @@ exports.validate_answer = async function (req, res, next) {
                 {
                     scoreAddMonth=-2;
                 }
-                if(datetimetStartWeek<=quiz_level.start_date && datetimetendWeek>=quiz_level.start_date)
-                {
-                    scoreAddWeek=-2;
-                }
+               
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
                 await User.updateOne({ "mht_id": user_mhtid },
                     {
