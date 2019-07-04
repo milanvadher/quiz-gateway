@@ -104,42 +104,8 @@ exports.list = async function (req, res, next) {
  */
 exports.hint_question = async function (req, res, next) {
     let user_mhtid = req.body.mht_id;
-    let question_id = req.body.question_id;
-    // let question, scoreAdd;
-    // question = await Question.findOne({
-    //             "question_id": question_id,
-    //         }, "question_st score reference level");
-    //let quiz_level = await QuizLevel.findOne({level_index: question.level});
-    // let app_sett = await ApplicationSetting.findOne({});
-    // if (app_sett.negative_per_hint > 0) {
-    //     scoreAdd = app_sett.negative_per_hint;
-    // }
-    // else {
-    //     scoreAdd = question.score/2;
-    // }
     try {
-        // var datetimetStartWeek = new Date(moment().tz('Asia/Kolkata').day("Saturday").format());
-        // var datetimet =new Date(moment().tz('Asia/Kolkata').format());
-        // var  datetimeEndMonth=new Date(datetimet.getFullYear(),datetimet.getMonth()+1,1);
-        // var datetimeStartMonth=new Date(datetimet.getFullYear(),datetimet.getMonth(),1);
-        // var datetimetendWeek=new Date(datetimetStartWeek.getFullYear(),datetimetStartWeek.getMonth(),datetimetStartWeek.getDate()+6);
-        // datetimetStartWeek=new Date(datetimetStartWeek.getFullYear(),datetimetStartWeek.getMonth(),datetimetStartWeek.getDate());
-
-
-        // let scoreAddMonth=0,scoreAddWeek=0;
-        // if(datetimeStartMonth <= quiz_level.start_date && datetimeEndMonth >= quiz_level.start_date)
-        // {
-        //     scoreAddMonth = scoreAdd;
-        // }
-        // if(datetimetStartWeek <= quiz_level.start_date && datetimetendWeek >= quiz_level.start_date)
-        // {
-        //     scoreAddWeek = scoreAdd;
-        // }
-        // await User.updateOne(
-        //     { "mht_id": user_mhtid },
-        //     {
-        //         $inc: { "totalscore": (scoreAdd * -1),"totalscore_month": (scoreAddMonth * -1),"totalscore_week": (scoreAddWeek * -1) }
-        //     });
+      
         let users = await User.findOne({ "mht_id": user_mhtid });
         res.send(200, users);
         next();
@@ -168,14 +134,14 @@ exports.validate_answer = async function (req, res, next) {
     let user_mhtid = req.body.mht_id;
     let selected_ans = req.body.answer;
     let user_level = req.body.level;
-    let currentdate=new Date();
-    let question, status, user, scoreAdd,quiz_level;
+    let currentdate = new Date();
+    let question, status, user, scoreAdd, quiz_level;
     try {
         question = await Question.findOne({ "question_id": question_id }, "answer pikacharanswer score quiz_type question_st question_type");
         scoreAdd = question.score;
 
         let isRightAnswer = false;
-       // console.log(question);
+        // console.log(question);
         if (question.question_type === 'PIKACHAR') {
             if (question.answer[0].answer.replace(' ', '') == selected_ans) {
                 isRightAnswer = true;
@@ -190,29 +156,28 @@ exports.validate_answer = async function (req, res, next) {
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
                 await User.updateOne({ "mht_id": user_mhtid },
                     {
-                        $inc: { "totalscore": scoreAdd,"totalscore_month": scoreAdd, "bonus": scoreAdd },
-                        $set: { "updatedAt":currentdate,"question_id": question_id }
+                        $inc: { "totalscore_month": scoreAdd, "bonus": scoreAdd },
+                        $set: { "updatedAt": currentdate, "question_id": question_id }
                     });
                 user = await User.findOne({ "mht_id": user_mhtid });
-                status = { "answer_status": isRightAnswer, "lives": user.lives, "totalscore": user.totalscore,"totalscore_month": user.totalscore_month,"totalscore_week": user.totalscore_week };
+                status = { "answer_status": isRightAnswer, "totalscore_month": user.totalscore_month };
             }
             else {
 
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
-                status = { "answer_status": isRightAnswer, "lives": user.lives, "totalscore": user.totalscore,"totalscore_month": user.totalscore_month,"totalscore_week": user.totalscore_week };
+                status = { "answer_status": isRightAnswer, "totalscore_month": user.totalscore_month };
             }
-            let UAMObj = new UserAnswerMapping({ "mht_id": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type, "answer":selected_ans, "answer_status": isRightAnswer });
+            let UAMObj = new UserAnswerMapping({ "mht_id": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type, "answer": selected_ans, "answer_status": isRightAnswer });
             // entry in user answer, in case of bonus.
             await UAMObj.save();
         }
         else {
-            var datetimetStartWeek = new Date(moment().tz('Asia/Kolkata').day("Saturday").format());
             var datetimet = new Date(moment().tz('Asia/Kolkata').format());
-            var  datetimeEndMonth = new Date(datetimet.getFullYear(), datetimet.getMonth() + 1, 1);
+            var datetimeEndMonth = new Date(datetimet.getFullYear(), datetimet.getMonth() + 1, 1);
             var datetimeStartMonth = new Date(datetimet.getFullYear(), datetimet.getMonth(), 1);
-         
-            quiz_level = await QuizLevel.findOne({"level_index": user_level});
-          let scoreAddMonth = 0, scoreAddWeek = 0;
+
+            quiz_level = await QuizLevel.findOne({ "level_index": user_level });
+            let scoreAddMonth = 0, scoreAddWeek = 0;
             if (isRightAnswer) {
 
                 let user_score = await UserScore.findOne({
@@ -223,10 +188,10 @@ exports.validate_answer = async function (req, res, next) {
                 await UserScore.updateOne({
                     "mht_id": user_mhtid,
                     "level": user_level
-                    },
+                },
                     {
                         $inc: { "score": scoreAdd, "total_questions": 1 },
-                      $set: {"question_st": new_question_st, "question_read_st": question.question_st}
+                        $set: { "question_st": new_question_st, "question_read_st": question.question_st }
                     });
                 // let user_score = await UserScore.findOne({
                 //     "mht_id": user_mhtid,
@@ -245,59 +210,48 @@ exports.validate_answer = async function (req, res, next) {
                     new_question_st = question.question_st;
                 }
 
-                if(datetimeStartMonth <= quiz_level.start_date && datetimeEndMonth >= quiz_level.start_date)
-                {
+                if (datetimeStartMonth <= quiz_level.start_date && datetimeEndMonth >= quiz_level.start_date) {
                     scoreAddMonth = scoreAdd;
-                } 
+                }
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
                 await User.updateOne({ "mht_id": user_mhtid },
                     {
-                        $inc: { "totalscore": scoreAdd,"totalscore_month": scoreAddMonth },
-                        $set: { "updatedAt":currentdate,"question_id": question_id }
+                        $inc: {  "totalscore_month": scoreAddMonth },
+                        $set: { "updatedAt": currentdate, "question_id": question_id }
                     });
                 user = await User.findOne({ "mht_id": user_mhtid });
-              status = {
-                "answer_status": isRightAnswer,
-                "lives": user.lives,
-                "totalscore": user.totalscore,
-                "totalscore_month": user.totalscore_month,
-                "totalscore_week": user.totalscore_week,
-                "question_st": new_question_st,
-                "question_read_st": question.question_st
-              };
+                status = {
+                    "answer_status": isRightAnswer,
+                    "totalscore_month": user.totalscore_month,
+                    "question_st": new_question_st,
+                    "question_read_st": question.question_st
+                };
             } else {
 
-                if(datetimeStartMonth<=quiz_level.start_date && datetimeEndMonth>=quiz_level.start_date)
-                {
-                    scoreAddMonth=-2;
+                if (datetimeStartMonth <= quiz_level.start_date && datetimeEndMonth >= quiz_level.start_date) {
+                    scoreAddMonth = -2;
                 }
-               
+
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
                 await User.updateOne({ "mht_id": user_mhtid },
                     {
-                        $inc: { "lives": -1, "totalscore": -2,"totalscore_month": scoreAddMonth,"totalscore_week": scoreAddWeek  },
+                        $inc: { "totalscore_month": scoreAddMonth },
                         $set: { "question_id": question_id }
                     });
                 user = await User.findOne({ "mht_id": user_mhtid });
-              status = {
-                "answer_status": isRightAnswer,
-                "lives": user.lives,
-                "totalscore": user.totalscore,
-                "totalscore_month": user.totalscore_month,
-                "totalscore_week": user.totalscore_week,
-                "question_st": question.question_st,
-                "question_read_st": question.question_st
-              };
+                status = {
+                    "answer_status": isRightAnswer,
+                    "totalscore_month": user.totalscore_month,
+                    "question_st": question.question_st,
+                    "question_read_st": question.question_st
+                };
             }
-                //console.log('tet');
-                let UAMObj = await UserAnswerMapping.findOne({"mht_id": user_mhtid, "question_id": question_id});
-                //console.log(UAMObj);
-                if(UAMObj==null)
-                {
-                    UAMObj = new UserAnswerMapping({ "mht_id": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type,  "answer":selected_ans, "answer_status": isRightAnswer });
-                    // entry in user answer, if answer is right and in case of regular.
-                    await UAMObj.save();
-                }
+            let UAMObj = await UserAnswerMapping.findOne({ "mht_id": user_mhtid, "question_id": question_id });
+            if (UAMObj == null) {
+                UAMObj = new UserAnswerMapping({ "mht_id": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type, "answer": selected_ans, "answer_status": isRightAnswer });
+                // entry in user answer, if answer is right and in case of regular.
+                await UAMObj.save();
+            }
         }
 
         res.send(200, status);
@@ -317,42 +271,41 @@ exports.validate_answer = async function (req, res, next) {
  * @returns {Promise<void>}
  */
 exports.mark_read = async function (req, res, next) {
-  let question_id = req.body.question_id;
-  let user_mhtid = req.body.mht_id;
-  let user_level = req.body.level;
-  let question_st = req.body.question_st;
+    let question_id = req.body.question_id;
+    let user_mhtid = req.body.mht_id;
+    let user_level = req.body.level;
+    let question_st = req.body.question_st;
 
-  try {
-    console.log(user_mhtid, user_level);
-    let user_score = await UserScore.findOne({
-      "mht_id": user_mhtid,
-      "completed": false,
-      "level": user_level
-    });
+    try {
+        console.log(user_mhtid, user_level);
+        let user_score = await UserScore.findOne({
+            "mht_id": user_mhtid,
+            "completed": false,
+            "level": user_level
+        });
 
-    let currentLevel = await QuizLevel.findOne({
-      "level_index": user_level
-    });
+        let currentLevel = await QuizLevel.findOne({
+            "level_index": user_level
+        });
 
-    if (question_st >= currentLevel.total_questions) {
-      user_score.completed = true;
+        if (question_st >= currentLevel.total_questions) {
+            user_score.completed = true;
+        }
+
+        user_score.question_read_st = question_st;
+
+        user_score.save();
+        res.send(200, {
+            "question_read_st": question_st,
+            "completed": user_score.completed
+        });
+        next();
+
+    } catch (error) {
+        console.log(error);
+        res.send(500, new Error(error));
+        next();
     }
-
-    console.log("user_score", user_score);
-    user_score.question_read_st = question_st;
-
-    user_score.save();
-    res.send(200, {
-      "question_read_st": question_st,
-      "completed": user_score.completed
-    });
-    next();
-
-  } catch (error) {
-    console.log(error);
-    res.send(500, new Error(error));
-    next();
-  }
 
 };
 
@@ -367,10 +320,10 @@ exports.mark_read = async function (req, res, next) {
  */
 exports.get_bonus_question = async function (req, res, next) {
     let mhtid = req.body.mht_id;
-    var datetimec =  moment().tz('Asia/Kolkata').isBefore(moment().tz('Asia/Kolkata').startOf("day").add(19, "hours")) ?
-    moment().tz('Asia/Kolkata').startOf("day").subtract(1, "days") : moment().tz('Asia/Kolkata').startOf("day");
+    var datetimec = moment().tz('Asia/Kolkata').isBefore(moment().tz('Asia/Kolkata').startOf("day").add(19, "hours")) ?
+        moment().tz('Asia/Kolkata').startOf("day").subtract(1, "days") : moment().tz('Asia/Kolkata').startOf("day");
     var datetimef = moment().tz('Asia/Kolkata').isBefore(moment().tz('Asia/Kolkata').startOf("day").add(19, "hours")) ?
-    moment().tz('Asia/Kolkata').startOf("day") : moment().tz('Asia/Kolkata').startOf("day").add(1, "days");
+        moment().tz('Asia/Kolkata').startOf("day") : moment().tz('Asia/Kolkata').startOf("day").add(1, "days");
     let question, usersanwered;
 
     try {
@@ -391,15 +344,15 @@ exports.get_bonus_question = async function (req, res, next) {
         }, "-_id");
 
 
-      res.charSet('utf-8');
-        if(question.length > 0) {
+        res.charSet('utf-8');
+        if (question.length > 0) {
             res.send(200, question);
         } else {
-            res.send(200, {msg: 'You have already finished Daily Bonus'});
+            res.send(200, { msg: 'You have already finished Daily Bonus' });
         }
         next();
     } catch (error) {
-          console.log(error);
+        console.log(error);
         res.send(500, new Error(error));
         next();
     }
@@ -428,7 +381,7 @@ exports.req_life = async function (req, res, next) {
                 "mht_id": user.mht_id
             },
                 {
-                  $inc: {"lives": 1, "totalscore": (app_setting.score_per_lives * -1)}
+                    $inc: { "lives": 1, "totalscore": (app_setting.score_per_lives * -1) }
                 });
             let users = await User.findOne({
                 "mht_id": mht_id
@@ -467,7 +420,7 @@ exports.puzzle_completed = async function (req, res, next) {
         let app_setting = await ApplicationSetting.findOne({});
         await User.updateOne({ "mht_id": mht_id, "$where": "this.lives < " + app_setting.total_lives }, { $inc: { "lives": inc_lives } });
         let user = await User.findOne({ "mht_id": mht_id });
-        res.send(200, { "lives": user.lives,"totalscore": user.totalscore,"totalscore_month": user.totalscore_month,"totalscore_week": user.totalscore_week });
+        res.send(200, { "totalscore_month": user.totalscore_month   });
         next();
     } catch (error) {
         console.log(error);
@@ -476,39 +429,37 @@ exports.puzzle_completed = async function (req, res, next) {
     }
 };
 
-async function resetMonthWeekScore(mht_id)
-{
-    var datetimet =new Date(moment().tz('Asia/Kolkata').format());
-    var datetimetMonth = new Date(datetimet.getFullYear(), datetimet.getMonth() + 1 ,1);
-    var datetimetWeek = new Date(moment().tz('Asia/Kolkata').day("Monday").format());
+/**
+ * Check level exist or in user score if not then add new level.
+ * @param req {Object} The request.
+ * @param res {Object} The response.
+ * @param req.body {Object} The JSON payload.
+ * @param req.body.mhtid {String} The User mhtid
+ * @param {Function} next
+ * @return {userCore}
+ */
+exports.check_user_level = async function (req, res, next) {
+    let mht_id = req.body.mht_id;
+    let level = req.body.level;
+    let question_st = req.body.question_st;
 
-    //var curDate=new Date();
-    var weekday = new Array(7);
-    weekday[0] = "Sunday";
-    weekday[1] = "Monday";
-    weekday[2] = "Tuesday";
-    weekday[3] = "Wednesday";
-    weekday[4] = "Thursday";
-    weekday[5] = "Friday";
-    weekday[6] = "Saturday";
-    var n = weekday[datetimet.getDay()];
-    if((datetimet.getDay() )==1)
-    {
-        let user = await User.findOne({ "mht_id": mht_id });
-        if(user.totalscore_month_update==undefined||user.totalscore_month_update<=datetimet)
-        {
-            await User.updateOne({ "mht_id": mht_id },{$set : {"totalscore_month": 0,"totalscore_month_update":datetimetMonth}});
+    try {
+        let userCore = await UserScore.findOne({ "mht_id": mht_id, "level": level });
+        if (!userCore) {
+            await UserScore.create({
+                "mht_id": mht_id,
+                "level": level,
+                "total_questions": 0,
+                "question_st": question_st,
+                "question_read_st": 0
+            });
+            userCore = await UserScore.findOne({ "mht_id": mht_id, "level": level });
         }
-    }
-    if(n=='Monday')
-    {
-        let user = await User.findOne({ "mht_id": mht_id });
-        console.log(user.totalscore_week_update);
-        console.log(datetimet);
-        if(user.totalscore_week_update==undefined||user.totalscore_week_update>=datetimet)
-        {
-            await User.updateOne({ "mht_id": mht_id },{$set : {"totalscore_week": 0,"totalscore_week_update":datetimetWeek}});
-        }
+        res.send(200, { "results": userCore });
+        next();
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
     }
 }
 
@@ -524,20 +475,24 @@ async function resetMonthWeekScore(mht_id)
 exports.user_state = async function (req, res, next) {
     let mht_id = req.body.mht_id;
     let results;
-   //await resetMonthWeekScore(mht_id);
     var datetime = new Date();
     try {
         let user = await User.findOne({ "mht_id": mht_id });
         if (!user) {
             return res.send(500, { msg: "User does not exist !!!" });
         }
-        var dt = `${datetime.getFullYear()}-${datetime.getMonth() + 1}-${datetime.getDate() + 1}`;
-        //var datetimef = new Date(dt);
-        dt = `${datetime.getFullYear()}-${datetime.getMonth() + 1}-${datetime.getDate()}`;
+        var dtStartstr = `${datetime.getFullYear()}-${datetime.getMonth() + 1}-${1}`;
+        var dt = `${datetime.getFullYear()}-${datetime.getMonth() + 2}-${1}`;
+        
         var datetimet = new Date(dt);
+        var dtStart = new Date(dtStartstr);
+        // console.log("datetime",datetime);
+        // console.log("dtStartstr",dtStartstr);
+        // console.log("dtStart",dtStart);
+        // console.log("datetimet",datetimet);
+        
         results = await Promise.all([
             // Find all levels
-
             QuizLevel.aggregate([{
                 $lookup: {
                     from: "questions",
@@ -549,8 +504,8 @@ exports.user_state = async function (req, res, next) {
                 $match:
                 {
                     $and: [
-                        { "start_date": { $lte: datetimet } },
-                        { $or: [{ "end_date": { $type: 10 } }, { "end_date": { $gt: datetimet } }] }
+                        { "start_date": { $gte: dtStart } },
+                        { $or: [{ "end_date": { $type: 10 } }, { "end_date": { $lt: datetimet } }] }
                     ]
                 }
             },
@@ -574,238 +529,79 @@ exports.user_state = async function (req, res, next) {
             UserScore.find({
                 "mht_id": mht_id,
                 "completed": false
-            }, "-_id")
+            }, "-_id"),
+
+            QuizLevel.aggregate([{
+                $lookup: {
+                    from: "questions",
+                    localField: "level_index",
+                    foreignField: "level",
+                    as: "questiondetails"
+                }
+            }, {
+                $match:
+                {
+                    $and: [
+                        { "start_date": { $lt: dtStart } }
+                    ]
+                }
+            },
+            {
+                $project: {
+                    "_id": 0,
+                    "level_index": 1, "name": 1, "level_type": 1
+                    , "total_questions": 1, "categorys": 1, "start_date": 1, "end_date": 1, "description": 1, "imagepath": 1
+                    , "totalscores": { $sum: "$questiondetails.score" }
+                }
+            }
+            ]),
         ]);
 
         let current_user_level = results[2];
         let completed_levels = results[1];
-        let levels = results[0];
-        let level_current;
+        //let level_current;
         if ((!current_user_level || current_user_level.length == 0) && (!completed_levels || completed_levels.length == 0)) {
-            level_current = 1;
+            //  level_current = 1;
             results[2] = [await UserScore.create({
                 "mht_id": mht_id,
                 "total_questions": 0
             })];
-        } else if ((!current_user_level || current_user_level.length == 0) && completed_levels) {
-            // let total_question = 10;
-            // if (levels.length > completed_levels.length) {
-            //     //get total Questions for current level.
-            //     total_question = levels[completed_levels[completed_levels.length - 1].level].total_questions;
-            // }
-
-            let question = await Question.find({ "level": level_current }, "question_st");
-            results[2] = [await UserScore.create({
-                "mht_id": mht_id,
-                "level": completed_levels.length + 1,
-                "total_questions": 0,
-                "question_st": question.question_st,
-                "question_read_st": 0
-
-            })];
-            level_current = completed_levels.length + 1;
         }
-        else {
-            level_current = current_user_level[0].level;
-        }
-        response = {
-            "quiz_levels": results[0],
-            "completed": results[1],
-            "current": results[2],
-            "totalscore": user.totalscore,
-            "totalscore_month": user.totalscore_month,
-            "totalscore_week": user.totalscore_week,
-            "lives": user.lives
-            //,             "bonus_count": results[3]
-        }
-        res.send(200, { "results": response });
-        next();
-    } catch (error) {
-        res.send(500, new Error(error));
-        next();
-    }
-};
+        // else if ((!current_user_level || current_user_level.length == 0) && completed_levels) {
+        //     // let total_question = 10;
+        //     // if (levels.length > completed_levels.length) {
+        //     //     //get total Questions for current level.
+        //     //     total_question = levels[completed_levels[completed_levels.length - 1].level].total_questions;
+        //     // }
 
-exports.user_state_new = async function (req, res, next) {
-    let mht_id = req.body.mht_id;
-    let results;
-    var datetime = new Date();
-    try {
-        let user = await User.findOne({ "mht_id": mht_id });
-        if (!user) {
-            return res.send(500, { msg: "User does not exist !!!" });
-        }
-        var dt = `${datetime.getFullYear()}-${datetime.getMonth() + 1}-${datetime.getDate() + 1}`;
-        var datetimef = new Date(dt);
-        dt = `${datetime.getFullYear()}-${datetime.getMonth() + 1}-${datetime.getDate()}`;
-        var datetimet = new Date(dt);
-        results = await Promise.all([
-            // Find all levels
+        //     //let question = await Question.find({ "level": level_current }, "question_st");
+        //     // results[2] = [await UserScore.create({
+        //     //     "mht_id": mht_id,
+        //     //     "level": completed_levels.length + 1,
+        //     //     "total_questions": 0,
+        //     //     "question_st": question.question_st,
+        //     //     "question_read_st": 0
 
-            // $type : 10 --> 10 it's Check type to null
-            // QuizLevel.find( {
-            //     $and : [
-            //         { "start_date" :  { $lte: datetimet}  },
-            //         { $or : [ { "end_date" : { $type : 10 } }, { "end_date" : { $gt : datetimet } } ] }
-            //     ]
-            // } ),
-
-            QuizLevel.aggregate([{
-                $lookup: {
-                    from: "questions",
-                    localField: "level_index",
-                    foreignField: "level",
-                    as: "questiondetails"
-                }
-            }, {
-                $match:
-                {
-                    $and: [
-                        { "start_date": { $lte: datetimet } },
-                        { $or: [{ "end_date": { $type: 10 } }, { "end_date": { $gt: datetimet } }] }
-                    ]
-                }
-            },
-            {
-                $project: {
-                    "_id": 0,
-                    "level_index": 1, "name": 1, "level_type": 1
-                    , "total_questions": 1, "categorys": 1, "start_date": 1, "end_date": 1, "description": 1, "imagepath": 1
-                    , "totalscores": { $sum: "$questiondetails.score" }
-                }
-            }
-            ]),
-
-            // Find levels that user has already completed
-            UserScore.find({
-                "mht_id": mht_id,
-                "completed": true
-            }, "level score fifty_fifty -_id"),
-
-            // Find current level of user
-            UserScore.find({
-                "mht_id": mht_id,
-                "completed": false
-            }, "-_id")
-            , Question.aggregate(
-                [
-                    {
-                        "$project": {
-                            "_id": 0,
-                            "qu": "$$ROOT"
-                        }
-                    },
-                    {
-                        "$lookup": {
-                            "localField": "qu.question_id",
-                            "from": "useranswermappings",
-                            "foreignField": "question_id",
-                            "as": "uam"
-                        }
-                    },
-                    {
-                        "$unwind": {
-                            "path": "$uam",
-                            "preserveNullAndEmptyArrays": true
-                        }
-                    },
-                    {
-                        "$match": {
-                            "qu.quiz_type": "BONUS",
-                            //"qu.date": { "$gte": datetimecb, "$lt": datetimefb },
-                            "$or": [
-                                {
-                                    "uam": null
-                                },
-                                {
-                                    "uam.mht_id": mht_id
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "$project": {
-                            "qu.question_id": "$qu.question_id",
-                            "qu.quiz_type": "$qu.quiz_type",
-                            "qu.question_st": "$qu.question_st",
-                            "uam.question_id": "$uam.question_id",
-                            "uam.mht_id": "$uam.mht_id"
-                        }
-                    }
-                ])
-        ]);
-        //console.log(results);
-        let current_user_level = results[2];
-        let completed_levels = results[1];
-        let levels = results[0];
-        let level_current;
-        if ((!current_user_level || current_user_level.length == 0) && (!completed_levels || completed_levels.length == 0)) {
-            level_current = 1;
-            results[2] = [await UserScore.create({
-                "mht_id": mht_id,
-                "total_questions": levels[0].total_questions
-            })];
-        } else if ((!current_user_level || current_user_level.length == 0) && completed_levels) {
-            let total_question = 0;
-            if (levels.length > completed_levels.length) {
-                //get total Questions for current level.
-                total_question = levels[completed_levels[completed_levels.length - 1].level].total_questions;
-            }
-
-            let question = await Question.find({ "level": level_current }, "question_st");
-            results[2] = [await UserScore.create({
-                "mht_id": mht_id,
-                "level": completed_levels.length + 1,
-                "total_questions": total_question,
-                "question_st": question.question_st
-
-            })];
-            level_current = completed_levels.length + 1;
-        }
-        else {
-            level_current = current_user_level[0].level;
-        }
-        // var datetime = new Date();
-        // var dt = datetime.getFullYear() + "-" + (datetime.getMonth() + 1) + "-" + (datetime.getDate() - 1);
-        // //console.log(dt)
-        // var datetimec = new Date(dt);
-        // dt = datetime.getFullYear() + "-" + (datetime.getMonth() + 1) + "-" + (datetime.getDate() + 1);
-        // var datetimef = new Date(dt);
-
-        //let question, usersanwered;
-        // try {
-        //     // Commet below code as created new query for mongo
-        //     usersanwered = await UserAnswerMapping.find({
-        //         "mht_id": mht_id,
-        //         "quiz_type": "BONUS"
-        //     }, "question_id -_id");
-        //     let qidarrya = [];
-        //     if (!usersanwered || usersanwered.length > 0) {
-        //         //console.log(datetime +'pppp');
-        //         usersanwered.forEach(o => {
-        //             qidarrya.push(o.question_id);
-        //         })
-        //     }
-        //     question = await Question.find({
-        //         "quiz_type": "BONUS",
-        //         "date": { $gte: datetimec, $lt: datetimef },
-        //         "question_id": { $nin: qidarrya }
-        //     }, "-_id");
-        // } catch (error) {
-        //     console.log(error);
+        //     // })];
+        //     //level_current = completed_levels.length + 1;
+        // }
+        // else {
+        //     //level_current = current_user_level[0].level;
         // }
         response = {
             "quiz_levels": results[0],
             "completed": results[1],
             "current": results[2],
-            "totalscore": user.totalscore,
-            "lives": user.lives,
-            "bonus_count": results[3]
+            //"totalscore": user.totalscore,
+            "totalscore_month": user.totalscore_month,
+            "quiz_levels_monthly": results[3],
+            //"totalscore_week": user.totalscore_week,
+            //"lives": user.lives
+            //,             "bonus_count": results[3]
         }
         res.send(200, { "results": response });
         next();
     } catch (error) {
-        console.log(error);
         res.send(500, new Error(error));
         next();
     }
@@ -817,7 +613,7 @@ exports.use_fifty_fifty = async function (req, res, next) {
         let user_score = await UserScore.updateOne({
             "mht_id": mht_id,
             "level": level
-        }, {$set: {fifty_fifty: false}});
+        }, { $set: { fifty_fifty: false } });
         res.send(200, user_score);
         next();
     } catch (error) {
