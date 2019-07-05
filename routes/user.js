@@ -176,129 +176,6 @@ exports.list = async function (req, res, next) {
 /**
  * To get rank, you need to send mht_id of the user of whose rank is needed in the header
  */
-exports.leader_center = async function (req, res, next) {
-    try {
-      let leaders = await User.aggregate([
-            {
-                $group : {
-                  "_id": {"center": "$center"},
-                    //"mobile": 1,"password":1,
-                  "totalscores": { $avg: "$totalscore" }
-                }
-            },
-             { $sort : { totalscore: -1,lives: -1,createdAt: -1 } }
-            ]);
-
-
-        let userRank;
-
-        // Send MHT-ID in header
-        // If mht_id not sent, or wrong MHT-id sent, if fails silently
-        try {
-            userRank = await getRank(leaders, req.headers.mht_id);
-        }
-        catch (e) {
-            console.log(e);
-        }
-
-        if (leaders) {
-            res.send(200, {
-                leaders,
-                userRank
-            });
-            next();
-        }
-    } catch (error) {
-        console.log(error);
-        res.send(500, new Error(error));
-        next();
-    }
-};
-/**
- * To get rank, you need to send mht_id of the user of whose rank is needed in the header
- */
-exports.leader_internal_center = async function (req, res, next) {
-    try {
-        let leaders = await User.find(
-            {"center":req.body.center},
-            null,
-            {
-                sort: {
-                    totalscore: -1,
-                    lives: -1,
-                    createdAt: -1
-                }
-            });
-
-
-        let userRank;
-
-        // Send MHT-ID in header
-        // If mht_id not sent, or wrong MHT-id sent, if fails silently
-        try {
-            userRank = await getRank(leaders, req.headers.mht_id);
-        }
-        catch (e) {
-            console.log(e);
-        }
-
-        if (leaders) {
-            res.send(200, {
-                leaders,
-                userRank
-            });
-            next();
-        }
-    } catch (error) {
-        console.log(error);
-        res.send(500, new Error(error));
-        next();
-    }
-};
-/**
- * To get rank, you need to send mht_id of the user of whose rank is needed in the header
- */
-exports.leaders = async function (req, res, next) {
-    try {
-        let leaders = await User.find(
-            {user_group :{$in: ['MBA']}},
-            "-img",
-            {
-                sort: {
-                    totalscore: -1,
-                    lives: -1,
-                    createdAt: 1
-                }
-            });
-
-
-        let userRank;
-
-        // Send MHT-ID in header
-        // If mht_id not sent, or wrong MHT-id sent, if fails silently
-        try {
-            userRank = await getRank(leaders, req.headers.mht_id);
-        }
-        catch (e) {
-            console.log(e);
-        }
-
-        if (leaders) {
-            res.send(200, {
-                leaders,
-                userRank
-            });
-            next();
-        }
-    } catch (error) {
-        res.send(500, new Error(error));
-        next();
-    }
-};
-
-/**
- * To get rank, you need to send mht_id of the user of whose rank is needed in the header
- */
 exports.leaders_month = async function (req, res, next) {
     try {
         let leaders = await User.find(
@@ -337,46 +214,6 @@ exports.leaders_month = async function (req, res, next) {
     }
 };
 
-/**
- * To get rank, you need to send mht_id of the user of whose rank is needed in the header
- */
-exports.leaders_week = async function (req, res, next) {
-    try {
-        let leaders = await User.find(
-            {user_group :{$in: ['MBA']}},
-            "-img",
-            {
-                sort: {
-                    totalscore_week: -1,
-                    lives: -1,
-                    updatedAt: 1
-                }
-            });
-
-
-        let userRank;
-
-        // Send MHT-ID in header
-        // If mht_id not sent, or wrong MHT-id sent, if fails silently
-        try {
-            userRank = await getRank(leaders, req.headers.mht_id);
-        }
-        catch (e) {
-            console.log(e);
-        }
-
-        if (leaders) {
-            res.send(200, {
-                leaders,
-                userRank
-            });
-            next();
-        }
-    } catch (error) {
-        res.send(500, new Error(error));
-        next();
-    }
-};
 /**
  * Delete user by _id
  * @param req {Object} The request.
@@ -678,9 +515,9 @@ exports.upload_photo = async function(req, res, next) {
     try {
         let mht_id = req.body.mht_id;
         let image = req.body.image;
-        await User.updateOne({mht_id: mht_id}, {$set: {img: image}});
+        await User.updateOne({mht_id: mht_id}, {$set: {img: image},$inc: {profile_img_version_num: 1}});
         let user = await User.findOne({mht_id: mht_id});
-        res.send(200, {image: user.img});
+        res.send(200, {image: user.img, profile_img_version_num: user.profile_img_version_num});
         next();
     } catch (error) {
         console.log(error);

@@ -74,6 +74,11 @@ const UserSchema = new mongoose.Schema({
     type: String
   },
 
+  profile_img_version_num:{
+    type: Number,
+    default: 1    
+  },
+
   user_group: {
     type: String,
     enum: ['SANKUL','MBA'],
@@ -84,7 +89,6 @@ const UserSchema = new mongoose.Schema({
   token: {
     type: String
   },
-
 
   totalscore_month: {
     type: Number,

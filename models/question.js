@@ -58,6 +58,11 @@ const QuestionSchema = new mongoose.Schema({
     trim: true
   },
 
+  artifact_url: {
+    type: String,
+    trim: true
+  },
+
   artifact_path: {
     type: String,
     trim: true
