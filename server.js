@@ -96,7 +96,7 @@ server.listen(3001, () => {
     //cleanupWeekly();
     cleanupMonthly();
     // mongoose.connect(config.db.uri, { useMongoClient: true });
-    mongoose.connect('mongodb://127.0.0.1:27017/QuizGateWay-Development', { useNewUrlParser: true }).then(() => {
+    mongoose.connect('mongodb://127.0.0.1:27017/quizgateway', { useNewUrlParser: true }).then(() => {
         console.log('Connected to DB Successfully !! ');
     });
 

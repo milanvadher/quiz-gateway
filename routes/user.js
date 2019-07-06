@@ -15,6 +15,8 @@ const User = require('../models/user');
 const MBAData = require('../models/mbadata');
 const ApplicationSetting = require('../models/app_setting');
 const Feedback = require('../models/feedback');
+const Dropbox = require('./dropbox');
+
 
 const TokenCache = require('../utility/token_cache');
 const token_cache = new TokenCache().getInstance();
@@ -678,9 +680,20 @@ exports.upload_photo = async function(req, res, next) {
     try {
         let mht_id = req.body.mht_id;
         let image = req.body.image;
-        var img_dropbox_url = await Dropbox.upload_and_sharelink(image, media_name);
-        await User.updateOne({mht_id: mht_id}, {$set: {img_dropbox_url: 'img_dropbox_url'},$inc: {profile_img_version_num: 1}});
         let user = await User.findOne({mht_id: mht_id});
+        var image_name = 'img_mht_'+mht_id+'_v'+user.profile_img_version_num+'.png';
+        var img_dropbox_url = await Dropbox.upload_and_sharelink(image, image_name);
+        console.log("img_dropbox_url ", img_dropbox_url);
+        await User.updateMany(
+          {"mht_id": mht_id},
+          { $inc: { profile_img_version_num: 1 }},
+        );
+
+        await User.updateOne({ "mht_id": mht_id},
+            {$set: { "img_dropbox_url": img_dropbox_url}}
+        );
+
+        console.log('user.img_dropbox_url ', user.img_dropbox_url);
         res.send(200, {profile_img_version_num: user.profile_img_version_num, img_dropbox_url:user.img_dropbox_url});
         next();
     } catch (error) {

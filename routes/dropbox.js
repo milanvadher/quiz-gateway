@@ -25,7 +25,7 @@ async function upload_file(tmp_media_name, media_name) {
     });
 }
 
-async function upload_and_sharelink(img_base64, media_name){
+exports.upload_and_sharelink = async function (img_base64, media_name){
     return new Promise(function(resolve, reject) {
         var tmp_media_name = tmp.tmpNameSync();
         var data = img_base64.replace(/^data:image\/\w+;base64,/, '');
@@ -73,3 +73,9 @@ async function upload_and_sharelink(img_base64, media_name){
 //     // var download_url = await upload_and_sharelink(img_base64, media_name);
 //     console.log("download_url ", download_url);
 // })();
+
+// Test payload for postman
+// {
+//     "mht_id":29077,
+//     "image":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
+// }

@@ -16,3 +16,6 @@
 
 [1.0.1]: https://github.com/milanvadher/quiz-gateway/releases/tag/v1.0.1
 [1.0.0]: https://github.com/milanvadher/quiz-gateway/releases/tag/v1.0.0
+
+db.users.updateMany({}, {$set: {img_dropbox_url: ""}});
+db.users.updateMany({}, {$set: {profile_img_version_num: 0}});
