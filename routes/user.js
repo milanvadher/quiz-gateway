@@ -678,9 +678,10 @@ exports.upload_photo = async function(req, res, next) {
     try {
         let mht_id = req.body.mht_id;
         let image = req.body.image;
-        await User.updateOne({mht_id: mht_id}, {$set: {img: image}});
+        var img_dropbox_url = await Dropbox.upload_and_sharelink(image, media_name);
+        await User.updateOne({mht_id: mht_id}, {$set: {img_dropbox_url: 'img_dropbox_url'},$inc: {profile_img_version_num: 1}});
         let user = await User.findOne({mht_id: mht_id});
-        res.send(200, {image: user.img});
+        res.send(200, {profile_img_version_num: user.profile_img_version_num, img_dropbox_url:user.img_dropbox_url});
         next();
     } catch (error) {
         console.log(error);
