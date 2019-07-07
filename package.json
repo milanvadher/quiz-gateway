@@ -21,7 +21,8 @@
     "restify": "7.3.0",
     "restify-cors-middleware": "1.1.1",
     "restify-errors": "6.1.1",
-    "restify-plugins": "1.6.0"
+    "restify-plugins": "1.6.0",
+    "dropbox-v2-api": "2.4.2"
   },
   "devDependencies": {
     "mongoose-faker": "^1.0.0",
