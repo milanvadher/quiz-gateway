@@ -140,10 +140,20 @@ function cleanupWeekly() {
  
  function cleanupMonthly() {
     schedule.scheduleJob('30 18 1 * *', async function (date) {
-        console.log("calllloooooooooS!");
-        //User.update({},{$set: {"totalscore_month": 0}},{'upsert':false,'multi':true});
-        //console.log(User.find({mht_id:29077}, "-_id"));
+        
+        let userSc = await User.find({ "totalscore_month": { $gt: 0 } }, "mht_id totalscore_month -id");
+        if (!userSc || userSc.length > 0) {
+            userSc.forEach(o => {
+                let userhistory = new UserHistory(
+                    {
+                        "mht_id": o.mhti_id,
+                        "monthlyscore": o.totalscore_month,
+                        "monthdate": date
+                    }
+                );
+                await userhistory.save();
+            })
+        }
        await User.updateMany({},{$set: {totalscore_month: 0}});
-        console.log("end calllloooooooooS!");
     });
  }

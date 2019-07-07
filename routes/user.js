@@ -12,6 +12,7 @@ const fs = require('fs');
  * Model Schema
  */
 const User = require('../models/user');
+const UsersHistory = require('../models/usershistory');
 const MBAData = require('../models/mbadata');
 const ApplicationSetting = require('../models/app_setting');
 const Feedback = require('../models/feedback');
@@ -212,14 +213,8 @@ exports.leader_center = async function(req, res, next) {
                 "totalscores": {
                     $avg: "$totalscore"
                 }
-            }
-        }, {
-            $sort: {
-                totalscore: -1,
-                lives: -1,
-                createdAt: -1
-            }
-        }]);
+            }, { $sort : { totalscore: -1,lives: -1,updatedAt: -1 } }
+            ]);
 
 
         let userRank;
@@ -229,6 +224,42 @@ exports.leader_center = async function(req, res, next) {
         try {
             userRank = await getRank(leaders, req.headers.mht_id);
         } catch (e) {
+            console.log(e);
+        }
+
+        if (leaders) {
+            res.send(200, {
+                leaders,
+                userRank
+            });
+            next();
+        }
+    } catch (error) {
+        console.log(error);
+        res.send(500, new Error(error));
+        next();
+    }
+};
+
+exports.last_month_toppers = async function (req, res, next) {
+    try {
+        let leaders = await UsersHistory.find(
+            {},
+            null,
+            {
+                sort: {
+                    monthlyscore: -1
+                }
+            });
+            
+        let userRank;
+
+        // Send MHT-ID in header
+        // If mht_id not sent, or wrong MHT-id sent, if fails silently
+        try {
+            userRank = await getRank(leaders, req.headers.mht_id);
+        }
+        catch (e) {
             console.log(e);
         }
 
@@ -257,7 +288,7 @@ exports.leader_internal_center = async function(req, res, next) {
                 sort: {
                     totalscore: -1,
                     lives: -1,
-                    createdAt: -1
+                    updatedAt: -1
                 }
             });
 
@@ -299,7 +330,7 @@ exports.leaders = async function(req, res, next) {
                 sort: {
                     totalscore: -1,
                     lives: -1,
-                    createdAt: 1
+                    updatedAt: 1
                 }
             });
 
