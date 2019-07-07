@@ -589,7 +589,7 @@ exports.user_state = async function (req, res, next) {
         //     //level_current = current_user_level[0].level;
         // }
         response = {
-            "quiz_levels": results[0],
+            "quiz_levels": results[3],
             "completed": results[1],
             "current": results[2],
             //"totalscore": user.totalscore,
