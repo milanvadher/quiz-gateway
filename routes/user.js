@@ -213,7 +213,7 @@ exports.leader_center = async function(req, res, next) {
                 "totalscores": {
                     $avg: "$totalscore"
                 }
-            }, { $sort : { totalscore: -1,lives: -1,updatedAt: -1 } }
+            }}, { $sort : { totalscore: -1,lives: -1,updatedAt: -1 } }
             ]);
 
 
