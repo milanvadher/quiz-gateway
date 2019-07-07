@@ -24,7 +24,7 @@ for user in users.find():
         user_img = user['img']
         imgdata_base64 = base64.b64decode(user_img)
         dropfilename = '/profile_'+str(user['mht_id'])+'.png'
-        filename = '.' + dropfilename
+        filename = '..' + dropfilename
         print "Uploading image ", filename
         with open(filename, 'wb') as f:
             f.write(imgdata_base64)
