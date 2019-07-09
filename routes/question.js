@@ -441,7 +441,7 @@ exports.puzzle_completed = async function (req, res, next) {
 exports.check_user_level = async function (req, res, next) {
     let mht_id = req.body.mht_id;
     let level = req.body.level;
-    let question_st = req.body.question_st;
+    //let question_st = req.body.question_st;
 
     try {
         let userCore = await UserScore.findOne({ "mht_id": mht_id, "level": level });
@@ -450,7 +450,7 @@ exports.check_user_level = async function (req, res, next) {
                 "mht_id": mht_id,
                 "level": level,
                 "total_questions": 0,
-                "question_st": question_st,
+                "question_st": 0,
                 "question_read_st": 0
             });
             userCore = await UserScore.findOne({ "mht_id": mht_id, "level": level });
