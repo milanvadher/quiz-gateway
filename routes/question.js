@@ -504,8 +504,7 @@ exports.user_state = async function (req, res, next) {
                 $match:
                 {
                     $and: [
-                        { "start_date": { $gte: dtStart } },
-                        { $or: [{ "end_date": { $type: 10 } }, { "end_date": { $lt: datetimet } }] }
+                        { "start_date": { $gte: dtStart } }
                     ]
                 }
             },
@@ -530,7 +529,6 @@ exports.user_state = async function (req, res, next) {
                 "mht_id": mht_id,
                 "completed": false
             }, "-_id"),
-
             QuizLevel.aggregate([{
                 $lookup: {
                     from: "questions",
@@ -556,7 +554,7 @@ exports.user_state = async function (req, res, next) {
             }
             ]),
         ]);
-
+	console.log("dtStart", dtStart, datetimet);
         let current_user_level = results[2];
         let completed_levels = results[1];
         //let level_current;
