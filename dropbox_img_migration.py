@@ -1,3 +1,4 @@
+
 # pip install dropbox
 # pip install pymongo
 # pip install python-magic
@@ -37,7 +38,6 @@ for user in users.find():
             unique_fileid_index = share_data.url.index(dropbox_com) + len(dropbox_com)
             img_dropbox_url = dropbox_usercontent_url + share_data.url[unique_fileid_index:]
 
-            print("user.img_dropbox_url ", user['img_dropbox_url'])
             result = users.update_many( 
                 {"mht_id":user['mht_id']}, 
                 {"$set":{"img_dropbox_url": img_dropbox_url},})
