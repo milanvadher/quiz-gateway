@@ -105,7 +105,7 @@ exports.list = async function (req, res, next) {
 exports.hint_question = async function (req, res, next) {
     let user_mhtid = req.body.mht_id;
     try {
-      
+
         let users = await User.findOne({ "mht_id": user_mhtid });
         res.send(200, users);
         next();
@@ -216,7 +216,7 @@ exports.validate_answer = async function (req, res, next) {
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
                 await User.updateOne({ "mht_id": user_mhtid },
                     {
-                        $inc: {  "totalscore_month": scoreAddMonth },
+                        $inc: { "totalscore_month": scoreAddMonth },
                         $set: { "updatedAt": currentdate, "question_id": question_id }
                     });
                 user = await User.findOne({ "mht_id": user_mhtid });
@@ -420,7 +420,7 @@ exports.puzzle_completed = async function (req, res, next) {
         let app_setting = await ApplicationSetting.findOne({});
         await User.updateOne({ "mht_id": mht_id, "$where": "this.lives < " + app_setting.total_lives }, { $inc: { "lives": inc_lives } });
         let user = await User.findOne({ "mht_id": mht_id });
-        res.send(200, { "totalscore_month": user.totalscore_month   });
+        res.send(200, { "totalscore_month": user.totalscore_month });
         next();
     } catch (error) {
         console.log(error);
@@ -483,14 +483,14 @@ exports.user_state = async function (req, res, next) {
         }
         var dtStartstr = `${datetime.getFullYear()}-${datetime.getMonth() + 1}-${1}`;
         var dt = `${datetime.getFullYear()}-${datetime.getMonth() + 2}-${1}`;
-        
+
         var datetimet = new Date(dt);
         var dtStart = new Date(dtStartstr);
         // console.log("datetime",datetime);
         // console.log("dtStartstr",dtStartstr);
         // console.log("dtStart",dtStart);
         // console.log("datetimet",datetimet);
-        
+
         results = await Promise.all([
             // Find all levels
             QuizLevel.aggregate([{
@@ -554,7 +554,7 @@ exports.user_state = async function (req, res, next) {
             }
             ]),
         ]);
-	console.log("dtStart", dtStart, datetimet);
+        console.log("dtStart", dtStart, datetimet);
         let current_user_level = results[2];
         let completed_levels = results[1];
         //let level_current;
@@ -623,11 +623,11 @@ exports.use_fifty_fifty = async function (req, res, next) {
 exports.get_pre_bonus = async function (req, res, next) {
     try {
         var datetimec = moment().tz('Asia/Kolkata').isBefore(moment().tz('Asia/Kolkata').startOf("day").add(19, "hours")) ?
-        moment().tz('Asia/Kolkata').startOf("day").subtract(1, "days") : moment().tz('Asia/Kolkata').startOf("day").add(-1, "days");
+            moment().tz('Asia/Kolkata').startOf("day").subtract(2, "days") : moment().tz('Asia/Kolkata').startOf("day").subtract(1, "days");
         var datetimef = moment().tz('Asia/Kolkata').isBefore(moment().tz('Asia/Kolkata').startOf("day").add(19, "hours")) ?
-        moment().tz('Asia/Kolkata').startOf("day") : moment().tz('Asia/Kolkata').startOf("day");
-    
-       let question = await Question.find({
+            moment().tz('Asia/Kolkata').startOf("day").subtract(1, "days") : moment().tz('Asia/Kolkata').startOf("day");
+
+        let question = await Question.find({
             "quiz_type": "BONUS",
             "date": { $gte: datetimec, $lt: datetimef }
         }, "-_id");
