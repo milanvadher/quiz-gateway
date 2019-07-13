@@ -91,6 +91,14 @@ const UserSchema = new mongoose.Schema({
     default: 0
   },
 
+  img_dropbox_url : {
+    type: String,
+  },
+
+  profile_img_version_num :{
+    type: Number,
+    default: 1
+  },
   totalscore_month_update: {
     type:Date
   },

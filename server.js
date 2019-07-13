@@ -143,7 +143,7 @@ function cleanupWeekly() {
         
         let userSc = await User.find({ "totalscore_month": { $gt: 0 } }, "mht_id totalscore_month -id");
         if (!userSc || userSc.length > 0) {
-            userSc.forEach(o => {
+            userSc.forEach(async o => {
                 let userhistory = new UserHistory(
                     {
                         "mht_id": o.mhti_id,

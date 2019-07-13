@@ -441,7 +441,7 @@ exports.puzzle_completed = async function (req, res, next) {
 exports.check_user_level = async function (req, res, next) {
     let mht_id = req.body.mht_id;
     let level = req.body.level;
-    let question_st = req.body.question_st;
+    //let question_st = req.body.question_st;
 
     try {
         let userCore = await UserScore.findOne({ "mht_id": mht_id, "level": level });
@@ -450,7 +450,7 @@ exports.check_user_level = async function (req, res, next) {
                 "mht_id": mht_id,
                 "level": level,
                 "total_questions": 0,
-                "question_st": question_st,
+                "question_st": 0,
                 "question_read_st": 0
             });
             userCore = await UserScore.findOne({ "mht_id": mht_id, "level": level });
@@ -504,8 +504,7 @@ exports.user_state = async function (req, res, next) {
                 $match:
                 {
                     $and: [
-                        { "start_date": { $gte: dtStart } },
-                        { $or: [{ "end_date": { $type: 10 } }, { "end_date": { $lt: datetimet } }] }
+                        { "start_date": { $gte: dtStart } }
                     ]
                 }
             },
@@ -530,7 +529,6 @@ exports.user_state = async function (req, res, next) {
                 "mht_id": mht_id,
                 "completed": false
             }, "-_id"),
-
             QuizLevel.aggregate([{
                 $lookup: {
                     from: "questions",
@@ -556,7 +554,7 @@ exports.user_state = async function (req, res, next) {
             }
             ]),
         ]);
-
+	console.log("dtStart", dtStart, datetimet);
         let current_user_level = results[2];
         let completed_levels = results[1];
         //let level_current;
