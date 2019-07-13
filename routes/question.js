@@ -621,3 +621,28 @@ exports.use_fifty_fifty = async function (req, res, next) {
         next();
     }
 };
+
+exports.get_pre_bonus = async function (req, res, next) {
+    try {
+        var datetimec = moment().tz('Asia/Kolkata').isBefore(moment().tz('Asia/Kolkata').startOf("day").add(19, "hours")) ?
+        moment().tz('Asia/Kolkata').startOf("day").subtract(1, "days") : moment().tz('Asia/Kolkata').startOf("day").add(-1, "days");
+        var datetimef = moment().tz('Asia/Kolkata').isBefore(moment().tz('Asia/Kolkata').startOf("day").add(19, "hours")) ?
+        moment().tz('Asia/Kolkata').startOf("day") : moment().tz('Asia/Kolkata').startOf("day");
+    
+       let question = await Question.find({
+            "quiz_type": "BONUS",
+            "date": { $gte: datetimec, $lt: datetimef }
+        }, "-_id");
+
+        res.charSet('utf-8');
+        if (question.length > 0) {
+            res.send(200, question);
+        } else {
+            res.send(200, { msg: 'No Daily Bonus' });
+        }
+        next();
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+};

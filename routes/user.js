@@ -218,17 +218,38 @@ exports.leader_center = async function (req, res, next) {
 
 exports.last_month_toppers = async function (req, res, next) {
     try {
-        let leaders = await UsersHistory.find(
-            {},
-            null,
+        //var datetime = new Date(moment().tz('Asia/Kolkata').format());
+        var datetime = new Date();
+        var dtStartstr = `${datetime.getFullYear()}-${datetime.getMonth() }-${1}`;
+        var dtStart = new Date(dtStartstr);
+        dtStart.setDate(dtStart.getDate() - 1);
+  
+        let leaders = await UsersHistory.aggregate([{
+            $lookup: {
+                           from: "users",
+                           localField: "mht_id",
+                           foreignField: "mht_id",
+                           as: "userdetails"
+                       }
+           },
+           {
+                 $match:{ "monthdate": { $gt: dtStart }}
+           },
+           {
+               $sort: {"monthlyscore": -1}
+        },
+        { $limit : 3 },
             {
-                sort: {
-                    monthlyscore: -1
-                }
-            });
-            
+                $project: {
+                    "_id": 0,
+                    "mht_id": 1, "totalscore": "$monthlyscore", "monthdate": 1
+                    , "name": { $arrayElemAt: ["$userdetails.name",0] }
+                    }
+             }
+           ]);
+  
         let userRank;
-
+  
         // Send MHT-ID in header
         // If mht_id not sent, or wrong MHT-id sent, if fails silently
         try {
@@ -237,7 +258,7 @@ exports.last_month_toppers = async function (req, res, next) {
         catch (e) {
             console.log(e);
         }
-
+  
         if (leaders) {
             res.send(200, {
                 leaders,
@@ -250,8 +271,7 @@ exports.last_month_toppers = async function (req, res, next) {
         res.send(500, new Error(error));
         next();
     }
-};
-/**
+  }; /**
  * To get rank, you need to send mht_id of the user of whose rank is needed in the header
  */
 exports.leader_internal_center = async function (req, res, next) {

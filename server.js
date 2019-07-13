@@ -151,7 +151,7 @@ function cleanupWeekly() {
                         "monthdate": date
                     }
                 );
-                await userhistory.save();
+             userhistory.save();
             })
         }
        await User.updateMany({},{$set: {totalscore_month: 0}});
