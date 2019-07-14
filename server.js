@@ -15,6 +15,7 @@ const TokenCache = require('./utility/token_cache');
 const schedule = require('node-schedule');
 const Question = require('./models/question');
 const User = require('./models/user');
+const UserHistory = require('./models/userhistory');
 const moment = require('moment-timezone');
 const token_cache = new TokenCache().getInstance();
 /**
@@ -146,12 +147,12 @@ function cleanupWeekly() {
             userSc.forEach(async o => {
                 let userhistory = new UserHistory(
                     {
-                        "mht_id": o.mhti_id,
+                        "mht_id": o.mht_id,
                         "monthlyscore": o.totalscore_month,
                         "monthdate": date
                     }
                 );
-             userhistory.save();
+             await userhistory.save();
             })
         }
        await User.updateMany({},{$set: {totalscore_month: 0}});
