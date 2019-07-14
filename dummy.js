@@ -5,7 +5,7 @@ const QuizLevel = require('./models/quiz_level');
 const UserScore = require('./models/user_score');
 const UserAnswerMapping = require('./models/user_answer_mapping');
 const User = require('./models/user');
-const UserHistory = require('./models/userhistory');
+const UserHistory = require('./models/usershistory');
 
 const ApplicationSetting=require('./models/app_setting');
 
@@ -26,3 +26,5 @@ async function cleanupMonthly() {
         }
        await User.updateMany({},{$set: {totalscore_month: 0}});
  }
+
+ cleanupMonthly();

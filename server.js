@@ -15,7 +15,7 @@ const TokenCache = require('./utility/token_cache');
 const schedule = require('node-schedule');
 const Question = require('./models/question');
 const User = require('./models/user');
-const UserHistory = require('./models/userhistory');
+const UserHistory = require('./models/usershistory');
 const moment = require('moment-timezone');
 const token_cache = new TokenCache().getInstance();
 /**
