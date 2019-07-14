@@ -445,11 +445,12 @@ exports.check_user_level = async function (req, res, next) {
 
     try {
         let userCore = await UserScore.findOne({ "mht_id": mht_id, "level": level });
+        let questions =await Question.find({level:level});
         if (!userCore) {
             await UserScore.create({
                 "mht_id": mht_id,
                 "level": level,
-                "total_questions": 0,
+                "total_questions": question.length,
                 "question_st": 0,
                 "question_read_st": 0
             });
