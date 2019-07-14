@@ -267,7 +267,7 @@ exports.last_month_toppers = async function (req, res, next) {
             {
                 $project: {
                     "_id": 0,
-                    "mht_id": 1, "totalscore": "$monthlyscore", "monthdate": 1
+                    "mht_id": 1, "totalscore": "$monthlyscore", "monthdate": 1,"img_dropbox_url":{ $arrayElemAt: ["$userdetails.img_dropbox_url",0] }
                     , "name": { $arrayElemAt: ["$userdetails.name",0] }
                     }
              }

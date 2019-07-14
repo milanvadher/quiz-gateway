@@ -52,7 +52,7 @@ const route_definitions = [
             {'path': '/get_photo', 'method': 'post', 'receiver': 'get_photo'},
             {'path': '/insertMBAData', 'method': 'post', 'receiver': 'insertMBAData'},
             {'path': '/rules', 'method': 'get', 'receiver': 'rules'},
-            {'path': '/last_month_toppers', 'method': 'post', 'receiver': 'last_month_toppers'},
+            {'path': '/last_month_toppers', 'method': 'get', 'receiver': 'last_month_toppers'},
             //{'path': '/verify_otp', 'method': 'post', 'receiver': 'verify_otp'}
         ]
     },
