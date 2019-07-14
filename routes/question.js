@@ -450,7 +450,7 @@ exports.check_user_level = async function (req, res, next) {
             await UserScore.create({
                 "mht_id": mht_id,
                 "level": level,
-                "total_questions": question.length,
+                "total_questions": questions.length,
                 "question_st": 0,
                 "question_read_st": 0
             });
