@@ -10,8 +10,12 @@ const UserHistory = require('./models/usershistory');
 const ApplicationSetting=require('./models/app_setting');
 
 // Creata a document and save it to the db
-async function cleanupMonthly() {
+(async function cleanupMonthly() {
+	console.log("ff");
+	try {
+		console.log("ggg");
         let userSc = await User.find({ "totalscore_month": { $gt: 0 } }, "mht_id totalscore_month -id");
+		console.log("hh",userSc);
         if (!userSc || userSc.length > 0) {
             userSc.forEach(async o => {
                 let userhistory = new UserHistory(
@@ -21,10 +25,12 @@ async function cleanupMonthly() {
                         "monthdate": date
                     }
                 );
-             await userhistory.save();
+             console.log(await userhistory.save());
             })
         }
        await User.updateMany({},{$set: {totalscore_month: 0}});
- }
+	} catch (error) {
+		console.log(error);
+	}
+ })();
 
- cleanupMonthly();
