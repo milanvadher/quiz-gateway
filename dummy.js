@@ -14,8 +14,7 @@ const ApplicationSetting=require('./models/app_setting');
 	console.log("ff");
 	try {
 		console.log("ggg");
-        let userSc = await User.find({ "totalscore_month": { $gt: 0 } }, "mht_id totalscore_month -id");
-		console.log("hh",userSc);
+        let userSc = await User.find({ "totalscore_month": { $gt: 0 } }, {"mht_id":1, "totalscore_month":1, "_id":0});
         if (!userSc || userSc.length > 0) {
             userSc.forEach(async o => {
                 let userhistory = new UserHistory(
@@ -25,10 +24,9 @@ const ApplicationSetting=require('./models/app_setting');
                         "monthdate": date
                     }
                 );
-             console.log(await userhistory.save());
+              userhistory.save();
             })
         }
-       await User.updateMany({},{$set: {totalscore_month: 0}});
 	} catch (error) {
 		console.log(error);
 	}
