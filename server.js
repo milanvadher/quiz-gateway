@@ -142,7 +142,7 @@ function cleanupWeekly() {
  function cleanupMonthly() {
     schedule.scheduleJob('30 18 1 * *', async function (date) {
         
-        let userSc = await User.find({ "totalscore_month": { $gt: 0 } }, "mht_id totalscore_month -id");
+        let userSc = await User.find({ "totalscore_month": { $gt: 0 } }, {"mht_id":1, "totalscore_month":1, "_id":0});
         if (!userSc || userSc.length > 0) {
             userSc.forEach(async o => {
                 let userhistory = new UserHistory(
@@ -152,7 +152,7 @@ function cleanupWeekly() {
                         "monthdate": date
                     }
                 );
-             await userhistory.save();
+              userhistory.save();
             })
         }
        await User.updateMany({},{$set: {totalscore_month: 0}});
