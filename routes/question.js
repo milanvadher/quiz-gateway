@@ -12,7 +12,7 @@ const UserScore = require('../models/user_score');
 const UserAnswerMapping = require('../models/user_answer_mapping');
 const User = require('../models/user');
 const moment = require('moment-timezone');
-const UserHistory = require('./models/usershistory');
+const UserHistory = require('../models/usershistory');
 
 const ApplicationSetting = require('../models/app_setting');
 
