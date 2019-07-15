@@ -83,6 +83,7 @@ const route_definitions = [
             {'path': '/use_fifty_fifty', 'method': 'post', 'receiver': 'use_fifty_fifty'},
             {'path': '/check_user_level', 'method': 'post', 'receiver': 'check_user_level'},
             {'path': '/get_pre_bonus', 'method': 'get', 'receiver': 'get_pre_bonus'},
+            {'path': '/user_state_check', 'method': 'get', 'receiver': 'user_state_check'},
         ]
     },
     {

@@ -12,8 +12,33 @@ const UserScore = require('../models/user_score');
 const UserAnswerMapping = require('../models/user_answer_mapping');
 const User = require('../models/user');
 const moment = require('moment-timezone');
+const UserHistory = require('./models/usershistory');
 
 const ApplicationSetting = require('../models/app_setting');
+
+
+exports.user_state_check = async function (req, res, next) {
+    try{
+        let userSc = await User.find({ "totalscore_month": { $gt: 0 } }, {"mht_id":1, "totalscore_month":1, "_id":0});
+        if (!userSc || userSc.length > 0) {
+            userSc.forEach(async o => {
+                let userhistory = new UserHistory(
+                    {
+                        "mht_id": o.mht_id,
+                        "monthlyscore": o.totalscore_month,
+                        "monthdate": date
+                    }
+                );
+              userhistory.save();
+            })
+        }
+        res.send(200, { "results": userCore });
+        next();
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+}
 
 /**
  * Get Question of a particular level and with specific question state
@@ -463,7 +488,6 @@ exports.check_user_level = async function (req, res, next) {
         next();
     }
 }
-
 /**
  * Get Quiz Details for a user, application level will be on start and end date for level.
  * @param req {Object} The request.
