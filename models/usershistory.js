@@ -5,8 +5,7 @@ const mongooseStringQuery = require('mongoose-string-query');
 const UsersHistorySchema = new mongoose.Schema({
   mht_id: {
     type: Number,
-    required: true,
-    unique: true
+    required: true
   },
   
   monthlyscore: {
