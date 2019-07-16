@@ -139,10 +139,10 @@ function cleanupWeekly() {
     });
  }
  
- function cleanupMonthly() {
+ async function cleanupMonthly() {
     // schedule.scheduleJob('30 18 1 * *', async function (date) {
         
-        let userSc = await User.find({}, {"mht_id":1, "totalscore_month":1, "_id":0})
+        let userSc = await User.find({}, {"mht_id":1, "totalscore_month":1, "_id":0, "name":1,"img_dropbox_url":1})
                         .sort({"totalscore_month":-1, "updatedAt": -1}).limit(3);
         await UserHistory.remove({});
         if (!userSc || userSc.length > 0) {
@@ -151,7 +151,7 @@ function cleanupWeekly() {
                     {
                         "mht_id": o.mht_id,
                         "monthlyscore": o.totalscore_month,
-                        "monthdate": date,
+                        // "monthdate": date,
                         "img_dropbox_url": o.img_dropbox_url,
                         "name": o.name,
                     }
