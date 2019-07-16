@@ -273,21 +273,9 @@ exports.last_month_toppers = async function (req, res, next) {
              }
            ]);
   
-        let userRank;
-  
-        // Send MHT-ID in header
-        // If mht_id not sent, or wrong MHT-id sent, if fails silently
-        try {
-            userRank = await getRank(leaders, req.headers.mht_id);
-        }
-        catch (e) {
-            console.log(e);
-        }
-  
         if (leaders) {
             res.send(200, {
-                leaders,
-                userRank
+                leaders
             });
             next();
         }
