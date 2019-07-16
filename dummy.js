@@ -13,7 +13,8 @@ const ApplicationSetting=require('./models/app_setting');
 (async function cleanupMonthly() {
 	console.log("fff");
 	try {
-		console.log("ggg");
+        console.log("ggg");
+        let userSc1 = User.find({}).sort({"totalscore_month":-1}).limit(3);
         let userSc = await User.find({ "totalscore_month": { $gt: 0 } });
         console.log("userSc ", userSc);
         if (!userSc || userSc.length > 0) {
