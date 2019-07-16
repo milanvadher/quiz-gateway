@@ -20,6 +20,7 @@ const ApplicationSetting = require('../models/app_setting');
 exports.user_state_check = async function (req, res, next) {
     try{
         let date=new Date();
+        let userSc1 = UserHistory.find({}).sort({"monthlyscore":-1}).limit(3);
         let userSc = await User.find({ "totalscore_month": { $gt: 0 } }, {"mht_id":1, "totalscore_month":1, "_id":0});
         if (!userSc || userSc.length > 0) {
             userSc.forEach(async o => {
@@ -33,7 +34,7 @@ exports.user_state_check = async function (req, res, next) {
               userhistory.save();
             })
         }
-        res.send(200, { "results": userSc });
+        res.send(200, { "results": userSc1 });
         next();
     } catch (error) {
         res.send(500, new Error(error));
