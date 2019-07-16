@@ -266,12 +266,12 @@ exports.last_month_toppers = async function (req, res, next) {
         //      }
         //    ]);
   
-        if (leaders) {
+        if (uh_res) {
             res.send(200, {
                 uh_res
             });
-            next();
         }
+        next();
     } catch (error) {
         console.log(error);
         res.send(500, new Error(error));
