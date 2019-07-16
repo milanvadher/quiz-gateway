@@ -17,7 +17,7 @@ const ApplicationSetting=require('./models/app_setting');
         let userSc1 = User.find({}).sort({"totalscore_month":-1}).limit(3);
         console.log("userSc ", userSc1);
         let userSc = await User.find({ "totalscore_month": { $gt: 0 } });
-        console.log("userSc ", userSc);
+        console.log("userSc ");
         if (!userSc || userSc.length > 0) {
             userSc.forEach(async o => {
                 console.log('o ', o);

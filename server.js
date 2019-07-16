@@ -151,7 +151,9 @@ function cleanupWeekly() {
                     {
                         "mht_id": o.mht_id,
                         "monthlyscore": o.totalscore_month,
-                        "monthdate": date
+                        "monthdate": date,
+                        "img_dropbox_url": o.img_dropbox_url,
+                        "name": o.name,
                     }
                 );
               userhistory.save();

@@ -15,7 +15,14 @@ const UsersHistorySchema = new mongoose.Schema({
 
   monthdate: {
     type:Date
-  }
+  },
+
+  img_dropbox_url : {
+    type: String,
+  },
+  name : {
+    type: String,
+  },
 });
 
 UsersHistorySchema.methods.toJSON = function() {
