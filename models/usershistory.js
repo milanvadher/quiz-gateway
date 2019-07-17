@@ -8,7 +8,7 @@ const UsersHistorySchema = new mongoose.Schema({
     required: true
   },
   
-  monthlyscore: {
+  totalscore: {
     type: Number,
     default: 0
   },

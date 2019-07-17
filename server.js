@@ -94,7 +94,6 @@ server.listen(config.port, () => {
     mongoose.Promise = global.Promise;
     token_cache.init();
     scheduleNotification();
-    //cleanupWeekly();
     cleanupMonthly();
     // mongoose.connect(config.db.uri, { useMongoClient: true });
     mongoose.connect(config.db.uri, { useNewUrlParser: true }).then(() => {
@@ -115,7 +114,6 @@ server.listen(config.port, () => {
         })
         console.log(`Server is listening on port ${config.port}`);
     });
-    //console.log(User.update({},{$set: {"totalscore_month": 0}},{upsert:false,multi:true}));
 });
 
 
@@ -132,12 +130,6 @@ function scheduleNotification() {
         }
     });
  }
-
-function cleanupWeekly() {
-    schedule.scheduleJob('00 59 23 * * 5',async function (date) {
-        await User.updateMany({},{$set: {totalscore_week: 0}});
-    });
- }
  
 function cleanupMonthly() {
     schedule.scheduleJob('30 18 1 * *', async function (date) {
@@ -150,7 +142,7 @@ function cleanupMonthly() {
                 let userhistory = new UserHistory(
                     {
                         "mht_id": o.mht_id,
-                        "monthlyscore": o.totalscore_month,
+                        "totalscore": o.totalscore_month,
                         "img_dropbox_url": o.img_dropbox_url,
                         "name": o.name,
                     }
