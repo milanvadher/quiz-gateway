@@ -243,32 +243,32 @@ exports.leader_center = async function(req, res, next) {
 
 exports.last_month_toppers = async function (req, res, next) {
     try {
-        let uh_res = await UsersHistory.find({});
+        //let uh_res = await UsersHistory.find({});
 
-        // let leaders = await UsersHistory.aggregate([{
-        //     $lookup: {
-        //                    from: "users",
-        //                    localField: "mht_id",
-        //                    foreignField: "mht_id",
-        //                    as: "userdetails"
-        //                }
-        //    },
-        //    {
-        //        $sort: {"monthlyscore": -1}
-        // },
-        // { $limit : 3 },
-        //     {
-        //         $project: {
-        //             "_id": 0,
-        //             "mht_id": 1, "totalscore": "$monthlyscore", "monthdate": 1,"img_dropbox_url":{ $arrayElemAt: ["$userdetails.img_dropbox_url",0] }
-        //             , "name": { $arrayElemAt: ["$userdetails.name",0] }
-        //             }
-        //      }
-        //    ]);
+        let leaders = await UsersHistory.aggregate([{
+            $lookup: {
+                           from: "users",
+                           localField: "mht_id",
+                           foreignField: "mht_id",
+                           as: "userdetails"
+                       }
+           },
+           {
+               $sort: {"monthlyscore": -1}
+        },
+        { $limit : 3 },
+            {
+                $project: {
+                    "_id": 0,
+                    "mht_id": 1, "totalscore": "$monthlyscore", "monthdate": 1,"img_dropbox_url":{ $arrayElemAt: ["$userdetails.img_dropbox_url",0] }
+                    , "name": { $arrayElemAt: ["$userdetails.name",0] }
+                    }
+             }
+           ]);
   
-        if (uh_res) {
+        if (leaders) {
             res.send(200, {
-                uh_res
+                leaders
             });
         }
         next();
