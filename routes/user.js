@@ -875,7 +875,7 @@ exports.get_photo = async function(req, res, next) {
             mht_id: mht_id
         });
         res.send(200, {
-            image: user.img
+            image: user.img_dropbox_url
         });
         next();
     } catch (error) {
