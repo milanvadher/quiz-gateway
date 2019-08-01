@@ -1,9 +1,10 @@
 const dropboxV2Api = require('dropbox-v2-api');
+const config = require('./../config');
 const fs = require('fs');
 var tmp = require('tmp');
 
 const dropbox = dropboxV2Api.authenticate({
-    token: 'uJNxE8nFAIAAAAAAAAABLKKQ5N4NIN8-XOsvGaOQD6RyPHAclIP9Ehs9StJvwGJy'
+    token: config.dropbox_key
 });
 var dropbox_folder_path = '/';
 
@@ -70,7 +71,7 @@ exports.upload_and_sharelink = async function (img_base64, media_name){
 // (async () => {
 //     var img_base64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==';
 //     var media_name = 'example123.png';
-//     // var download_url = await upload_and_sharelink(img_base64, media_name);
+//     // var download_url = await exports.upload_and_sharelink(img_base64, media_name);
 //     console.log("download_url ", download_url);
 // })();
 

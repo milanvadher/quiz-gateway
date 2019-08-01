@@ -13,7 +13,8 @@ from dropbox.files import WriteMode
 from pprint import pprint as pprint_fun
 mongoclient = pymongo.MongoClient("localhost", 27017)
 db = mongoclient.QuizGateWay
-dropbox_client = dropbox.Dropbox("uAcAIaPElKAvNERNONIJGvnA8JLAxKSQA-68AFIyyQh4OJ9PAAAAwXG9sHs5NtBD")
+dropbox_client = dropbox.Dropbox("uA5ysQJK9AFAAA8cvKAI6-AsDL9RIBPASywANJIxPXO8tnJENNEAlAQHGvONGa4h")
+# .env - DROPBOX_TEST
 
 users = db.users
 
