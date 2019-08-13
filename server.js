@@ -94,7 +94,7 @@ server.listen(config.port, () => {
     mongoose.Promise = global.Promise;
     token_cache.init();
     scheduleNotification();
-    cleanupMonthly();
+    //cleanupMonthly();
     // mongoose.connect(config.db.uri, { useMongoClient: true });
     mongoose.connect(config.db.uri, { useNewUrlParser: true }).then(() => {
         console.log('Connected to DB Successfully !! ');
@@ -123,6 +123,12 @@ function scheduleNotification() {
         moment().tz('Asia/Kolkata').startOf("day").subtract(1, "days") : moment().tz('Asia/Kolkata').startOf("day");
         var datetimef = moment().tz('Asia/Kolkata').isBefore(moment().tz('Asia/Kolkata').startOf("day").add(19, "hours")) ?
         moment().tz('Asia/Kolkata').startOf("day") : moment().tz('Asia/Kolkata').startOf("day").add(1, "days");
+
+        if(datetimec.get('date')==1)
+        {
+            MonthlyProcess();
+        }
+
         let questions=Question.findOne({ "quiz_type":"BONUS", "date": { $gte: datetimec, $lt: datetimef }});
         if(questions)
         {
@@ -131,25 +137,28 @@ function scheduleNotification() {
     });
  }
  
+
+async function MonthlyProcess()
+{
+    let userSc = await User.find({}, {"mht_id":1, "totalscore_month":1, "_id":0, "name":1,"img_dropbox_url":1})
+    .sort({"totalscore_month":-1, "updatedAt": -1}).limit(3);
+    await UserHistory.remove({});
+    if (!userSc || userSc.length > 0) {
+    userSc.forEach(async o => {
+            let userhistory = new UserHistory(
+            {
+                "mht_id": o.mht_id,
+                "totalscore": o.totalscore_month,
+                "img_dropbox_url": o.img_dropbox_url,
+                "name": o.name,
+            });
+            userhistory.save();
+        })
+    }
+    await User.updateMany({},{$set: {totalscore_month: 0}});
+}
 function cleanupMonthly() {
     schedule.scheduleJob('30 18 L * *', async function (date) {
-        
-        let userSc = await User.find({}, {"mht_id":1, "totalscore_month":1, "_id":0, "name":1,"img_dropbox_url":1})
-                        .sort({"totalscore_month":-1, "updatedAt": -1}).limit(3);
-        await UserHistory.remove({});
-        if (!userSc || userSc.length > 0) {
-            userSc.forEach(async o => {
-                let userhistory = new UserHistory(
-                    {
-                        "mht_id": o.mht_id,
-                        "totalscore": o.totalscore_month,
-                        "img_dropbox_url": o.img_dropbox_url,
-                        "name": o.name,
-                    }
-                );
-              userhistory.save();
-            })
-        }
-       await User.updateMany({},{$set: {totalscore_month: 0}});
+        MonthlyProcess();
     });
  }
