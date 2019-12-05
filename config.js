@@ -8,12 +8,12 @@ module.exports = function() {
 	};
 	switch(process.env.NODE_ENV){
 		case 'development':
-			conf.db = {uri: `mongodb://127.0.0.1:27017/QuizGateWay-Development`};
+			conf.db = {uri: `mongodb://127.0.0.1:27017/LuckyDraw`};
 			conf.port = 3001;
 			break;
         case 'production':
-			conf.db = {uri: 'mongodb://127.0.0.1:27017/QuizGateWay'};
-			conf.port = 3000;
+			conf.db = {uri: 'mongodb://127.0.0.1:27017/LuckyDraw'};
+			conf.port = 3001;
 			break;
 	}
 	return conf;

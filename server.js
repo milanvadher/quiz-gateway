@@ -48,42 +48,42 @@ server.use(restifyPlugins.acceptParser(server.acceptable));
 server.use(restifyPlugins.queryParser({ mapParams: true }));
 server.use(response_transformation.transform);
 server.use(restifyPlugins.fullResponse());
-server.use(async function (req, res, next) {
-    if (req.url === '/login' || req.url === '/validate_user' || req.url === '/register' || req.url === '/forgot_password' || req.url === '/update_password' || req.url === '/testMail' || req.url === '/request_registration' || req.url === '/sadhana_data') return next();
+// server.use(async function (req, res, next) {
+//     if (req.url === '/login' || req.url === '/validate_user' || req.url === '/register' || req.url === '/forgot_password' || req.url === '/update_password' || req.url === '/testMail' || req.url === '/request_registration' || req.url === '/sadhana_data') return next();
 
-    // // check header or url parameters or post parameters for token
-    const token = req.headers['x-access-token'] || req.query.token;
-    // decode token
-    if (token) {
-        // verifies secret and checks exp
-        jwt.verify(token, config.jwt_secret, async function (err, decoded) {
-            if (err) {
-                return res.send(403, { success: false, msg: 'Failed to authenticate token.' });
-                next(false);
-            } else {
-                // if everything is good, save to request for use in other routes
-                req.decoded = decoded;
-                if(token_cache.get(decoded.mht_id) == null || !token_cache.get(decoded.mht_id)) {
-                    await User.updateOne({mht_id: decoded.mht_id}, {$set: {token: token}});
-                    token_cache.set(decoded.mht_id, token);
-                } else if(token_cache.get(decoded.mht_id) != token) {
-                    return res.send(227, { success: false, msg: 'User has logged in from another device.' });
-                    next(false);
-                }
-                next();
-            }
-        });
+//     // // check header or url parameters or post parameters for token
+//     const token = req.headers['x-access-token'] || req.query.token;
+//     // decode token
+//     if (token) {
+//         // verifies secret and checks exp
+//         jwt.verify(token, config.jwt_secret, async function (err, decoded) {
+//             if (err) {
+//                 return res.send(403, { success: false, msg: 'Failed to authenticate token.' });
+//                 next(false);
+//             } else {
+//                 // if everything is good, save to request for use in other routes
+//                 req.decoded = decoded;
+//                 if(token_cache.get(decoded.mht_id) == null || !token_cache.get(decoded.mht_id)) {
+//                     await User.updateOne({mht_id: decoded.mht_id}, {$set: {token: token}});
+//                     token_cache.set(decoded.mht_id, token);
+//                 } else if(token_cache.get(decoded.mht_id) != token) {
+//                     return res.send(227, { success: false, msg: 'User has logged in from another device.' });
+//                     next(false);
+//                 }
+//                 next();
+//             }
+//         });
         
-    } else {
-        // if there is no token
-        // return an error
-        return res.send(403, {
-            success: false,
-            message: 'No token provided.'
-        });
-        next(false);
-    }
-});
+//     } else {
+//         // if there is no token
+//         // return an error
+//         return res.send(403, {
+//             success: false,
+//             message: 'No token provided.'
+//         });
+//         next(false);
+//     }
+// });
 
 /**
   * Start Server, Connect to DB & Require Routes
@@ -92,9 +92,9 @@ server.listen(config.port, () => {
     // establish connection to mongodb
     mongoose.Promise = global.Promise;
     token_cache.init();
-    scheduleNotification();
+    //scheduleNotification();
     //cleanupWeekly();
-    cleanupMonthly();
+    //cleanupMonthly();
     // mongoose.connect(config.db.uri, { useMongoClient: true });
     mongoose.connect(config.db.uri, { useNewUrlParser: true }).then(() => {
         console.log('Connected to DB Successfully !! ');
