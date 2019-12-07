@@ -136,11 +136,11 @@ exports.hint_question = async function (req, res, next) {
             scoreAddWeek = scoreAdd;
         }
         await User.updateOne(
-            { "mht_id": user_mhtid },
+            { "contactNumber": user_mhtid },
             {
                 $inc: { "totalscore": (scoreAdd * -1),"totalscore_month": (scoreAddMonth * -1),"totalscore_week": (scoreAddWeek * -1) }
             });
-        let users = await User.findOne({ "mht_id": user_mhtid });
+        let users = await User.findOne({ "contactNumber": user_mhtid });
         res.send(200, users);
         next();
     } catch (error) {
@@ -184,16 +184,16 @@ exports.validate_answer = async function (req, res, next) {
             isRightAnswer = true;
         }
 
-        user = await User.findOne({ "mht_id": user_mhtid });
+        user = await User.findOne({ "contactNumber": user_mhtid });
         if (question.quiz_type == "BONUS") {
             if (isRightAnswer) {
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
-                await User.updateOne({ "mht_id": user_mhtid },
+                await User.updateOne({ "contactNumber": user_mhtid },
                     {
                         $inc: { "totalscore": scoreAdd,"totalscore_week": scoreAdd,"totalscore_month": scoreAdd, "bonus": scoreAdd },
                         $set: { "question_id": question_id }
                     });
-                user = await User.findOne({ "mht_id": user_mhtid });
+                user = await User.findOne({ "contactNumber": user_mhtid });
                 status = { "answer_status": isRightAnswer, "lives": user.lives, "totalscore": user.totalscore,"totalscore_month": user.totalscore_month,"totalscore_week": user.totalscore_week };
             }
             else {
@@ -201,7 +201,7 @@ exports.validate_answer = async function (req, res, next) {
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
                 status = { "answer_status": isRightAnswer, "lives": user.lives, "totalscore": user.totalscore,"totalscore_month": user.totalscore_month,"totalscore_week": user.totalscore_week };
             }
-            let UAMObj = new UserAnswerMapping({ "mht_id": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type, "answer":selected_ans, "answer_status": isRightAnswer });
+            let UAMObj = new UserAnswerMapping({ "contactNumber": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type, "answer":selected_ans, "answer_status": isRightAnswer });
             // entry in user answer, in case of bonus.
             await UAMObj.save();
         }
@@ -218,12 +218,12 @@ exports.validate_answer = async function (req, res, next) {
             if (isRightAnswer) {
 
                 let user_score = await UserScore.findOne({
-                    "mht_id": user_mhtid,
+                    "contactNumber": user_mhtid,
                     "level": user_level
                 });
                 let new_question_st = question.question_st + 1;
                 await UserScore.updateOne({
-                    "mht_id": user_mhtid,
+                    "contactNumber": user_mhtid,
                     "level": user_level
                     },
                     {
@@ -238,7 +238,7 @@ exports.validate_answer = async function (req, res, next) {
 
                 if (user_score.total_questions == 0) {
                     await UserScore.updateOne({
-                        "mht_id": user_mhtid,
+                        "contactNumber": user_mhtid,
                         "completed": false,
                         "level": user_level
                     },
@@ -256,12 +256,12 @@ exports.validate_answer = async function (req, res, next) {
                     scoreAddWeek=scoreAdd;
                 }
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
-                await User.updateOne({ "mht_id": user_mhtid },
+                await User.updateOne({ "contactNumber": user_mhtid },
                     {
                         $inc: { "totalscore": scoreAdd,"totalscore_month": scoreAddMonth,"totalscore_week": scoreAddWeek  },
                         $set: { "question_id": question_id }
                     });
-                user = await User.findOne({ "mht_id": user_mhtid });
+                user = await User.findOne({ "contactNumber": user_mhtid });
               status = {
                 "answer_status": isRightAnswer,
                 "lives": user.lives,
@@ -282,12 +282,12 @@ exports.validate_answer = async function (req, res, next) {
                     scoreAddWeek=-2;
                 }
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
-                await User.updateOne({ "mht_id": user_mhtid },
+                await User.updateOne({ "contactNumber": user_mhtid },
                     {
                         $inc: { "lives": -1, "totalscore": -2,"totalscore_month": scoreAddMonth,"totalscore_week": scoreAddWeek  },
                         $set: { "question_id": question_id }
                     });
-                user = await User.findOne({ "mht_id": user_mhtid });
+                user = await User.findOne({ "contactNumber": user_mhtid });
               status = {
                 "answer_status": isRightAnswer,
                 "lives": user.lives,
@@ -299,11 +299,11 @@ exports.validate_answer = async function (req, res, next) {
               };
             }
                 //console.log('tet');
-                let UAMObj = await UserAnswerMapping.findOne({"mht_id": user_mhtid, "question_id": question_id});
+                let UAMObj = await UserAnswerMapping.findOne({"contactNumber": user_mhtid, "question_id": question_id});
                 //console.log(UAMObj);
                 if(UAMObj==null)
                 {
-                    UAMObj = new UserAnswerMapping({ "mht_id": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type,  "answer":selected_ans, "answer_status": isRightAnswer });
+                    UAMObj = new UserAnswerMapping({ "contactNumber": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type,  "answer":selected_ans, "answer_status": isRightAnswer });
                     // entry in user answer, if answer is right and in case of regular.
                     await UAMObj.save();
                 }
@@ -334,7 +334,7 @@ exports.mark_read = async function (req, res, next) {
   try {
     console.log(user_mhtid, user_level);
     let user_score = await UserScore.findOne({
-      "mht_id": user_mhtid,
+      "contactNumber": user_mhtid,
       "completed": false,
       "level": user_level
     });
@@ -384,7 +384,7 @@ exports.get_bonus_question = async function (req, res, next) {
 
     try {
         usersanwered = await UserAnswerMapping.find({
-            "mht_id": mhtid,
+            "contactNumber": mhtid,
             "quiz_type": "BONUS"
         }, "question_id -_id");
         let qidarray = [];
@@ -430,17 +430,17 @@ exports.req_life = async function (req, res, next) {
         let app_setting = await ApplicationSetting.findOne({});
 
         let user = await User.findOne({
-            "mht_id": mht_id
+            "contactNumber": mht_id
         });
         if (user.totalscore >= app_setting.score_per_lives && user.lives < 3) {
             user = await User.updateOne({
-                "mht_id": user.mht_id
+                "contactNumber": user.mht_id
             },
                 {
                   $inc: {"lives": 1, "totalscore": (app_setting.score_per_lives * -1)}
                 });
             let users = await User.findOne({
-                "mht_id": mht_id
+                "contactNumber": mht_id
             });
             res.send(200, users);
 
@@ -474,8 +474,8 @@ exports.puzzle_completed = async function (req, res, next) {
             inc_lives = 2;
         }
         let app_setting = await ApplicationSetting.findOne({});
-        await User.updateOne({ "mht_id": mht_id, "$where": "this.lives < " + app_setting.total_lives }, { $inc: { "lives": inc_lives } });
-        let user = await User.findOne({ "mht_id": mht_id });
+        await User.updateOne({ "contactNumber": mht_id, "$where": "this.lives < " + app_setting.total_lives }, { $inc: { "lives": inc_lives } });
+        let user = await User.findOne({ "contactNumber": mht_id });
         res.send(200, { "lives": user.lives,"totalscore": user.totalscore,"totalscore_month": user.totalscore_month,"totalscore_week": user.totalscore_week });
         next();
     } catch (error) {
@@ -503,20 +503,20 @@ async function resetMonthWeekScore(mht_id)
     var n = weekday[datetimet.getDay()];
     if((datetimet.getDay() )==1)
     {
-        let user = await User.findOne({ "mht_id": mht_id });
+        let user = await User.findOne({ "contactNumber": mht_id });
         if(user.totalscore_month_update==undefined||user.totalscore_month_update<=datetimet)
         {
-            await User.updateOne({ "mht_id": mht_id },{$set : {"totalscore_month": 0,"totalscore_month_update":datetimetMonth}});
+            await User.updateOne({ "contactNumber": mht_id },{$set : {"totalscore_month": 0,"totalscore_month_update":datetimetMonth}});
         }
     }
     if(n=='Monday')
     {
-        let user = await User.findOne({ "mht_id": mht_id });
+        let user = await User.findOne({ "contactNumber": mht_id });
         console.log(user.totalscore_week_update);
         console.log(datetimet);
         if(user.totalscore_week_update==undefined||user.totalscore_week_update>=datetimet)
         {
-            await User.updateOne({ "mht_id": mht_id },{$set : {"totalscore_week": 0,"totalscore_week_update":datetimetWeek}});
+            await User.updateOne({ "contactNumber": mht_id },{$set : {"totalscore_week": 0,"totalscore_week_update":datetimetWeek}});
         }
     }
 }
@@ -536,7 +536,7 @@ exports.user_state = async function (req, res, next) {
    //await resetMonthWeekScore(mht_id);
     var datetime = new Date();
     try {
-        let user = await User.findOne({ "mht_id": mht_id });
+        let user = await User.findOne({ "contactNumber": mht_id });
         if (!user) {
             return res.send(500, { msg: "User does not exist !!!" });
         }
@@ -575,13 +575,13 @@ exports.user_state = async function (req, res, next) {
 
             // Find levels that user has already completed
             UserScore.find({
-                "mht_id": mht_id,
+                "contactNumber": mht_id,
                 "completed": true
             }, "level score fifty_fifty -_id"),
 
             // Find current level of user
             UserScore.find({
-                "mht_id": mht_id,
+                "contactNumber": mht_id,
                 "completed": false
             }, "-_id")
         ]);
@@ -593,7 +593,7 @@ exports.user_state = async function (req, res, next) {
         if ((!current_user_level || current_user_level.length == 0) && (!completed_levels || completed_levels.length == 0)) {
             level_current = 1;
             results[2] = [await UserScore.create({
-                "mht_id": mht_id,
+                "contactNumber": mht_id,
                 "total_questions": levels[0].total_questions
             })];
         } else if ((!current_user_level || current_user_level.length == 0) && completed_levels) {
@@ -605,7 +605,7 @@ exports.user_state = async function (req, res, next) {
 
             let question = await Question.find({ "level": level_current }, "question_st");
             results[2] = [await UserScore.create({
-                "mht_id": mht_id,
+                "contactNumber": mht_id,
                 "level": completed_levels.length + 1,
                 "total_questions": total_question,
                 "question_st": question.question_st,
@@ -640,7 +640,7 @@ exports.user_state_new = async function (req, res, next) {
     let results;
     var datetime = new Date();
     try {
-        let user = await User.findOne({ "mht_id": mht_id });
+        let user = await User.findOne({ "contactNumber": mht_id });
         if (!user) {
             return res.send(500, { msg: "User does not exist !!!" });
         }
@@ -687,13 +687,13 @@ exports.user_state_new = async function (req, res, next) {
 
             // Find levels that user has already completed
             UserScore.find({
-                "mht_id": mht_id,
+                "contactNumber": mht_id,
                 "completed": true
             }, "level score fifty_fifty -_id"),
 
             // Find current level of user
             UserScore.find({
-                "mht_id": mht_id,
+                "contactNumber": mht_id,
                 "completed": false
             }, "-_id")
             , Question.aggregate(
@@ -751,7 +751,7 @@ exports.user_state_new = async function (req, res, next) {
         if ((!current_user_level || current_user_level.length == 0) && (!completed_levels || completed_levels.length == 0)) {
             level_current = 1;
             results[2] = [await UserScore.create({
-                "mht_id": mht_id,
+                "contactNumber": mht_id,
                 "total_questions": levels[0].total_questions
             })];
         } else if ((!current_user_level || current_user_level.length == 0) && completed_levels) {
@@ -763,7 +763,7 @@ exports.user_state_new = async function (req, res, next) {
 
             let question = await Question.find({ "level": level_current }, "question_st");
             results[2] = [await UserScore.create({
-                "mht_id": mht_id,
+                "contactNumber": mht_id,
                 "level": completed_levels.length + 1,
                 "total_questions": total_question,
                 "question_st": question.question_st
@@ -824,7 +824,7 @@ exports.use_fifty_fifty = async function (req, res, next) {
     let level = req.body.level;
     try {
         let user_score = await UserScore.updateOne({
-            "mht_id": mht_id,
+            "contactNumber": mht_id,
             "level": level
         }, {$set: {fifty_fifty: false}});
         res.send(200, user_score);
