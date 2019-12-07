@@ -11,7 +11,7 @@ const AnswerSchema = new mongoose.Schema({
 });
 
 const UserAnswerMappingSchema = new mongoose.Schema({
-  mht_id: {
+  contactNumber: {
     type: Number,
     required: true
   },

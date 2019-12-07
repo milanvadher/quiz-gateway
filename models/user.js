@@ -36,7 +36,7 @@ const UserSchema = new mongoose.Schema({
     default: 1
   },
   
-  mht_id: {
+  contactNumber: {
     type: Number,
     required: true,
     unique: true

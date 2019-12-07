@@ -9,7 +9,7 @@ const UserScoreSchema = new mongoose.Schema({
   //   trim: true
   // },
 
-  mht_id: {
+  contactNumber: {
     type: Number,
     required: true
   },
