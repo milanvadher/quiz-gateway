@@ -12,7 +12,7 @@ const AnswerSchema = new mongoose.Schema({
 
 const UserAnswerMappingSchema = new mongoose.Schema({
   contactNumber: {
-    type: Number,
+    type: String,
     required: true
   },
   question_id: {

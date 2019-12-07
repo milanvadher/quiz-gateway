@@ -10,7 +10,7 @@ const UserScoreSchema = new mongoose.Schema({
   // },
 
   contactNumber: {
-    type: Number,
+    type: String,
     required: true
   },
   question_st: {
