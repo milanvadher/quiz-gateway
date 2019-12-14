@@ -529,14 +529,7 @@ exports.user_state = async function (req, res, next) {
                     foreignField: "level",
                     as: "questiondetails"
                 }
-            }, {
-                $match:
-                {
-                    $and: [
-                        { "start_date": { $gte: dtStart } }
-                    ]
-                }
-            },
+            }, 
             {
                 $project: {
                     "_id": 0,
