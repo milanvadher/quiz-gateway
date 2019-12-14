@@ -254,7 +254,25 @@ exports.validate_answer = async function (req, res, next) {
                     "question_read_st": question.question_st
                 };
             } else {
+                let new_question_st = question.question_st + 1;
+                await UserScore.updateOne({
+                    "contactNumber": user_mhtid,
+                    "level": user_level
+                },
+                {
+                    $set: { "question_st": new_question_st}
+                });
 
+                if ((user_score.total_questions + 1) == quiz_level.total_questions) {
+                    await UserScore.updateOne({
+                        "contactNumber": user_mhtid,
+                        "completed": false,
+                        "level": user_level
+                    },
+                        { $set: { "completed": true, "question_st": question.question_st } }
+                    );
+                    new_question_st = question.question_st;
+                }
                 if (datetimeStartMonth <= quiz_level.start_date && datetimeEndMonth >= quiz_level.start_date) {
                     scoreAddMonth = -2;
                 }
