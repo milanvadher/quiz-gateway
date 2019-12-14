@@ -325,9 +325,6 @@ exports.leader_internal_center = async function(req, res, next) {
 exports.leaders = async function(req, res, next) {
     try {
         let leaders = await User.find({
-                user_group: {
-                    $in: ['MBA']
-                }
             },
             "-img", {
                 sort: {
@@ -343,7 +340,7 @@ exports.leaders = async function(req, res, next) {
         // Send MHT-ID in header
         // If mht_id not sent, or wrong MHT-id sent, if fails silently
         try {
-            userRank = await getRank(leaders, req.params.mht_id);
+            userRank = await getRank(leaders, req.headers.mht_id);
         }
         catch (e) {
             console.log(e);
