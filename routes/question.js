@@ -291,7 +291,7 @@ exports.validate_answer = async function (req, res, next) {
                 status = {
                     "answer_status": isRightAnswer,
                     "totalscore_month": user.totalscore_month,
-                    "question_st": question.question_st,
+                    "question_st": new_question_st,
                     "question_read_st": question.question_st
                 };
             }
