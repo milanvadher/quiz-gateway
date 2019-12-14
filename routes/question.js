@@ -254,6 +254,10 @@ exports.validate_answer = async function (req, res, next) {
                     "question_read_st": question.question_st
                 };
             } else {
+                let user_score = await UserScore.findOne({
+                    "contactNumber": user_mhtid,
+                    "level": user_level
+                });
                 let new_question_st = question.question_st + 1;
                 await UserScore.updateOne({
                     "contactNumber": user_mhtid,
