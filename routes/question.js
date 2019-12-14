@@ -264,6 +264,7 @@ exports.validate_answer = async function (req, res, next) {
                     "level": user_level
                 },
                 {
+                    $inc: { "score": scoreAdd, "total_questions": 1 },
                     $set: { "question_st": new_question_st}
                 });
 
@@ -273,7 +274,7 @@ exports.validate_answer = async function (req, res, next) {
                         "completed": false,
                         "level": user_level
                     },
-                        {$inc: { "score": scoreAdd, "total_questions": 1 },
+                        {
                              $set: { "completed": true, "question_st": question.question_st } }
                     );
                     new_question_st = question.question_st;
