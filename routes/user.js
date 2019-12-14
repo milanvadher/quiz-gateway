@@ -21,9 +21,6 @@ const Dropbox = require('./dropbox');
 const TokenCache = require('../utility/token_cache');
 const token_cache = new TokenCache().getInstance();
 
-const TokenCache = require('../utility/token_cache');
-const token_cache = new TokenCache().getInstance();
-
 /**
  * Veriables
  */
