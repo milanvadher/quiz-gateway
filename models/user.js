@@ -36,8 +36,8 @@ const UserSchema = new mongoose.Schema({
     default: 1
   },
   
-  mht_id: {
-    type: Number,
+  contactNumber: {
+    type: String,
     required: true,
     unique: true
   },
@@ -81,6 +81,7 @@ const UserSchema = new mongoose.Schema({
     default: 'MBA'
   },
 
+
   token: {
     type: String
   },
@@ -91,6 +92,7 @@ const UserSchema = new mongoose.Schema({
     default: 0
   },
 
+
   img_dropbox_url : {
     type: String,
   },
@@ -99,6 +101,7 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 1
   },
+
   totalscore_month_update: {
     type:Date
   },

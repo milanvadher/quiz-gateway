@@ -18,6 +18,8 @@ const ApplicationSetting = require('../models/app_setting');
 const Feedback = require('../models/feedback');
 const Dropbox = require('./dropbox');
 
+const TokenCache = require('../utility/token_cache');
+const token_cache = new TokenCache().getInstance();
 
 const TokenCache = require('../utility/token_cache');
 const token_cache = new TokenCache().getInstance();
@@ -330,6 +332,47 @@ exports.leaders = async function(req, res, next) {
             "-img", {
                 sort: {
                     totalscore: -1,
+                    lives: -1,
+                    updatedAt: 1
+                }
+            });
+
+
+        let userRank;
+
+        // Send MHT-ID in header
+        // If mht_id not sent, or wrong MHT-id sent, if fails silently
+        try {
+            userRank = await getRank(leaders, req.params.mht_id);
+        }
+        catch (e) {
+            console.log(e);
+        }
+
+        if (leaders) {
+            res.send(200, {
+                leaders,
+                userRank
+            });
+            next();
+        }
+    } catch (error) {
+        res.send(500, new Error(error));
+        next();
+    }
+};
+
+/**
+ * To get rank, you need to send mht_id of the user of whose rank is needed in the header
+ */
+exports.leaders_month = async function (req, res, next) {
+    try {
+        let leaders = await User.find(
+            {user_group :{$in: ['MBA']}},
+            "-img",
+            {
+                sort: {
+                    totalscore_month: -1,
                     lives: -1,
                     updatedAt: 1
                 }
@@ -743,7 +786,6 @@ exports.update_notification_token = async function(req, res, next) {
  * @returns {Promise<*>}
  */
 async function getRank(leaders, mht_id) {
-    mht_id = parseInt(mht_id);
     let rank = 0;
     for (let leader in leaders) {
         rank++;

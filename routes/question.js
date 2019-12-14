@@ -133,7 +133,7 @@ exports.hint_question = async function (req, res, next) {
     let user_mhtid = req.body.mht_id;
     try {
 
-        let users = await User.findOne({ "mht_id": user_mhtid });
+        let users = await User.findOne({ "contactNumber": user_mhtid });
         res.send(200, users);
         next();
     } catch (error) {
@@ -161,8 +161,8 @@ exports.validate_answer = async function (req, res, next) {
     let user_mhtid = req.body.mht_id;
     let selected_ans = req.body.answer;
     let user_level = req.body.level;
-    let currentdate = new Date();
-    let question, status, user, scoreAdd, quiz_level;
+
+    let question, status, user, scoreAdd,quiz_level;
     try {
         question = await Question.findOne({ "question_id": question_id }, "answer pikacharanswer score quiz_type question_st question_type");
         scoreAdd = question.score;
@@ -177,16 +177,16 @@ exports.validate_answer = async function (req, res, next) {
             isRightAnswer = true;
         }
 
-        user = await User.findOne({ "mht_id": user_mhtid });
+        user = await User.findOne({ "contactNumber": user_mhtid });
         if (question.quiz_type == "BONUS") {
             if (isRightAnswer) {
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
-                await User.updateOne({ "mht_id": user_mhtid },
+                await User.updateOne({ "contactNumber": user_mhtid },
                     {
                         $inc: { "totalscore_month": scoreAdd, "bonus": scoreAdd },
                         $set: { "updatedAt": currentdate, "question_id": question_id }
                     });
-                user = await User.findOne({ "mht_id": user_mhtid });
+                user = await User.findOne({ "contactNumber": user_mhtid });
                 status = { "answer_status": isRightAnswer, "totalscore_month": user.totalscore_month };
             }
             else {
@@ -194,7 +194,7 @@ exports.validate_answer = async function (req, res, next) {
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
                 status = { "answer_status": isRightAnswer, "totalscore_month": user.totalscore_month };
             }
-            let UAMObj = new UserAnswerMapping({ "mht_id": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type, "answer": selected_ans, "answer_status": isRightAnswer });
+            let UAMObj = new UserAnswerMapping({ "contactNumber": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type, "answer": selected_ans, "answer_status": isRightAnswer });
             // entry in user answer, in case of bonus.
             await UAMObj.save();
         }
@@ -208,12 +208,12 @@ exports.validate_answer = async function (req, res, next) {
             if (isRightAnswer) {
 
                 let user_score = await UserScore.findOne({
-                    "mht_id": user_mhtid,
+                    "contactNumber": user_mhtid,
                     "level": user_level
                 });
                 let new_question_st = question.question_st + 1;
                 await UserScore.updateOne({
-                    "mht_id": user_mhtid,
+                    "contactNumber": user_mhtid,
                     "level": user_level
                 },
                     {
@@ -228,7 +228,7 @@ exports.validate_answer = async function (req, res, next) {
 
                 if ((user_score.total_questions + 1) == quiz_level.total_questions) {
                     await UserScore.updateOne({
-                        "mht_id": user_mhtid,
+                        "contactNumber": user_mhtid,
                         "completed": false,
                         "level": user_level
                     },
@@ -241,12 +241,12 @@ exports.validate_answer = async function (req, res, next) {
                     scoreAddMonth = scoreAdd;
                 }
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
-                await User.updateOne({ "mht_id": user_mhtid },
+                await User.updateOne({ "contactNumber": user_mhtid },
                     {
                         $inc: { "totalscore_month": scoreAddMonth },
                         $set: { "updatedAt": currentdate, "question_id": question_id }
                     });
-                user = await User.findOne({ "mht_id": user_mhtid });
+                user = await User.findOne({ "contactNumber": user_mhtid });
                 status = {
                     "answer_status": isRightAnswer,
                     "totalscore_month": user.totalscore_month,
@@ -260,7 +260,7 @@ exports.validate_answer = async function (req, res, next) {
                 }
 
                 //add total score field this have all user scores include regular and bonuses, so we can manage easly.
-                await User.updateOne({ "mht_id": user_mhtid },
+                await User.updateOne({ "contactNumber": user_mhtid },
                     {
                         $inc: { "totalscore_month": scoreAddMonth },
                         $set: { "question_id": question_id }
@@ -355,7 +355,7 @@ exports.get_bonus_question = async function (req, res, next) {
 
     try {
         usersanwered = await UserAnswerMapping.find({
-            "mht_id": mhtid,
+            "contactNumber": mhtid,
             "quiz_type": "BONUS"
         }, "question_id -_id");
         let qidarray = [];
@@ -401,17 +401,17 @@ exports.req_life = async function (req, res, next) {
         let app_setting = await ApplicationSetting.findOne({});
 
         let user = await User.findOne({
-            "mht_id": mht_id
+            "contactNumber": mht_id
         });
         if (user.totalscore >= app_setting.score_per_lives && user.lives < 3) {
             user = await User.updateOne({
-                "mht_id": user.mht_id
+                "contactNumber": user.mht_id
             },
                 {
-                    $inc: { "lives": 1, "totalscore": (app_setting.score_per_lives * -1) }
+                  $inc: {"lives": 1, "totalscore": (app_setting.score_per_lives * -1)}
                 });
             let users = await User.findOne({
-                "mht_id": mht_id
+                "contactNumber": mht_id
             });
             res.send(200, users);
 
@@ -455,6 +455,7 @@ exports.puzzle_completed = async function (req, res, next) {
         next();
     }
 };
+
 
 /**
  * Check level exist or in user score if not then add new level.
@@ -502,9 +503,10 @@ exports.check_user_level = async function (req, res, next) {
 exports.user_state = async function (req, res, next) {
     let mht_id = req.body.mht_id;
     let results;
+   //await resetMonthWeekScore(mht_id);
     var datetime = new Date();
     try {
-        let user = await User.findOne({ "mht_id": mht_id });
+        let user = await User.findOne({ "contactNumber": mht_id });
         if (!user) {
             return res.send(500, { msg: "User does not exist !!!" });
         }
@@ -547,13 +549,13 @@ exports.user_state = async function (req, res, next) {
 
             // Find levels that user has already completed
             UserScore.find({
-                "mht_id": mht_id,
+                "contactNumber": mht_id,
                 "completed": true
             }, "level score fifty_fifty -_id"),
 
             // Find current level of user
             UserScore.find({
-                "mht_id": mht_id,
+                "contactNumber": mht_id,
                 "completed": false
             }, "-_id"),
             QuizLevel.aggregate([{
@@ -580,6 +582,7 @@ exports.user_state = async function (req, res, next) {
                 }
             }
             ]),
+
         ]);
         console.log("dtStart", dtStart, datetimet);
         let current_user_level = results[2];
@@ -636,7 +639,7 @@ exports.use_fifty_fifty = async function (req, res, next) {
     let level = req.body.level;
     try {
         let user_score = await UserScore.updateOne({
-            "mht_id": mht_id,
+            "contactNumber": mht_id,
             "level": level
         }, { $set: { fifty_fifty: false } });
         res.send(200, user_score);
@@ -671,3 +674,4 @@ exports.get_pre_bonus = async function (req, res, next) {
         next();
     }
 };
+
