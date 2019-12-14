@@ -15,6 +15,7 @@ const TokenCache = require('./utility/token_cache');
 const schedule = require('node-schedule');
 const Question = require('./models/question');
 const User = require('./models/user');
+const UserHistory = require('./models/usershistory');
 const moment = require('moment-timezone');
 const token_cache = new TokenCache().getInstance();
 /**
@@ -85,6 +86,7 @@ server.use(restifyPlugins.fullResponse());
 //     }
 // });
 
+
 /**
   * Start Server, Connect to DB & Require Routes
   */
@@ -124,6 +126,14 @@ function scheduleNotification() {
         moment().tz('Asia/Kolkata').startOf("day").subtract(1, "days") : moment().tz('Asia/Kolkata').startOf("day");
         var datetimef = moment().tz('Asia/Kolkata').isBefore(moment().tz('Asia/Kolkata').startOf("day").add(19, "hours")) ?
         moment().tz('Asia/Kolkata').startOf("day") : moment().tz('Asia/Kolkata').startOf("day").add(1, "days");
+
+
+        if(datetimec.get('date')==1)
+        {
+            MonthlyProcess();
+        }
+
+
         let questions=Question.findOne({ "quiz_type":"BONUS", "date": { $gte: datetimec, $lt: datetimef }});
         if(questions)
         {
@@ -132,18 +142,30 @@ function scheduleNotification() {
     });
  }
 
-function cleanupWeekly() {
-    schedule.scheduleJob('00 59 23 * * 5',async function (date) {
-        await User.updateMany({},{$set: {totalscore_week: 0}});
-    });
- }
  
- function cleanupMonthly() {
-    schedule.scheduleJob('30 18 1 * *', async function (date) {
-        console.log("calllloooooooooS!");
-        //User.update({},{$set: {"totalscore_month": 0}},{'upsert':false,'multi':true});
-        //console.log(User.find({mht_id:29077}, "-_id"));
-       await User.updateMany({},{$set: {totalscore_month: 0}});
-        console.log("end calllloooooooooS!");
+
+async function MonthlyProcess()
+{
+    let userSc = await User.find({}, {"mht_id":1, "totalscore_month":1, "_id":0, "name":1,"img_dropbox_url":1})
+    .sort({"totalscore_month":-1, "updatedAt": -1}).limit(3);
+    await UserHistory.remove({});
+    if (!userSc || userSc.length > 0) {
+    userSc.forEach(async o => {
+            let userhistory = new UserHistory(
+            {
+                "mht_id": o.mht_id,
+                "totalscore": o.totalscore_month,
+                "img_dropbox_url": o.img_dropbox_url,
+                "name": o.name,
+            });
+            userhistory.save();
+        })
+    }
+    await User.updateMany({},{$set: {totalscore_month: 0}});
+}
+function cleanupMonthly() {
+    schedule.scheduleJob('30 18 L * *', async function (date) {
+        MonthlyProcess();
+
     });
  }

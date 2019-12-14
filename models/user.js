@@ -81,6 +81,7 @@ const UserSchema = new mongoose.Schema({
     default: 'MBA'
   },
 
+
   token: {
     type: String
   },
@@ -89,6 +90,16 @@ const UserSchema = new mongoose.Schema({
   totalscore_month: {
     type: Number,
     default: 0
+  },
+
+
+  img_dropbox_url : {
+    type: String,
+  },
+
+  profile_img_version_num :{
+    type: Number,
+    default: 1
   },
 
   totalscore_month_update: {

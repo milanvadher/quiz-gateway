@@ -51,8 +51,8 @@ const route_definitions = [
             {'path': '/upload_photo', 'method': 'post', 'receiver': 'upload_photo'},
             {'path': '/get_photo', 'method': 'post', 'receiver': 'get_photo'},
             {'path': '/insertMBAData', 'method': 'post', 'receiver': 'insertMBAData'},
-            {'path': '/rules', 'method': 'get', 'receiver': 'rules'}
-            //{'path': '/generate_otp', 'method': 'post', 'receiver': 'generate_otp'},
+            {'path': '/rules', 'method': 'get', 'receiver': 'rules'},
+            {'path': '/last_month_toppers', 'method': 'get', 'receiver': 'last_month_toppers'},
             //{'path': '/verify_otp', 'method': 'post', 'receiver': 'verify_otp'}
         ]
     },
@@ -78,10 +78,12 @@ const route_definitions = [
             {'path': '/mark_read', 'method': 'post', 'receiver': 'mark_read'},
             {'path': '/bonus_question', 'method': 'post', 'receiver': 'get_bonus_question'},
             {'path': '/req_life', 'method': 'post', 'receiver': 'req_life'},
-            {'path': '/user_state', 'method': 'post', 'receiver': 'user_state'},
-            {'path': '/user_state_new', 'method': 'post', 'receiver': 'user_state_new'},
+            {'path': '/user_state', 'method': 'post', 'receiver': 'user_state'}, 
             {'path': '/puzzle_completed', 'method': 'post', 'receiver': 'puzzle_completed'},
-            {'path': '/use_fifty_fifty', 'method': 'post', 'receiver': 'use_fifty_fifty'}
+            {'path': '/use_fifty_fifty', 'method': 'post', 'receiver': 'use_fifty_fifty'},
+            {'path': '/check_user_level', 'method': 'post', 'receiver': 'check_user_level'},
+            {'path': '/get_pre_bonus', 'method': 'get', 'receiver': 'get_pre_bonus'},
+            {'path': '/user_state_check', 'method': 'get', 'receiver': 'user_state_check'},
         ]
     },
     {
