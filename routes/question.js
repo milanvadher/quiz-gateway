@@ -244,7 +244,7 @@ exports.validate_answer = async function (req, res, next) {
                 await User.updateOne({ "contactNumber": user_mhtid },
                     {
                         $inc: { "totalscore_month": scoreAddMonth },
-                        $set: { "updatedAt": currentdate, "question_id": question_id }
+                        $set: { "updatedAt": new Date(), "question_id": question_id }
                     });
                 user = await User.findOne({ "contactNumber": user_mhtid });
                 status = {
