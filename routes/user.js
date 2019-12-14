@@ -783,7 +783,7 @@ async function getRank(leaders, mht_id) {
     let rank = 0;
     for (let leader in leaders) {
         rank++;
-        if (mht_id == leaders[leader].mht_id) {
+        if (mht_id == leaders[leader].contactNumber) {
             return rank;
         }
     }
