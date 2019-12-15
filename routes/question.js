@@ -167,144 +167,52 @@ exports.validate_answer = async function (req, res, next) {
         question = await Question.findOne({ "question_id": question_id }, "answer pikacharanswer score quiz_type question_st question_type");
         scoreAdd = question.score;
 
-        let isRightAnswer = false;
-        // console.log(question);
-        if (question.question_type === 'PIKACHAR') {
-            if (question.answer[0].answer.replace(' ', '') == selected_ans) {
-                isRightAnswer = true;
-            }
-        } else if (question.answer[0].answer == selected_ans) {
-            isRightAnswer = true;
-        }
+        let isRightAnswer = question.answer[0].answer == selected_ans;
 
         user = await User.findOne({ "contactNumber": user_mhtid });
-        if (question.quiz_type == "BONUS") {
-            if (isRightAnswer) {
-                //add total score field this have all user scores include regular and bonuses, so we can manage easly.
-                await User.updateOne({ "contactNumber": user_mhtid },
-                    {
-                        $inc: { "totalscore_month": scoreAdd, "bonus": scoreAdd },
-                        $set: { "updatedAt": currentdate, "question_id": question_id }
-                    });
-                user = await User.findOne({ "contactNumber": user_mhtid });
-                status = { "answer_status": isRightAnswer, "totalscore_month": user.totalscore_month };
-            }
-            else {
 
-                //add total score field this have all user scores include regular and bonuses, so we can manage easly.
-                status = { "answer_status": isRightAnswer, "totalscore_month": user.totalscore_month };
-            }
-            let UAMObj = new UserAnswerMapping({ "contactNumber": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type, "answer": selected_ans, "answer_status": isRightAnswer });
-            // entry in user answer, in case of bonus.
-            await UAMObj.save();
-        }
-        else {
-            var datetimet = new Date(moment().tz('Asia/Kolkata').format());
-            var datetimeEndMonth = new Date(datetimet.getFullYear(), datetimet.getMonth() + 1, 1);
-            var datetimeStartMonth = new Date(datetimet.getFullYear(), datetimet.getMonth(), 1);
-
-            quiz_level = await QuizLevel.findOne({ "level_index": user_level });
-            let scoreAddMonth = 0, scoreAddWeek = 0;
-            if (isRightAnswer) {
-
-                let user_score = await UserScore.findOne({
-                    "contactNumber": user_mhtid,
-                    "level": user_level
-                });
-                let new_question_st = question.question_st + 1;
-                await UserScore.updateOne({
-                    "contactNumber": user_mhtid,
-                    "level": user_level
-                },
-                    {
-                        $inc: { "score": scoreAdd, "total_questions": 1 },
-                        $set: { "question_st": new_question_st, "question_read_st": question.question_st }
-                    });
-                // let user_score = await UserScore.findOne({
-                //     "mht_id": user_mhtid,
-                //     "completed": false,
-                //     "level": user_level
-                // });
-
-                if ((user_score.total_questions + 1) == quiz_level.total_questions) {
-                    await UserScore.updateOne({
-                        "contactNumber": user_mhtid,
-                        "completed": false,
-                        "level": user_level
-                    },
-                        { $set: { "completed": true, "question_st": question.question_st } }
-                    );
-                    new_question_st = question.question_st;
-                }
-
-                if (datetimeStartMonth <= quiz_level.start_date && datetimeEndMonth >= quiz_level.start_date) {
-                    scoreAddMonth = scoreAdd;
-                }
-                //add total score field this have all user scores include regular and bonuses, so we can manage easly.
-                await User.updateOne({ "contactNumber": user_mhtid },
-                    {
-                        $inc: { "totalscore_month": scoreAddMonth },
-                        $set: { "updatedAt": new Date(), "question_id": question_id }
-                    });
-                user = await User.findOne({ "contactNumber": user_mhtid });
-                status = {
-                    "answer_status": isRightAnswer,
-                    "totalscore_month": user.totalscore_month,
-                    "question_st": new_question_st,
-                    "question_read_st": question.question_st
-                };
-            } else {
-                let user_score = await UserScore.findOne({
-                    "contactNumber": user_mhtid,
-                    "level": user_level
-                });
-                let new_question_st = question.question_st + 1;
-                await UserScore.updateOne({
-                    "contactNumber": user_mhtid,
-                    "level": user_level
-                },
-                {
-                    $inc: { "total_questions": 1 },
-                    $set: { "question_st": new_question_st}
-                });
-
-                if ((user_score.total_questions + 1) == quiz_level.total_questions) {
-                    await UserScore.updateOne({
-                        "contactNumber": user_mhtid,
-                        "completed": false,
-                        "level": user_level
-                    },
-                        {   
-                             $set: { "completed": true, "question_st": question.question_st } }
-                    );
-                    new_question_st = question.question_st;
-                }
-                if (datetimeStartMonth <= quiz_level.start_date && datetimeEndMonth >= quiz_level.start_date) {
-                    scoreAddMonth = -2;
-                }
-
-                //add total score field this have all user scores include regular and bonuses, so we can manage easly.
-                await User.updateOne({ "contactNumber": user_mhtid },
-                    {
-                        $inc: { "totalscore_month": scoreAddMonth },
-                        $set: { "question_id": question_id }
-                    });
-                user = await User.findOne({ "contactNumber": user_mhtid });
-                status = {
-                    "answer_status": isRightAnswer,
-                    "totalscore_month": user.totalscore_month,
-                    "question_st": new_question_st,
-                    "question_read_st": question.question_st
-                };
-            }
-            let UAMObj = await UserAnswerMapping.findOne({ "contactNumber": user_mhtid, "question_id": question_id });
-            if (UAMObj == null) {
-                UAMObj = new UserAnswerMapping({ "contactNumber": user_mhtid, "question_id": question_id, "quiz_type": question.quiz_type, "answer": selected_ans, "answer_status": isRightAnswer });
-                // entry in user answer, if answer is right and in case of regular.
-                await UAMObj.save();
-            }
+        quiz_level = await QuizLevel.findOne({ "level_index": user_level });
+        if (!isRightAnswer) {
+            scoreAdd = 0;
         }
 
+        let user_score = await UserScore.findOne({
+            "contactNumber": user_mhtid,
+            "level": user_level
+        });
+        let new_question_st = question.question_st + 1;
+        await UserScore.updateOne({
+            "contactNumber": user_mhtid,
+            "level": user_level
+        },
+        {
+            $inc: { "score": scoreAdd, "total_questions": 1 },
+            $set: { "question_st": new_question_st, "question_read_st": question.question_st }
+        });
+
+        if ((user_score.total_questions + 1) == quiz_level.total_questions) {
+            await UserScore.updateOne({
+                "contactNumber": user_mhtid,
+                "completed": false,
+                "level": user_level
+            },
+                { $set: { "completed": true, "question_st": question.question_st } }
+            );
+            new_question_st = question.question_st;
+        }
+        //add total score field this have all user scores include regular and bonuses, so we can manage easly.
+        await User.updateOne({ "contactNumber": user_mhtid },
+            {
+                $inc: { "totalscore_month": scoreAdd },
+                $set: { "updatedAt": new Date(), "question_id": question_id }
+            });
+        user = await User.findOne({ "contactNumber": user_mhtid });
+        status = {
+            "answer_status": isRightAnswer,
+            "totalscore_month": user.totalscore_month,
+            "question_st": new_question_st,
+            "question_read_st": question.question_st
+        };
         res.send(200, status);
         next();
     } catch (error) {
