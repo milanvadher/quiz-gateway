@@ -513,24 +513,24 @@ exports.user_state = async function (req, res, next) {
                 "total_questions": 0
             })];
         }
-        // else if ((!current_user_level || current_user_level.length == 0) && completed_levels) {
-        //     // let total_question = 10;
-        //     // if (levels.length > completed_levels.length) {
-        //     //     //get total Questions for current level.
-        //     //     total_question = levels[completed_levels[completed_levels.length - 1].level].total_questions;
-        //     // }
+        else if ((!current_user_level || current_user_level.length == 0) && completed_levels) {
+            // let total_question = 10;
+            // if (levels.length > completed_levels.length) {
+            //     //get total Questions for current level.
+            //     total_question = levels[completed_levels[completed_levels.length - 1].level].total_questions;
+            // }
 
-        //     //let question = await Question.find({ "level": level_current }, "question_st");
-        //     // results[2] = [await UserScore.create({
-        //     //     "mht_id": mht_id,
-        //     //     "level": completed_levels.length + 1,
-        //     //     "total_questions": 0,
-        //     //     "question_st": question.question_st,
-        //     //     "question_read_st": 0
+            //let question = await Question.find({ "level": level_current }, "question_st");
+            results[2] = [await UserScore.create({
+                "mht_id": mht_id,
+                "level": completed_levels.length + 1,
+                "total_questions": 0,
+                "question_st": question.question_st,
+                "question_read_st": 0
 
-        //     // })];
-        //     //level_current = completed_levels.length + 1;
-        // }
+            })];
+            //level_current = completed_levels.length + 1;
+        }
         // else {
         //     //level_current = current_user_level[0].level;
         // }
@@ -548,6 +548,7 @@ exports.user_state = async function (req, res, next) {
         res.send(200, { "results": response });
         next();
     } catch (error) {
+        console.log(error);
         res.send(500, new Error(error));
         next();
     }
