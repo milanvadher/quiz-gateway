@@ -522,11 +522,9 @@ exports.user_state = async function (req, res, next) {
 
             //let question = await Question.find({ "level": level_current }, "question_st");
             results[2] = [await UserScore.create({
-                "mht_id": mht_id,
+                "contactNumber": mht_id,
                 "level": completed_levels.length + 1,
-                "total_questions": 0,
-                "question_st": question.question_st,
-                "question_read_st": 0
+                "total_questions": 0
 
             })];
             //level_current = completed_levels.length + 1;
