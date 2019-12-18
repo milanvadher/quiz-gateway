@@ -325,7 +325,7 @@ exports.leaders = async function(req, res, next) {
             },
             "-img", {
                 sort: {
-                    totalscore: -1,
+                    totalscore_month: -1,
                     lives: -1,
                     updatedAt: 1
                 }
