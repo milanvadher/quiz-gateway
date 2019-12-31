@@ -321,7 +321,10 @@ exports.leader_internal_center = async function(req, res, next) {
  */
 exports.leaders = async function(req, res, next) {
     try {
-        let leaders = await User.find({
+        let leaders = await User.find({totalscore_month: 
+                {
+                        "$gt": 0
+                }
             },
             "-img", {
                 sort: {
