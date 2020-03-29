@@ -180,6 +180,16 @@ exports.validate_answer = async function (req, res, next) {
             "contactNumber": user_mhtid,
             "level": user_level
         });
+	if (!user_score) {
+            await UserScore.create({
+                "contactNumber": user_mhtid,
+                "level": user_level,
+                "total_questions":0,
+                "question_st": 0,
+                "question_read_st": 0
+            });
+            user_score = await UserScore.findOne({ "contactNumber": user_mhtid, "level": user_level });
+        }
         let new_question_st = question.question_st + 1;
         await UserScore.updateOne({
             "contactNumber": user_mhtid,
@@ -440,6 +450,7 @@ exports.user_state = async function (req, res, next) {
     try {
         let user = await User.findOne({ "contactNumber": mht_id });
         if (!user) {
+	    console.log("eee");	 
             return res.send(500, { msg: "User does not exist !!!" });
         }
         var dtStartstr = `${datetime.getFullYear()}-${datetime.getMonth() + 1}-${1}`;
