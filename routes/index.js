@@ -72,6 +72,7 @@ const route_definitions = [
         'handler': request_handlers.question,
         'routes': [
             {'path': '/question', 'method': 'post', 'receiver': 'get'},
+            {'path': '/categories', 'method': 'post', 'receiver': 'getCategories'},
             {'path': '/questions', 'method': 'post', 'receiver': 'list'},
             {'path': '/hint_question', 'method': 'post', 'receiver': 'hint_question'},
             {'path': '/validate_answer', 'method': 'post', 'receiver': 'validate_answer'},

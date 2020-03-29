@@ -16,6 +16,19 @@ const UserHistory = require('../models/usershistory');
 
 const ApplicationSetting = require('../models/app_setting');
 
+exports.getCategories = async function (req, res, next) {
+    res.send(200, [
+        {
+            "category": 1,
+            "Name": "Power Of Nine"
+        },
+        {
+            "category": 2,
+            "Name": "Gnani Purush"
+        }
+    ]);
+    next();
+}
 
 exports.user_state_check = async function (req, res, next) {
     try{
@@ -161,6 +174,13 @@ exports.validate_answer = async function (req, res, next) {
     let user_mhtid = req.body.mht_id;
     let selected_ans = req.body.answer;
     let user_level = req.body.level;
+    let category = req.body.category || 1;
+    let score_cat;
+    if(category == 1) {
+        score_cat = "totalscore_month"
+    } else if(category == 2) {
+        score_cat = "totalscore_week";
+    }
 
     let question, status, user, scoreAdd,quiz_level;
     try {
@@ -213,13 +233,14 @@ exports.validate_answer = async function (req, res, next) {
         //add total score field this have all user scores include regular and bonuses, so we can manage easly.
         await User.updateOne({ "contactNumber": user_mhtid },
             {
-                $inc: { "totalscore_month": scoreAdd },
+                $inc: { score_cat: scoreAdd },
                 $set: { "updatedAt": new Date(), "question_id": question_id }
             });
         user = await User.findOne({ "contactNumber": user_mhtid });
         status = {
             "answer_status": isRightAnswer,
             "totalscore_month": user.totalscore_month,
+            "totalscore_week": user.totalscore_week,
             "question_st": new_question_st,
             "question_read_st": question.question_st
         };
@@ -444,6 +465,11 @@ exports.check_user_level = async function (req, res, next) {
  */
 exports.user_state = async function (req, res, next) {
     let mht_id = req.body.mht_id;
+    let category = req.body.category || 1;
+    let relevant_quiz_levels = QuizLevel.find({
+        'categorys.category_number' :{ $eq: category}}, {level_index: 1
+        }).toArray().map(k => k["level_index"]);
+
     let results;
    //await resetMonthWeekScore(mht_id);
     var datetime = new Date();
@@ -473,6 +499,9 @@ exports.user_state = async function (req, res, next) {
                     as: "questiondetails"
                 }
             }, 
+            {
+                $match: {'categorys.category_number' :{ $eq: category}}
+            },
             {
                 $project: {
                     "_id": 0,
@@ -545,12 +574,16 @@ exports.user_state = async function (req, res, next) {
         // }
         response = {
             "quiz_levels": results[0],
-            "completed": results[1],
-            "current": results[2],
+            "completed": results[1].filter(v => {
+                return relevant_quiz_levels.indexOf(v.level) >= 0
+            }),
+            "current": results[2].filter(v => {
+                return relevant_quiz_levels.indexOf(v.level) >= 0
+            }),
             //"totalscore": user.totalscore,
             "totalscore_month": user.totalscore_month,
             "quiz_levels_monthly": results[3],
-            //"totalscore_week": user.totalscore_week,
+            "totalscore_week": user.totalscore_week,
             //"lives": user.lives
             //,             "bonus_count": results[3]
         }

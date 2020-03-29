@@ -320,43 +320,85 @@ exports.leader_internal_center = async function(req, res, next) {
  * To get rank, you need to send mht_id of the user of whose rank is needed in the header
  */
 exports.leaders = async function(req, res, next) {
-    try {
-        let leaders = await User.find({totalscore_month: 
-                {
-                        "$gt": 0
-                }
-            },
-            "-img", {
-                sort: {
-                    totalscore_month: -1,
-                    lives: -1,
-                    updatedAt: 1
-                }
-            });
-
-
-        let userRank;
-
-        // Send MHT-ID in header
-        // If mht_id not sent, or wrong MHT-id sent, if fails silently
+    let category = req.headers.category || 1;
+    if (category == 1) {
         try {
-            userRank = await getRank(leaders, req.headers.mht_id);
-        }
-        catch (e) {
-            console.log(e);
-        }
-
-        if (leaders) {
-            res.send(200, {
-                leaders,
-                userRank
-            });
+            let leaders = await User.find({totalscore_month: 
+                    {
+                            "$gt": 0
+                    }
+                },
+                "-img", {
+                    sort: {
+                        totalscore_month: -1,
+                        lives: -1,
+                        updatedAt: 1
+                    }
+                });
+    
+    
+            let userRank;
+    
+            // Send MHT-ID in header
+            // If mht_id not sent, or wrong MHT-id sent, if fails silently
+            try {
+                userRank = await getRank(leaders, req.headers.mht_id);
+            }
+            catch (e) {
+                console.log(e);
+            }
+    
+            if (leaders) {
+                res.send(200, {
+                    leaders,
+                    userRank
+                });
+                next();
+            }
+        } catch (error) {
+            res.send(500, new Error(error));
             next();
         }
-    } catch (error) {
-        res.send(500, new Error(error));
-        next();
+    } else if(category == 2) {
+        try {
+            let leaders = await User.find({totalscore_week: 
+                    {
+                            "$gt": 0
+                    }
+                },
+                "-img", {
+                    sort: {
+                        totalscore_week: -1,
+                        lives: -1,
+                        updatedAt: 1
+                    }
+                });
+    
+    
+            let userRank;
+    
+            // Send MHT-ID in header
+            // If mht_id not sent, or wrong MHT-id sent, if fails silently
+            try {
+                userRank = await getRank(leaders, req.headers.mht_id);
+            }
+            catch (e) {
+                console.log(e);
+            }
+    
+            if (leaders) {
+                res.send(200, {
+                    leaders,
+                    userRank
+                });
+                next();
+            }
+        } catch (error) {
+            res.send(500, new Error(error));
+            next();
+        }
     }
+    
 };
 
 /**
