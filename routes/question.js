@@ -465,10 +465,6 @@ exports.check_user_level = async function (req, res, next) {
  */
 exports.user_state = async function (req, res, next) {
     let mht_id = req.body.mht_id;
-    let category = req.body.category || 1;
-    let relevant_quiz_levels = QuizLevel.find({
-        'categorys.category_number' :{ $eq: category}}, {level_index: 1
-        }).toArray().map(k => k["level_index"]);
 
     let results;
    //await resetMonthWeekScore(mht_id);
@@ -498,9 +494,6 @@ exports.user_state = async function (req, res, next) {
                     foreignField: "level",
                     as: "questiondetails"
                 }
-            }, 
-            {
-                $match: {'categorys.category_number' :{ $eq: category}}
             },
             {
                 $project: {
@@ -574,12 +567,8 @@ exports.user_state = async function (req, res, next) {
         // }
         response = {
             "quiz_levels": results[0],
-            "completed": results[1].filter(v => {
-                return relevant_quiz_levels.indexOf(v.level) >= 0
-            }),
-            "current": results[2].filter(v => {
-                return relevant_quiz_levels.indexOf(v.level) >= 0
-            }),
+            "completed": results[1],
+            "current": results[2],
             //"totalscore": user.totalscore,
             "totalscore_month": user.totalscore_month,
             "quiz_levels_monthly": results[3],
