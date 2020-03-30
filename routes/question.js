@@ -175,13 +175,6 @@ exports.validate_answer = async function (req, res, next) {
     let selected_ans = req.body.answer;
     let user_level = req.body.level;
     let category = req.body.category || 1;
-    let score_cat;
-    if(category == 1) {
-        score_cat = "totalscore_month"
-    } else if(category == 2) {
-        score_cat = "totalscore_week";
-    }
-
     let question, status, user, scoreAdd,quiz_level;
     try {
         question = await Question.findOne({ "question_id": question_id }, "answer pikacharanswer score quiz_type question_st question_type");
@@ -230,12 +223,21 @@ exports.validate_answer = async function (req, res, next) {
             );
             new_question_st = question.question_st;
         }
-        //add total score field this have all user scores include regular and bonuses, so we can manage easly.
-        await User.updateOne({ "contactNumber": user_mhtid },
+        if(category == 1) {
+            await User.updateOne({ "contactNumber": user_mhtid },
             {
-                $inc: { score_cat: scoreAdd },
+                $inc: { "totalscore_month": scoreAdd },
                 $set: { "updatedAt": new Date(), "question_id": question_id }
             });
+        } else if(category == 2) {
+            await User.updateOne({ "contactNumber": user_mhtid },
+            {
+                $inc: { "totalscore_week": scoreAdd },
+                $set: { "updatedAt": new Date(), "question_id": question_id }
+            });
+        }
+        //add total score field this have all user scores include regular and bonuses, so we can manage easly.
+        
         user = await User.findOne({ "contactNumber": user_mhtid });
         status = {
             "answer_status": isRightAnswer,
