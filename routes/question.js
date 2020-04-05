@@ -549,8 +549,8 @@ exports.user_state = async function (req, res, next) {
         //let level_current;
         if ((!current_user_level || current_user_level.length == 0) && (!completed_levels || completed_levels.length == 0)) {
             //  level_current = 1;
-            let l1_index = Math.min(cat_1_levels);
-            let l2_index = Math.min(cat_2_levels);
+            let l1_index = Math.min(...cat_1_levels);
+            let l2_index = Math.min(...cat_2_levels);
             console.log(l1_index, l2_index);
             results[2] = [await UserScore.create({
                 "contactNumber": mht_id,
