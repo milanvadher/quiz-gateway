@@ -540,10 +540,10 @@ exports.user_state = async function (req, res, next) {
         console.log("dtStart", dtStart, datetimet);
         let current_user_level = results[2];
         let completed_levels = results[1];
-        let cat_1_levels = results[0].filter(r => r["categorys"]["category_number"] == 1)
-            .map(r => parseInt(r["level_index"]));
-        let cat_2_levels = results[0].filter(r => r["categorys"]["category_number"] == 2)
-            .map(r => parseInt(r["level_index"]));
+        let cat_1_levels = results[0].filter(r => r["categorys"][0]["category_number"] == 1)
+            .map(r => r["level_index"]);
+        let cat_2_levels = results[0].filter(r => r["categorys"][0]["category_number"] == 2)
+            .map(r => r["level_index"]);
         let max_level_index = Math.max(...cat_1_levels, ...cat_2_levels);
         //let level_current;
         if ((!current_user_level || current_user_level.length == 0) && (!completed_levels || completed_levels.length == 0)) {
