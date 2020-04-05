@@ -545,12 +545,13 @@ exports.user_state = async function (req, res, next) {
         let cat_2_levels = results[0].filter(r => r["categorys"][0]["category_number"] == 2)
             .map(r => r["level_index"]);
         let max_level_index = Math.max(...cat_1_levels, ...cat_2_levels);
+        console.log(cat_1_levels, cat_2_levels, max_level_index);
         //let level_current;
         if ((!current_user_level || current_user_level.length == 0) && (!completed_levels || completed_levels.length == 0)) {
             //  level_current = 1;
             let l1_index = Math.min(cat_1_levels);
             let l2_index = Math.min(cat_2_levels);
-                      
+            console.log(l1_index, l2_index);
             results[2] = [await UserScore.create({
                 "contactNumber": mht_id,
                 "total_questions": 0,
