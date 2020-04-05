@@ -540,12 +540,25 @@ exports.user_state = async function (req, res, next) {
         console.log("dtStart", dtStart, datetimet);
         let current_user_level = results[2];
         let completed_levels = results[1];
+        let cat_1_levels = results[0].filter(r => r["categorys"]["category_number"] == 1)
+            .map(r => r["level_index"]);
+        let cat_2_levels = results[0].filter(r => r["categorys"]["category_number"] == 2)
+            .map(r => r["level_index"]);
+        let max_level_index = Math.max(...cat_1_levels, ...cat_2_levels);
         //let level_current;
         if ((!current_user_level || current_user_level.length == 0) && (!completed_levels || completed_levels.length == 0)) {
             //  level_current = 1;
+            let l1_index = Math.min(cat_1_levels);
+            let l2_index = Math.min(cat_2_levels);
+                      
             results[2] = [await UserScore.create({
                 "contactNumber": mht_id,
-                "total_questions": 0
+                "total_questions": 0,
+                "level": l1_index
+            }),await UserScore.create({
+                "contactNumber": mht_id,
+                "total_questions": 0,
+                "level": l2_index
             })];
         }
         else if ((!current_user_level || current_user_level.length == 0) && completed_levels) {
@@ -556,12 +569,17 @@ exports.user_state = async function (req, res, next) {
             // }
 
             //let question = await Question.find({ "level": level_current }, "question_st");
-            results[2] = [await UserScore.create({
-                "contactNumber": mht_id,
-                "level": completed_levels.length + 1,
-                "total_questions": 0
-
-            })];
+            let temp_index = completed_levels + 1;
+            results[2] = [];
+            while(temp_index <= max_level_index) {
+                results[2].push(await UserScore.create({
+                    "contactNumber": mht_id,
+                    "level": temp_index,
+                    "total_questions": 0
+                }));
+                temp_index = temp_index + 1;
+            }
+            
             //level_current = completed_levels.length + 1;
         }
         // else {
