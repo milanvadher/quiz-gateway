@@ -549,28 +549,7 @@ exports.user_state = async function (req, res, next) {
         //let level_current;
         if ((!current_user_level || current_user_level.length == 0) && (!completed_levels || completed_levels.length == 0)) {
             //  level_current = 1;
-            let l1_index = Math.min(...cat_1_levels);
-            let l2_index = Math.min(...cat_2_levels);
-            console.log(l1_index, l2_index);
-            results[2] = [await UserScore.create({
-                "contactNumber": mht_id,
-                "total_questions": 0,
-                "level": l1_index
-            }),await UserScore.create({
-                "contactNumber": mht_id,
-                "total_questions": 0,
-                "level": l2_index
-            })];
-        }
-        else if ((!current_user_level || current_user_level.length == 0) && completed_levels) {
-            // let total_question = 10;
-            // if (levels.length > completed_levels.length) {
-            //     //get total Questions for current level.
-            //     total_question = levels[completed_levels[completed_levels.length - 1].level].total_questions;
-            // }
-
-            //let question = await Question.find({ "level": level_current }, "question_st");
-            let temp_index = completed_levels + 1;
+            let temp_index = 1;
             results[2] = [];
             while(temp_index <= max_level_index) {
                 results[2].push(await UserScore.create({
@@ -580,9 +559,28 @@ exports.user_state = async function (req, res, next) {
                 }));
                 temp_index = temp_index + 1;
             }
-            
-            //level_current = completed_levels.length + 1;
         }
+        // else if ((!current_user_level || current_user_level.length == 0) && completed_levels) {
+        //     // let total_question = 10;
+        //     // if (levels.length > completed_levels.length) {
+        //     //     //get total Questions for current level.
+        //     //     total_question = levels[completed_levels[completed_levels.length - 1].level].total_questions;
+        //     // }
+
+        //     //let question = await Question.find({ "level": level_current }, "question_st");
+        //     let temp_index = completed_levels.length + 1;
+        //     results[2] = [];
+        //     while(temp_index <= max_level_index) {
+        //         results[2].push(await UserScore.create({
+        //             "contactNumber": mht_id,
+        //             "level": temp_index,
+        //             "total_questions": 0
+        //         }));
+        //         temp_index = temp_index + 1;
+        //     }
+            
+        //     //level_current = completed_levels.length + 1;
+        // }
         // else {
         //     //level_current = current_user_level[0].level;
         // }
