@@ -8,7 +8,7 @@
     "dotenv": "6.2.0",
     "jsonwebtoken": "8.4.0",
     "moment": "2.24.0",
-    "moment-timezone": "0.5.23",
+    "moment-timezone": "0.5.35",
     "mongoose": "5.4.1",
     "mongoose-string-query": "0.2.5",
     "mongoose-timestamp": "0.6.0",
