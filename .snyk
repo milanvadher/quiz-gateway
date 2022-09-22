@@ -1,0 +1,16 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-LODASH-567746:
+    - restify > lodash:
+        patched: '2022-09-22T17:38:28.248Z'
+    - restify-errors > lodash:
+        patched: '2022-09-22T17:38:28.248Z'
+    - mongoose > async > lodash:
+        patched: '2022-09-22T17:38:28.248Z'
+    - restify > restify-errors > lodash:
+        patched: '2022-09-22T17:38:28.248Z'
+    - restify-plugins > restify-errors > lodash:
+        patched: '2022-09-22T17:38:28.248Z'
